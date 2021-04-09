@@ -151,13 +151,15 @@ class StudioService extends BaseService
       $new_studio->number = $studio->number;
       $new_studio->save();
 
-      $this->saveStudioTags($new_studio->id, $studio->tags);
+      if(!$this->saveStudioTags($new_studio->id, $studio->tags)) {
+        $this->deleteStudio($new_studio->id, $user_id);
+        throw new Exception('Failed to create studio');
+      }
 
       LogService::info("Studio $new_studio->id created by user $user_id", $this->log_file);
       return $new_studio;
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
-      $this->deleteStudio($new_studio->id);
       return null;
     }
   }
@@ -179,12 +181,13 @@ class StudioService extends BaseService
       $studio->delete();
       $this->deleteStudioMetaData($studio_id);
       $studioCommentService = new StudioCommentService;
-      $studioCommentService->deleteStudioComment($studio_id, $user_id);
+      $studioCommentService->deleteStudioCommentByStudio($studio_id, $user_id);
+      
       
       LogService::info("Studio $studio_id has been deleted by $user_id", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error("Failed to delete studio: $studio_id" . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -207,7 +210,7 @@ class StudioService extends BaseService
       LogService::info("Studio $studio_id meta data deleted sucessfully", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error("Failed to delete meta data of studio: $studio_id" . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -242,7 +245,7 @@ class StudioService extends BaseService
 
       $this->saveStudioTags($studio->id, $studio->tags);
 
-      LogService::info("Studio $studio_id has been updated by $user_id", $this->log_file);
+      LogService::info("Studio $studio->id has been updated by $user_id", $this->log_file);
       return $studio;
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
@@ -257,7 +260,7 @@ class StudioService extends BaseService
    * @param array $tags
    * @return bool
    */
-  private function saveStudioTags(int $studio_id, array $tags)
+  private function saveStudioTags(int $studio_id, array $tags) :bool
   {
     try {
       if(!$this->isStudioExists($studio_id)) {
@@ -286,20 +289,20 @@ class StudioService extends BaseService
   /**
    * Write a record when a user watches a studio for the first time
    *
-   * @param int $studio
+   * @param int $studio_id
    * @param int $user_id
    * @param App\Domain\Users\Services\UserService $userService
    * @return bool
    */
-  private function watchStudio(int $studio, int $user_id, mixed $userService)
+  private function watchStudio(int $studio_id, int $user_id, mixed $userService) :bool
   { 
     try {
-      if($userService->isUserWatchedStudio($user_id, $studio)) {
-        return false;;
+      if($userService->isUserWatchedStudio($user_id, $studio_id)) {
+        return false;
       }
      
       if(!$userService->isUserExists($user_id)) {
-        return false('User not found');
+        throw new Exception('User not found');
       }
       
       StudioWatch::create([
@@ -340,6 +343,7 @@ class StudioService extends BaseService
 
       $studio_star = $this->getStudioStarsByUser($studio_id, $user_id);
       if(!$studio_star) {
+        $studio_star = new StudioStar;
         $studio_star->studio_id = $studio_id;
         $studio_star->user_id = $user_id;
       } else {
@@ -364,8 +368,8 @@ class StudioService extends BaseService
    * @param int $studio_id
    * @param int $user_id
    * @return object|null
-   */
-  public function getStudioStarsByUser(int $studio_id, int $user_id)
+  */
+  private function getStudioStarsByUser(int $studio_id, int $user_id)
   {
     try {
       return StudioStar::where('studio_id', $studio_id)
@@ -379,13 +383,13 @@ class StudioService extends BaseService
   }
 
   /**
-   * Delete studio star by user
+   * Delete studio star rank
    *
    * @param int $studio_id
    * @param int $user_id
    * @param int $deleted_by
    * @return bool
-   */
+  */
   private function deleteStudioStar(int $studio_id, int $user_id, int $deleted_by)
   {
     try {
@@ -412,7 +416,7 @@ class StudioService extends BaseService
    *
    * @param int $studio_id
    * @return bool
-   */
+  */
   private function sumStudioStars(int $studio_id)
   {
     try {

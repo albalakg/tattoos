@@ -173,7 +173,7 @@ class StudioCommentService extends BaseService
       LogService::info("Comment of studio $studio_id deleted by user $deleted_by", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error("Failed to delete comments of studio: $studio_id" . $ex->getMessage(), $this->log_file);
       return false;
     }
   }

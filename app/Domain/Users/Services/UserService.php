@@ -6,6 +6,7 @@ use Exception;
 use phpseclib\Crypt\Hash;
 use Illuminate\Support\Carbon;
 use App\Domain\Users\Models\Role;
+use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\DB;
 use App\Domain\Helpers\BaseService;
@@ -176,7 +177,7 @@ class UserService extends BaseService
   public function updateEmailConfirmed(int $user_id, string $new_email, string $token)
   {
     try {
-      if(!$user = $this->getUserBy('id', $user_id)) {
+      if(!$user = $this->getUserByField('id', $user_id)) {
         throw new Exception('User not found');
       }
 
