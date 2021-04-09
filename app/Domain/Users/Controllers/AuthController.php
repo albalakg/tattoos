@@ -18,7 +18,26 @@ class AuthController extends Controller
 
   public function login(LoginRequest $request)
   {
+    $res = $this->service->login($request->email, $request->password);
+    if( is_array($res) ) {
+      return response()->json([
+        'status' => true,
+        'message' => 'User logged in successfully',
+        'data' => $res
+      ], 201);
+    }
     
+    if( is_string($res) ) {
+      return response()->json([
+        'status' => false,
+        'message' => $res,
+      ], 400);
+    }
+    
+    return response()->json([
+      'status' => false,
+      'message' => 'Failed to log in',
+    ], 400);
   }
 
   public function signup(SignupRequest $request)

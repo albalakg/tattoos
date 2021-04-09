@@ -35,18 +35,18 @@ class UserService extends BaseService
    *
    * @param string $email
    * @param string $password
-   * @return object|null
+   * @return array|string
   */
   public function login(string $email, string $password)
   {
     try {
       $attempt = Auth::attempt(['email' => $email, 'password' => $password]);
       if(!$attempt) {
-        $this->validation('Email or password is incorrect');
+        throw new Exception('Email or password is incorrect');
       }
 
       if(!$this->userIsActive(Auth::user())) {
-        $this->unauthorized('User is unauthorized');
+       throw new Exception('User is unauthorized');
       }
 
       $token = $this->createUserToken(Auth::user());
@@ -59,7 +59,7 @@ class UserService extends BaseService
       return $token;
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
-      return null;
+      return $ex->getMessage();
     }
   }
   
@@ -76,7 +76,8 @@ class UserService extends BaseService
         'token' => $this->createToken($user),
         'first_name' => $user->first_name,
         'last_name' => $user->last_name,
-        'role' => $user->role->role,
+        'email' => $user->email,
+        'role' => Role::getRoleName($user->role_id),
       ];
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
