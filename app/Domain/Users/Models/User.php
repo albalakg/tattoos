@@ -3,17 +3,18 @@
 namespace App\Domain\Users\Models;
 
 use App\Domain\Users\Models\Role;
+use Laravel\Passport\HasApiTokens;
 use App\Domain\Users\Models\UserDetail;
 use App\Domain\Users\Models\UserFriend;
-use Illuminate\Database\Eloquent\Model;
 use App\Domain\Users\Models\UserSavedTattoo;
 use App\Domain\Users\Models\UserFollowStudio;
 use App\Domain\Users\Models\UserWatchedTattoo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Model
+class User extends Authenticatable
 {
-  use HasFactory;
+  use HasFactory, HasApiTokens;
 
   protected $hidden = [
     'password'

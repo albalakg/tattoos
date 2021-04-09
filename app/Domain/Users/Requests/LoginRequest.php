@@ -18,4 +18,11 @@ class LoginRequest extends FormRequest
             'password' => 'required|string|regex:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/i',
         ];
     }
+    
+    public function messages()
+    {
+        return [
+            'password.regex' => 'Password must be between 8-20 chars and must contains numbers and letters'
+        ];
+    }
 }
