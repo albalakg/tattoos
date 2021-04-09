@@ -24,14 +24,14 @@ class AuthController extends Controller
         'status' => true,
         'message' => 'User logged in successfully',
         'data' => $res
-      ], 201);
+      ], 200);
     }
     
     if( is_string($res) ) {
       return response()->json([
         'status' => false,
         'message' => $res,
-      ], 400);
+      ], 422);
     }
     
     return response()->json([
