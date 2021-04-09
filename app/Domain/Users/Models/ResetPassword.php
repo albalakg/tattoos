@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class ResetPassword extends Model
 {
+  protected $guarded = [];
+  
+  public $incrementing = false;
 
   /**
    * Time till the token is valid to reset the password

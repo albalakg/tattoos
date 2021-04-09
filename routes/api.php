@@ -8,7 +8,7 @@ $group = 'routes/groups';
 
 Route::prefix('auth')
     ->namespace($namespace)
-    ->middleware('throttle:5,1')
+    // ->middleware('throttle:5,1')
     ->group(base_path("$group/auth.php"));
 
 Route::prefix('users')

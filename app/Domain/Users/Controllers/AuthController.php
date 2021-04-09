@@ -3,11 +3,12 @@
 namespace App\Domain\Users\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Domain\Users\Services\UserService;
 use App\Domain\Users\Requests\LoginRequest;
 use App\Domain\Users\Requests\SignupRequest;
+use App\Domain\Users\Requests\ResetPasswordRequest;
 use App\Domain\Users\Requests\ChangePasswordRequest;
 use App\Domain\Users\Requests\ForgotPasswordRequest;
-use App\Domain\Users\Services\UserService;
 
 class AuthController extends Controller
 {
@@ -49,19 +50,35 @@ class AuthController extends Controller
         'data' => $res
       ], 201);
     }
+
     return response()->json([
       'status' => false,
       'message' => 'Failed to create the user',
     ], 400);
   }
 
+  public function resetPassword(ResetPasswordRequest $request)
+  {
+    return response()->json(123);
+  }
+
   public function forgotPassword(ForgotPasswordRequest $request)
   {
+    if( $this->service->forgotPassword($request->email) ) {
+      return response()->json([
+        'status' => true,
+        'message' => 'Forgot password finished successfully',
+      ], 200);
+    }
 
+    return response()->json([
+      'status' => false,
+      'message' => 'Failed to finish the forgot password process',
+    ], 400);
   }
 
   public function changePassword(ChangePasswordRequest $request)
   {
-
+    
   }
 }

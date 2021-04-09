@@ -149,7 +149,7 @@ class UserService extends BaseService
       ResetEmail::create([
         'user_id' => $user_id,
         'new_email' => $new_email,
-        'token' => TokenService::getToken(),
+        'token' => TokenService::createToken(),
         'status' => StatusService::PENDING,
       ]);
 
@@ -381,7 +381,7 @@ class UserService extends BaseService
       $delete_user_request = DeleteUserRequest::create([
         'user_id' => $user_id,
         'status' => StatusService::PENDING,
-        'token' => TokenService::getToken()
+        'token' => TokenService::createToken()
       ]);
       
       // MailService::send();
@@ -731,18 +731,20 @@ class UserService extends BaseService
    * @param string $email
    * @return bool
   */
-  public function userForgotPassword(string $email)
+  public function forgotPassword(string $email) :bool
   {
     try {
       $reset_password = ResetPassword::create([
         'email' => $email,
-        'token' => TokenService::getToken()
+        'token' => TokenService::createToken()
       ]);
 
+      
       // TODO: send mail
 
       return true;
     } catch(Exception $ex) {
+      dd($ex->getMessage());
       LogService::error($ex->getMessage(), $this->log_file);
       return false;
     }
@@ -756,7 +758,7 @@ class UserService extends BaseService
    * @param string $email
    * @return bool
   */
-  public function resetUserPassword(string $password, string $token, string $email)
+  public function resetPassword(string $password, string $token, string $email)
   {
     try {
       $reset_is_valid = ResetPassword::where('token', $token)
