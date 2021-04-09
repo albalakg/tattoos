@@ -69,12 +69,12 @@ class LogService
   static public function prepareLog(string $content)
   {
     try {
-      $content  = "ACTION: $content, ";
+      $content  = "ACTION: $content";
       $content .= 'BROWSER: ' . request()->header('user-agent') . ', ';
       $content .= 'IP: ' . request()->ip() . ', ';
-      $content .= 'USER: ' . Auth::user() ? Auth::user()->id : 'unknown' . ', ';
+      $content .= 'USER: '; 
+      $content .= Auth::user() ? Auth::user()->id : 'unknown' . ', ';
       $content .= 'URL: ' . request()->server('HTTP_REFERER');
-
       return $content;
     } catch (Exception $ex) {
       Log::critical($ex->getMessage());

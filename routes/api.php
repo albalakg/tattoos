@@ -3,25 +3,29 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+$namespace = 'App\Domain';
+$group = 'routes/groups';
+
 Route::prefix('auth')
-    ->namespace('groups/auth');
+    ->namespace($namespace)
+    ->group(base_path("$group/auth.php"));
 
 Route::prefix('users')
-    ->namespace('groups/users');
+    ->namespace($namespace)
+    ->group(base_path("$group/users.php"));
 
 Route::prefix('tags')
-    ->namespace('groups/tags');
+    ->namespace($namespace)
+    ->group(base_path("$group/tags.php"));
 
 Route::prefix('studios')
-    ->namespace('groups/studios');
+    ->namespace($namespace)
+    ->group(base_path("$group/studios.php"));
 
 Route::prefix('studios')
-    ->namespace('groups/studios');
+    ->namespace($namespace)
+    ->group(base_path("$group/studios.php"));
 
 Route::prefix('cms')
-    ->namespace('groups/cms')
-    ->middleware();
-
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+    ->namespace($namespace)
+    ->group(base_path("$group/cms.php"));

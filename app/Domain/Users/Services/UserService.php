@@ -8,14 +8,10 @@ use Illuminate\Support\Carbon;
 use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
-use Illuminate\Support\Facades\DB;
 use App\Domain\Helpers\BaseService;
-use App\Domain\Helpers\MailService;
 use App\Domain\Helpers\TokenService;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Helpers\StatusService;
-use App\Domain\Tattoos\Models\Tattoo;
-use App\Domain\Helpers\ResponseService;
 use App\Domain\Users\Models\ResetEmail;
 use App\Domain\Users\Models\UserFriend;
 use App\Domain\Helpers\PaginationService;
@@ -24,7 +20,6 @@ use App\Domain\Tattoos\Models\TattooSave;
 use App\Domain\Studios\Models\StudioWatch;
 use App\Domain\Tattoos\Models\TattooWatch;
 use App\Domain\Users\Models\ResetPassword;
-use App\Domain\Users\Services\UserResponse;
 use App\Domain\Users\Models\UserFollowStudio;
 use App\Domain\Users\Models\DeleteUserRequest;
 
@@ -114,23 +109,25 @@ class UserService extends BaseService
   /**
    * Signup a user
    *
-   * @param object $user
+   * @param array $user
    * @return object|null
   */
-  public function signup(object $user)
+  public function signup(array $user)
   {
     try {
-      $user = User::create([
-        'first_name' => $user->first_name,
-        'last_name' => $user->last_name,
-        'email' => $user->email,
-        'role_id' => Role::VIEWER,
-        'password' => $user->password,
-        'status' => StatusService::INACTIVE,
-      ]);
+      $new_user = new User;
+      $new_user->first_name = $user['first_name'];
+      $new_user->last_name = $user['last_name'];
+      $new_user->email = $user['email'];
+      $new_user->role_id = Role::VIEWER;
+      $new_user->password = bcrypt($user['password']);
+      if(!empty($user['phone'])) {
+        $new_user->phone =  $user['phone'];
+      }
+      $new_user->save();
 
-      LogService::info("User $user->id signup successfully", $this->log_file);
-      return $user;
+      LogService::info("User $new_user->id signup successfully", $this->log_file);
+      return $new_user;
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
       return null;
