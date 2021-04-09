@@ -9,12 +9,14 @@ class Role extends Model
   const VIEWER = 10,
         ARTIST = 20,
         OWNER  = 30,
-        ADMIN  = 40;
+        WORKER  = 40,
+        ADMIN  = 50;
 
   const ROLES = [
     'viewer' => self::VIEWER,
     'artist' => self::ARTIST,
     'owner' => self::OWNER,
+    'worker' => self::WORKER,
     'admin' => self::ADMIN,
   ];
 
@@ -22,16 +24,10 @@ class Role extends Model
     'viewer',
     'artist',
     'owner',
+    'worker',
     'admin',
   ];
 
-  const IDS_LIST = [
-    10,
-    20,
-    30,
-    40,
-  ];
-  
   /**
    * Get the role id by the name
    *
