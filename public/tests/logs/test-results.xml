@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="" tests="3" assertions="3" errors="0" warnings="0" failures="0" skipped="0" time="0.237798">
+    <testsuite name="Unit" tests="1" assertions="1" errors="0" warnings="0" failures="0" skipped="0" time="0.006052">
+      <testsuite name="Tests\Unit\ExampleTest" file="C:\xampp\htdocs\movies\server\tests\Unit\ExampleTest.php" tests="1" assertions="1" errors="0" warnings="0" failures="0" skipped="0" time="0.006052">
+        <testcase name="testBasicTest" class="Tests\Unit\ExampleTest" classname="Tests.Unit.ExampleTest" file="C:\xampp\htdocs\movies\server\tests\Unit\ExampleTest.php" line="14" assertions="1" time="0.006052"/>
+      </testsuite>
+    </testsuite>
+    <testsuite name="Feature" tests="2" assertions="2" errors="0" warnings="0" failures="0" skipped="0" time="0.231746">
+      <testsuite name="Tests\Feature\ExampleTest" file="C:\xampp\htdocs\movies\server\tests\Feature\ExampleTest.php" tests="1" assertions="1" errors="0" warnings="0" failures="0" skipped="0" time="0.217120">
+        <testcase name="testBasicTest" class="Tests\Feature\ExampleTest" classname="Tests.Feature.ExampleTest" file="C:\xampp\htdocs\movies\server\tests\Feature\ExampleTest.php" line="15" assertions="1" time="0.217120"/>
+      </testsuite>
+      <testsuite name="Tests\Feature\Users\CreateUserTest" file="C:\xampp\htdocs\movies\server\tests\Feature\Users\CreateUserTest.php" tests="1" assertions="1" errors="0" warnings="0" failures="0" skipped="0" time="0.014625">
+        <testcase name="testExample" class="Tests\Feature\Users\CreateUserTest" classname="Tests.Feature.Users.CreateUserTest" file="C:\xampp\htdocs\movies\server\tests\Feature\Users\CreateUserTest.php" line="16" assertions="1" time="0.014625"/>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>
