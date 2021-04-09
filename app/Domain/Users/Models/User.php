@@ -9,9 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 use App\Domain\Users\Models\UserSavedTattoo;
 use App\Domain\Users\Models\UserFollowStudio;
 use App\Domain\Users\Models\UserWatchedTattoo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Model
 {
+  use HasFactory;
+
+  protected $hidden = [
+    'password'
+  ];
+
   public function role()
   {
     return $this->hasOne(Role::class);
