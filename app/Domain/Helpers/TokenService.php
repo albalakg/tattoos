@@ -16,7 +16,7 @@ class TokenService
   /**
    * Create a random string which is used as a token
    *
-   * @param  mixed $chars
+   * @param int $chars
    * @return string
   */
   static public function createToken(int $chars = self::BASE_CHARS) :string

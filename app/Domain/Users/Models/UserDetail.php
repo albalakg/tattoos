@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserDetail extends Model
 {
+  protected $primaryKey = 'user_id';
+
+  public $incrementing = false;
+
+  public $timestamps = false;
+
   public function user()
   {
     return $this->hasOne(User::class);

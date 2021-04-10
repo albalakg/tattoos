@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Users\Requests\LoginRequest;
 use App\Domain\Users\Requests\SignupRequest;
+use App\Domain\Users\Requests\VerifyEmailRequest;
 use App\Domain\Users\Requests\ResetPasswordRequest;
 use App\Domain\Users\Requests\ChangePasswordRequest;
 use App\Domain\Users\Requests\ForgotPasswordRequest;
@@ -84,6 +85,21 @@ class AuthController extends Controller
     return response()->json([
       'status' => false,
       'message' => 'Failed to finish the forgot password process',
+    ], 400);
+  }
+
+  public function verifyEmail(VerifyEmailRequest $request)
+  {
+    if( $this->service->verifyEmail($request->token) ) {
+      return response()->json([
+        'status' => true,
+        'message' => 'Email verification finished successfully',
+      ], 200);
+    }
+
+    return response()->json([
+      'status' => false,
+      'message' => 'Failed to verify your email',
     ], 400);
   }
 }
