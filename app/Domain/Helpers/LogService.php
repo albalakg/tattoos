@@ -69,7 +69,7 @@ class LogService
   static public function prepareLog(string $content)
   {
     try {
-      $content  = "ACTION: $content";
+      $content  = "ACTION: $content, ";
       $content .= 'BROWSER: ' . request()->header('user-agent') . ', ';
       $content .= 'IP: ' . request()->ip() . ', ';
       $content .= 'USER: '; 

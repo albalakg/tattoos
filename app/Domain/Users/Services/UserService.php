@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Domain\Helpers\StatusService;
 use App\Mail\Auth\ForgotPasswordMail;
 use App\Domain\Users\Models\ResetEmail;
+use App\Domain\Users\Models\UserDetail;
 use App\Domain\Users\Models\UserFriend;
+use App\Mail\Auth\EmailVerificationMail;
 use App\Domain\Helpers\PaginationService;
 use App\Domain\Tattoos\Models\TattooLike;
 use App\Domain\Tattoos\Models\TattooSave;
@@ -24,6 +26,7 @@ use App\Domain\Tattoos\Models\TattooWatch;
 use App\Domain\Users\Models\ResetPassword;
 use App\Domain\Users\Models\UserFollowStudio;
 use App\Domain\Users\Models\DeleteUserRequest;
+use App\Domain\Users\Models\EmailVerification;
 
 class UserService extends BaseService
 {
@@ -129,12 +132,123 @@ class UserService extends BaseService
       }
       $new_user->save();
 
+      $this->createUserDetails($new_user->id);
+      $this->sendEmailVerification($new_user->email, $new_user->id);
+
       LogService::info("User $new_user->id signup successfully", $this->log_file);
       return $new_user;
     } catch(Exception $ex) {
       LogService::error('signup: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
+  }
+  
+  /**
+   * Create a record for the user's details
+   *
+   * @param int $user_id
+   * @return bool
+   */
+  public function createUserDetails(int $user_id) :bool
+  {
+    try {
+      $user_details = new UserDetail;
+      $user_details->user_id = $user_id;
+      $user_details->save();
+
+      return true;
+    } catch(Exception $ex) {
+      LogService::error('createUserDetails: ' . $ex->getMessage(), $this->log_file);
+      return false;
+    }   
+  }
+  
+  /**
+   * Create an email verification record and sends a verification mail
+   *
+   * @param string $email
+   * @param int $user_id
+   * @return bool
+   */
+  public function sendEmailVerification(string $email, int $user_id) :bool
+  {
+    try {
+      $email_verification = EmailVerification::create([
+        'user_id' => $user_id,
+        'token' => TokenService::createToken(),
+        'created_at' => now()
+      ]);
+
+      $data_to_send = (object) [
+        'user_id' => $user_id,
+        'token' => $email_verification->token
+      ];
+
+      MailService::send(EmailVerificationMail::class, $data_to_send, $email);
+
+      return true;
+    } catch(Exception $ex) {
+      LogService::error('createUserDetails: ' . $ex->getMessage(), $this->log_file);
+      return false;
+    }   
+  }
+  
+  /**
+   * Verify the email after registration
+   *
+   * @param string $token
+   * @return bool
+   */
+  public function verifyEmail(string $token) :bool
+  {
+    try {
+      if(!$email_verification = EmailVerification::where('token', $token)->first()) {
+        throw new Exception('Unabled to verify email, no record was found');
+      }
+
+      $email_verified_already = UserDetail::where('user_id', $email_verification->user_id)
+                                          ->whereNotNull('email_verified_at')
+                                          ->exists();
+
+      if($email_verified_already) {
+        throw new Exception('Email already verified');
+      }                                  
+
+      $user_details = (object) [
+        'email_verified_at' => now()
+      ];
+      $this->updateUserDetailValue($email_verification->user_id, $user_details);
+
+      return true;
+    } catch(Exception $ex) {
+      LogService::error('verifyEmail: ' . $ex->getMessage(), $this->log_file);
+      return false;
+    }   
+  }
+  
+  /**
+   * Updates a piece of data of users details
+   *
+   * @param int $user_id
+   * @param object $column
+   * @return void
+   */
+  public function updateUserDetailValue(int $user_id, object $data)
+  {
+    try {
+      $user_details = UserDetail::find($user_id);
+
+      foreach($data AS $key => $value) {
+        $user_details->$key = $value;
+      }
+
+      $user_details->save();
+
+      return true;
+    } catch(Exception $ex) {
+      LogService::error('updateUserDetailValue: ' . $ex->getMessage(), $this->log_file);
+      return false;
+    }  
   }
 
   /**
@@ -746,7 +860,7 @@ class UserService extends BaseService
         'token' => $reset_password->token
       ];
 
-      MailService::send(ForgotPasswordMail::class, $data_to_send, $reset_password['email']);
+      MailService::send(ForgotPasswordMail::class, $data_to_send, $email);
 
       return true;
     } catch(Exception $ex) {
@@ -774,7 +888,7 @@ class UserService extends BaseService
                                      ->first();
 
       if(!$reset_password) {
-        throw new Exception('Unabled to reset user password, no record was found');
+        throw new Exception('Unabled to reset password, no record was found');
       }
 
       $user = $this->getUserByField('email', $email);
