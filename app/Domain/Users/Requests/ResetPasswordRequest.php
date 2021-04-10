@@ -14,6 +14,8 @@ class ResetPasswordRequest extends FormRequest
     public function rules()
     {
         return [
+            'email' => 'required|email',
+            'token' => 'required|string|size:50',
             'password' => 'required|string|regex:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/i',
         ];
     }

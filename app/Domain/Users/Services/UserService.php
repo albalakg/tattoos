@@ -60,7 +60,7 @@ class UserService extends BaseService
       LogService::info("User $user_id logged in successfully", $this->log_file);
       return $token;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('login: '. $ex->getMessage(), $this->log_file);
       return $ex->getMessage();
     }
   }
@@ -82,7 +82,7 @@ class UserService extends BaseService
         'role' => Role::getRoleName($user->role_id),
       ];
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('createUserToken: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
   }
@@ -132,7 +132,7 @@ class UserService extends BaseService
       LogService::info("User $new_user->id signup successfully", $this->log_file);
       return $new_user;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('signup: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
   }
@@ -160,7 +160,7 @@ class UserService extends BaseService
       LogService::info("User $user_id request to update email", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('updateEmailRequest: '. $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -199,7 +199,7 @@ class UserService extends BaseService
       LogService::info("User $user_id has confirmed the email update request", $this->log_file);
       return $reset_email_is_valid;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('updateEmailConfirmed: '. $ex->getMessage(), $this->log_file);
       return null;
     }
   }
@@ -222,7 +222,7 @@ class UserService extends BaseService
       LogService::info("User $user_id has updated the email", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('updateEmail: '. $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -249,7 +249,7 @@ class UserService extends BaseService
       LogService::info("User $user_id has updated the status", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('updateStatus: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -297,7 +297,7 @@ class UserService extends BaseService
       LogService::info("User $user_id has updated the role", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('setUserRole: '. $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -337,7 +337,7 @@ class UserService extends BaseService
       LogService::info("User $user->id has created by $created_by", $this->log_file);
       return $user;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('createUser: ' . $ex->getMessage(), $this->log_file);
       $this->deleteUser($user->id);
       return null;
     }
@@ -359,7 +359,7 @@ class UserService extends BaseService
       LogService::info('Finished to delete mulitple users', $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('deleteUsers: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -390,7 +390,7 @@ class UserService extends BaseService
       LogService::info("User $user_id requested to delete account", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('deleteUserRequest: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -431,7 +431,7 @@ class UserService extends BaseService
       LogService::info("The request to delete user $user->id is confirmed", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('deleteUserConfirmed: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -451,7 +451,7 @@ class UserService extends BaseService
       LogService::info("User $user_id is deleted successfully", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('deleteUser: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -486,7 +486,7 @@ class UserService extends BaseService
     
       return $user_friends;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('getUserFriends: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
   }
@@ -510,7 +510,7 @@ class UserService extends BaseService
       LogService::info("User $user_id sent a friend request to user $friend_id", $this->log_file);
       return $user_friend;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('sendFriendRequest: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
   }
@@ -538,7 +538,7 @@ class UserService extends BaseService
       LogService::info("User $user_id updated the friend request $id to status $status", $this->log_file);
       return $friend_request;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('updateFriendRequest: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
   }
@@ -562,7 +562,7 @@ class UserService extends BaseService
       LogService::info("User $created_by updated the users " . json_encode($user_ids) . " status to $status", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('updateUsersStatus: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -590,7 +590,7 @@ class UserService extends BaseService
       LogService::info("User $created_by updated the user $user_id password", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('updateUserPassword: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -618,7 +618,7 @@ class UserService extends BaseService
       LogService::info("User $user->id updated the his password", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('changeSelfPassword: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -640,7 +640,7 @@ class UserService extends BaseService
       LogService::info("User $user_id password has updated", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('setUserPassword: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -660,7 +660,7 @@ class UserService extends BaseService
 
       return $user_tattoos;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('getUserTattoos: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
   }
@@ -681,7 +681,7 @@ class UserService extends BaseService
 
       return $user_followed_studios;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('getUserFollowedStudios: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
   }
@@ -700,7 +700,7 @@ class UserService extends BaseService
                       ->where('tattoo_id', $tattoo_id)
                       ->exists();
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('isUserSavedTattoo: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -721,7 +721,7 @@ class UserService extends BaseService
 
       return $user_saved_tattoos;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('getUserSavedTattoos: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
   }
@@ -738,7 +738,8 @@ class UserService extends BaseService
     try {
       $reset_password = ResetPassword::create([
         'email' => $email,
-        'token' => TokenService::createToken()
+        'token' => TokenService::createToken(),
+        'created_at' => now()
       ]);
 
       $data_to_send = (object) [
@@ -749,7 +750,7 @@ class UserService extends BaseService
 
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('forgotPassword: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -765,25 +766,31 @@ class UserService extends BaseService
   public function resetPassword(string $password, string $token, string $email)
   {
     try {
-      $reset_is_valid = ResetPassword::where('token', $token)
+      $reset_password = ResetPassword::where('token', $token)
                                      ->where('email', $email)
+                                     ->whereNull('reseted_at')
                                      ->where('created_at', '>', Carbon::now()->subMinutes(ResetPassword::RESET_TIME)->toDateTimeString())
-                                     ->exists();
+                                     ->orderBy('created_at', 'desc')
+                                     ->first();
 
-      if(!$reset_is_valid) {
-        return $this->validation('Unabled to reset user password');
+      if(!$reset_password) {
+        throw new Exception('Unabled to reset user password, no record was found');
       }
 
       $user = $this->getUserByField('email', $email);
       if(!$user) {
         throw new Exception('User not found');
       }
+
+      $reset_password->reseted_at = now();
+      $reset_password->save();
+
       $this->setUserPassword($user->id, $password);
       
       LogService::error("User $user->id has reset his password", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('resetPassword: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -802,7 +809,7 @@ class UserService extends BaseService
                       ->where('tattoo_id', $tattoo_id)
                       ->exists();
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('isUserWatchedTattoo: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -821,7 +828,7 @@ class UserService extends BaseService
                         ->where('studio_id', $studio_id)
                         ->exists();
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('isUserWatchedStudio: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -842,7 +849,7 @@ class UserService extends BaseService
 
       return $watched_tattoos;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('getUserWatchedTattoos: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
   }
@@ -861,7 +868,7 @@ class UserService extends BaseService
                         ->where('tattoo_id', $tattoo_id)
                         ->exists();
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('isUserLikedTattoo: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -882,7 +889,7 @@ class UserService extends BaseService
 
       return $liked_tattoos;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      LogService::error('getUserLikedTattoo: ' . $ex->getMessage(), $this->log_file);
       return null;
     }
   }

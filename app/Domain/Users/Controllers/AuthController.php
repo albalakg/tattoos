@@ -59,7 +59,17 @@ class AuthController extends Controller
 
   public function resetPassword(ResetPasswordRequest $request)
   {
-    return response()->json(123);
+    if( $this->service->resetPassword($request->password, $request->token, $request->email) ) {
+      return response()->json([
+        'status' => true,
+        'message' => 'Reseting your password finished successfully',
+      ], 200);
+    }
+
+    return response()->json([
+      'status' => false,
+      'message' => 'Failed to reset your password',
+    ], 400);
   }
 
   public function forgotPassword(ForgotPasswordRequest $request)
