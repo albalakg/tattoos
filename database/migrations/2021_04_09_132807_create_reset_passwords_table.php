@@ -17,7 +17,8 @@ class CreateResetPasswordsTable extends Migration
             $table->string('email')->index();
             $table->string('token', 50)->unique();
             $table->primary('token');
-            $table->timestamps();
+            $table->dateTime('created_at');
+            $table->dateTime('reseted_at')->nullable();
         });
     }
 
