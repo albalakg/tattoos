@@ -61,6 +61,13 @@ return [
             'days' => 1,
         ],
 
+        'mail' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mails/mail.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'tattoos' => [
             'driver' => 'daily',
             'path' => storage_path('logs/tattoos/tattoos.log'),
