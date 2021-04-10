@@ -86,9 +86,4 @@ class AuthController extends Controller
       'message' => 'Failed to finish the forgot password process',
     ], 400);
   }
-
-  public function changePassword(ChangePasswordRequest $request)
-  {
-    
-  }
 }
