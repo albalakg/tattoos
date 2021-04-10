@@ -2,6 +2,8 @@
 
 namespace App\Domain\Helpers;
 
+use Exception;
+use App\Jobs\Helpers\MailPodcast;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Mail;
 
@@ -9,35 +11,36 @@ class MailService
 {  
   /**
    * Send mail
-   *
-   * @param  string $mail
-   * @param  mixed $data
-   * @param  mixed $recievers
+   * @param \Illuminate\Contracts\Mail\Mailable $mail
+   * @param object $data
+   * @param array|string $receivers
    * 
-   * @return void
-   */
-  static public function send(string $mail, mixed $data, mixed $recievers)
+   * @return bool
+  */
+  static public function send(string $mail, object $data, $receivers) :bool
   {
     try{
-      self::setLog($mail, $recievers);
+      self::setLog($mail, $receivers);
+      
+      MailPodcast::dispatch($mail, $data, $receivers);
 
-      // TODO: enter to queue
-      Mail::to($recievers)->send($mail, $data);
+      return true;
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), 'mail');
+      return false;
     }
   }
   
   /**
    * Create a log for attempting to send an email
    *
-   * @param  string $mail
-   * @param  mixed $recievers
+   * @param string $mail
+   * @param array|string $receivers
    * @return void
    */
-  static private function setLog(string $mail, mixed $recievers)
+  static private function setLog(string $mail, $receivers)
   {
-    $recievers = is_string($recievers) ? $recievers : json_encode($recievers);
-    LogService::info("Attempt to send mail: $mail to: $recievers", 'mail');
+    $receivers = is_string($receivers) ? $receivers : json_encode($receivers);
+    LogService::info("Attempt to send mail: $mail to: $receivers", 'mail');
   }
 }

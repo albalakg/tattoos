@@ -9,9 +9,11 @@ use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\BaseService;
+use App\Domain\Helpers\MailService;
 use App\Domain\Helpers\TokenService;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Helpers\StatusService;
+use App\Mail\Auth\ForgotPasswordMail;
 use App\Domain\Users\Models\ResetEmail;
 use App\Domain\Users\Models\UserFriend;
 use App\Domain\Helpers\PaginationService;
@@ -739,12 +741,14 @@ class UserService extends BaseService
         'token' => TokenService::createToken()
       ]);
 
-      
-      // TODO: send mail
+      $data_to_send = (object) [
+        'token' => $reset_password->token
+      ];
+
+      MailService::send(ForgotPasswordMail::class, $data_to_send, $reset_password['email']);
 
       return true;
     } catch(Exception $ex) {
-      dd($ex->getMessage());
       LogService::error($ex->getMessage(), $this->log_file);
       return false;
     }
