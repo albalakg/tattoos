@@ -20,6 +20,11 @@ class MailService
   static public function send(string $mail, object $data, $receivers) :bool
   {
     try{
+      if(!env('MAIL_STATUS', false)) {
+        LogService::info('Mail service is disabled', 'mail');
+        return true;
+      }
+
       self::setLog($mail, $receivers);
       
       MailPodcast::dispatch($mail, $data, $receivers);
