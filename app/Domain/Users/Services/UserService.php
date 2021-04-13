@@ -34,6 +34,45 @@ class UserService extends BaseService
   {
     $this->setLogFile('users');
   }
+  
+  /**
+   * Logout a user
+   *
+   * @return bool
+   */
+  public function logout() :bool
+  {
+    try {
+      Auth::user()->token()->revoke();
+      return true;
+    } catch(Exception $ex) {
+      LogService::error('logout: '. $ex->getMessage(), $this->log_file);
+      return false;
+    }
+  }
+  
+  /**
+   * Logout another user
+   *
+   * @param App\Domain\Users\Models\User $user
+   * @param int $logged_out_user_id
+   * @return bool
+   */
+  public function logoutOtherUser(object $user, int $logged_out_user_id) :bool
+  {
+    try {
+      $logged_out_user = User::find($logged_out_user_id);
+
+      Auth::setUser($logged_out_user);
+      Auth::user()->token()->revoke();
+      Auth::setUser($user);
+
+      return true;
+    } catch(Exception $ex) {
+      LogService::error('logout: '. $ex->getMessage(), $this->log_file);
+      return false;
+    }
+  }
 
   /**
    * Login a user

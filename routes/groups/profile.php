@@ -4,4 +4,4 @@ use App\Domain\Users\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('logout', [UserController::class, 'logout']);
-Route::post('details', [UserController::class, 'details']);
+Route::get('details', [UserController::class, 'details']);
