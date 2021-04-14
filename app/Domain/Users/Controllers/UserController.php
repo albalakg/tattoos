@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Controllers;
 
+use App\Domain\Tattoos\Services\TattooService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Users\Services\UserService;
@@ -22,8 +23,19 @@ class UserController extends Controller
     ], 400);
   }
 
-  public function details()
+  public function getTattoos()
   {
-    return response()->json(Auth::user());
+    if( $res = $this->service->getUserTattoos(Auth::user()->id, new TattooService) ) {
+      return response()->json([
+        'status' => true,
+        'message' => 'Got user tattoos successfully',
+        'data' => $res
+      ], 201);
+    }
+
+    return response()->json([
+      'status' => false,
+      'message' => 'Failed to get the user tattoos',
+    ], 400);
   }
 }

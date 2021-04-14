@@ -802,11 +802,11 @@ class UserService extends BaseService
    * Get the user tattoos
    *
    * @param int $user_id
+   * @param App\Domain\Tattoos\Services\TattooService $tattooService
    * @param int $records
-   * @param object $tattooService
    * @return object|null
   */
-  public function getUserTattoos(int $user_id, int $records = PaginationService::SMALL, object $tattooService)
+  public function getUserTattoos(int $user_id, object $tattooService, int $records = PaginationService::SMALL)
   {
     try {
       $user_tattoos = $tattooService->getTattoosByUser($user_id, $records, StatusService::ACTIVE);

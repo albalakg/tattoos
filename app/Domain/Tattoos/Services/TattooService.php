@@ -29,7 +29,7 @@ class TattooService extends BaseService
    * @param int $records
    * @return object|null
    */
-  public function getTattoos(int $status = StatusService::ACTIVE, int $records = PaginationService::SMALL) :object
+  public function getTattoos(int $status = StatusService::ACTIVE, int $records = PaginationService::SMALL)
   {
     try {
       return Tattoo::where('status', $status)
@@ -51,7 +51,7 @@ class TattooService extends BaseService
    * @param int $records
    * @return object|null
    */
-  public function getTattoosByUser(int $user_id, int $status = StatusService::ACTIVE, int $records = PaginationService::SMALL) :object
+  public function getTattoosByUser(int $user_id, int $status = StatusService::ACTIVE, int $records = PaginationService::SMALL)
   {
     try {
       return Tattoo::where('created_by', $user_id)
