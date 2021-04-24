@@ -14,6 +14,7 @@ use App\Domain\Studios\Models\StudioStar;
 use App\Domain\Studios\Models\StudioUser;
 use App\Domain\Studios\Models\StudioPoint;
 use App\Domain\Studios\Models\StudioWatch;
+use App\Domain\Studios\Models\StudioComment;
 use App\Domain\Studios\Services\StudioCommentService;
 
 class StudioService extends BaseService
@@ -433,6 +434,28 @@ class StudioService extends BaseService
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
       return false;
+    }
+  }
+  
+  /**
+   * A user has been deleted
+   * Removes all data related to that user
+   *
+   * @param int $user_id
+   * @return void
+  */
+  public function userDeleted(int $user_id)
+  {
+    try {
+      StudioUser::where('user_id', $user_id)->delete();
+      StudioWatch::where('user_id', $user_id)->delete();
+      StudioStar::where('user_id', $user_id)->delete();
+      StudioComment::where('user_id', $user_id)->delete();
+
+      return true;
+    } catch(Exception $ex) {
+    LogService::error('deleteUserMetaData: ' . $ex->getMessage(), $this->log_file);
+    return false;
     }
   }
 }

@@ -3,7 +3,6 @@
 namespace App\Domain\Users\Services;
 
 use Exception;
-use phpseclib\Crypt\Hash;
 use Illuminate\Support\Carbon;
 use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
@@ -12,19 +11,24 @@ use App\Domain\Helpers\BaseService;
 use App\Domain\Helpers\MailService;
 use App\Domain\Helpers\TokenService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Domain\Helpers\StatusService;
 use App\Mail\Auth\ForgotPasswordMail;
 use App\Domain\Users\Models\ResetEmail;
 use App\Domain\Users\Models\UserDetail;
 use App\Domain\Users\Models\UserFriend;
 use App\Mail\Auth\EmailVerificationMail;
+use App\Mail\User\DeleteUserRequestMail;
 use App\Domain\Helpers\PaginationService;
 use App\Domain\Tattoos\Models\TattooLike;
 use App\Domain\Tattoos\Models\TattooSave;
+use App\Mail\User\UpdateEmailRequestMail;
 use App\Domain\Studios\Models\StudioWatch;
 use App\Domain\Tattoos\Models\TattooWatch;
 use App\Domain\Users\Models\ResetPassword;
 use App\Domain\Users\Models\UserFollowStudio;
+use App\Domain\Studios\Services\StudioService;
+use App\Domain\Tattoos\Services\TattooService;
 use App\Domain\Users\Models\DeleteUserRequest;
 use App\Domain\Users\Models\EmailVerification;
 
@@ -93,7 +97,7 @@ class UserService extends BaseService
        throw new Exception('User is unauthorized');
       }
 
-      $token = $this->createUserToken(Auth::user());
+      $token = $this->createLoginMetaData(Auth::user());
       if(!$token) {
         throw new Exception('Failed to create a user token');
       }
@@ -108,12 +112,12 @@ class UserService extends BaseService
   }
   
   /**
-   * Create token
+   * Create an object of meta data about the user
    *
    * @param object $user
    * @return array|null
   */
-  private function createUserToken(object $user)
+  private function createLoginMetaData(object $user)
   {
     try {
       return [
@@ -215,11 +219,11 @@ class UserService extends BaseService
       $email_verification = EmailVerification::create([
         'user_id' => $user_id,
         'token' => TokenService::createToken(),
+        'status' => StatusService::PENDING,
         'created_at' => now()
       ]);
 
       $data_to_send = (object) [
-        'user_id' => $user_id,
         'token' => $email_verification->token
       ];
 
@@ -258,9 +262,18 @@ class UserService extends BaseService
       ];
       $this->updateUserDetailValue($email_verification->user_id, $user_details);
 
+      $email_verification->status = StatusService::ACTIVE;
+      $email_verification->save();
+
       return true;
     } catch(Exception $ex) {
       LogService::error('verifyEmail: ' . $ex->getMessage(), $this->log_file);
+
+      if($email_verification) {
+        $email_verification->status = StatusService::INACTIVE;
+        $email_verification->save();
+      }
+
       return false;
     }   
   }
@@ -270,9 +283,9 @@ class UserService extends BaseService
    *
    * @param int $user_id
    * @param object $column
-   * @return void
+   * @return bool
    */
-  public function updateUserDetailValue(int $user_id, object $data)
+  public function updateUserDetailValue(int $user_id, object $data) :bool
   {
     try {
       $user_details = UserDetail::find($user_id);
@@ -294,30 +307,54 @@ class UserService extends BaseService
    * Update a user's email reqeuest
    * This requires an email confirmation
    *
-   * @param int $user_id
+   * @param object $user
    * @param string $new_email
+   * @param string $password
    * @return bool
   */
-  public function updateEmailRequest(int $user_id, string $new_email)
+  public function updateEmailRequest(object $user, string $new_email, string $password)
   {
     try {
-      ResetEmail::create([
-        'user_id' => $user_id,
+      if (!Hash::check($user->password, $password)) {
+        throw new Exception('Password is incorrect');
+      }
+
+
+
+      $reset_email = ResetEmail::create([
+        'user_id' => $user->id,
         'new_email' => $new_email,
         'token' => TokenService::createToken(),
         'status' => StatusService::PENDING,
       ]);
 
-      // MailService::send();
+      $data_to_send = (object) [
+        'user_name' => $user->name,
+        'token' => $reset_email->token
+      ];
 
-      LogService::info("User $user_id request to update email", $this->log_file);
+      MailService::send(UpdateEmailRequestMail::class, $data_to_send, $new_email);
+
+      LogService::info("User $user->id request to update email", $this->log_file);
       return true;
     } catch(Exception $ex) {
       LogService::error('updateEmailRequest: '. $ex->getMessage(), $this->log_file);
       return false;
     }
   }
-
+  
+  /**
+   * Check if the user has already an open update email request
+   *
+   * @param  mixed $user_id
+   * @return bool
+   */
+  private function userHasActiveEmailUpdateRequest(int $user_id) :bool
+  {
+    return ResetEmail::where('user_id', $user_id)
+              ->where('status', StatusService::ACTIVE)
+              ->exists();
+  }
   
   /**
    * Update a user's email confirmation
@@ -339,7 +376,7 @@ class UserService extends BaseService
                                         ->first();
 
       if(!$reset_email_is_valid) {
-        $this->validation('Email confirmation is invalid');
+        throw new Exception('Email confirmation is invalid');
       }
 
       ResetEmail::where('id', $reset_email_is_valid->id)
@@ -518,29 +555,41 @@ class UserService extends BaseService
   }
 
   /**
-   * Delete a single user
-   * This is a soft delete, changing the user status to deleted
+   * Start a delete request on a user
+   * 
    *
-   * @param int $user_id
+   * @param object $user
    * @return bool
   */
-  public function deleteUserRequest(int $user_id)
+  public function deleteUserRequest(object $user)
   {
     try {
-      if(!$this->isUserExists($user_id)) {
+      if(!$this->isUserExists($user->id)) {
         throw new Exception('User not found');
       }
+
+      DeleteUserRequest::where('user_id', $user->id)
+                       ->update([
+                         'status' => StatusService::INACTIVE
+                       ]);
   
-      User::where('id', $user_id)->delete();
+      User::where('id', $user->id)->delete();
 
       $delete_user_request = DeleteUserRequest::create([
-        'user_id' => $user_id,
+        'user_id' => $user->id,
         'status' => StatusService::PENDING,
         'token' => TokenService::createToken()
       ]);
+
+      $data_to_send = (object) [
+        'user_name' => $user->fullName(),
+        'email' => $user->email,
+        'token' => $delete_user_request->token
+      ];
       
-      // MailService::send();
-      LogService::info("User $user_id requested to delete account", $this->log_file);
+      MailService::send(DeleteUserRequestMail::class, $data_to_send, $user->email);
+
+      LogService::info("User $user->id requested to delete account", $this->log_file);
       return true;
     } catch(Exception $ex) {
       LogService::error('deleteUserRequest: ' . $ex->getMessage(), $this->log_file);
@@ -549,13 +598,15 @@ class UserService extends BaseService
   }
   
   /**
-   * Fully deleting the user from the application
+   * Respond the delete account request
+   * A user can approve or disapprove this request
    *
    * @param string $email
    * @param string $token
+   * @param int $status
    * @return bool
   */
-  public function deleteUserConfirmed(string $email, string $token)
+  public function deleteUserResponse(string $email, string $token, int $status) :bool
   {
     try {
       $user = $this->getUserByField('email', $email);
@@ -563,30 +614,59 @@ class UserService extends BaseService
         throw new Exception('User not found');
       }
 
-      $delete_user_request_is_valid = DeleteUserRequest::where('email', $email)
+      $delete_user_request_is_valid = DeleteUserRequest::where('user_id', $user->id)
                                                        ->where('token', $token)
                                                        ->exists();
   
       if(!$delete_user_request_is_valid) {
-        return $this->validation('User delete request is not confirmed succesfully');
+        throw new Exception('User delete request is not found');
       }
 
-      DeleteUserRequest::where('email', $email)
-                       ->where('token', $token)
-                       ->update([
-                         'status' => StatusService::ACTIVE,
-                       ]);
+      $this->updateDeleteUserRequest($email, $token, $status);
         
-      // MailService::send();
+      if($status) {
+        $this->deleteUser($user->id);
+      } else {
+        $this->undeleteUser($user->id);
+      }
 
-      $this->deleteUser($user->id);
-
-      LogService::info("The request to delete user $user->id is confirmed", $this->log_file);
+      LogService::info("The request to delete user $user->id is responded successfully with status: $status", $this->log_file);
       return true;
     } catch(Exception $ex) {
-      LogService::error('deleteUserConfirmed: ' . $ex->getMessage(), $this->log_file);
+      LogService::error('deleteUserResponse: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
+  }
+  
+  /**
+   * Update the request to delete a user 
+   *
+   * @param string $email
+   * @param string $token
+   * @param int $status
+   * @return bool
+   */
+  private function updateDeleteUserRequest(string $email, string $token, int $status) :bool
+  {
+    return DeleteUserRequest::where('email', $email)
+                            ->where('token', $token)
+                            ->update([
+                              'status' => $status,
+                            ]);
+  }
+  
+  /**
+   * Undelete a user
+   *
+   * @param int $user_id
+   * @return void
+  */
+  private function undeleteUser(int $user_id)
+  {
+    User::where('id', $user_id)
+        ->update([
+          'deleted_at' => null
+        ]);
   }
   
   /**
@@ -596,15 +676,46 @@ class UserService extends BaseService
    * @param int $user_id
    * @return bool
    */
-  private function deleteUser(int $user_id)
+  private function deleteUser(int $user_id) :bool
   {
     try {
+      $this->deleteUserMetaData($user_id);
       User::where('id', $user_id)->forceDelete();
 
       LogService::info("User $user_id is deleted successfully", $this->log_file);
       return true;
     } catch(Exception $ex) {
       LogService::error('deleteUser: ' . $ex->getMessage(), $this->log_file);
+      return false;
+    }
+  }
+  
+  /**
+   * Delete all of the user's meta data
+   *
+   * @param int $user_id
+   * @return bool
+   */
+  private function deleteUserMetaData(int $user_id) :bool
+  {
+    try {
+      UserDetail::where('user_id', $user_id)->delete();
+      UserFriend::where('user_id', $user_id)->delete();
+      DeleteUserRequest::where('user_id', $user_id)->delete();
+      EmailVerification::where('user_id', $user_id)->delete();
+      ResetEmail::where('user_id', $user_id)->delete();
+      ResetPassword::where('user_id', $user_id)->delete();
+      UserFollowStudio::where('user_id', $user_id)->delete();
+
+      $studioService = new StudioService;
+      $studioService->userDeleted($user_id);
+
+      $tattooService = new TattooService;
+      $tattooService->userDeleted($user_id);
+
+      return true;
+    } catch(Exception $ex) {
+      LogService::error('deleteUserMetaData: ' . $ex->getMessage(), $this->log_file);
       return false;
     }
   }
@@ -760,7 +871,7 @@ class UserService extends BaseService
   {
     try {
       if (!Hash::check($old_password, $user->password)) {
-        return $this->validation('Old password is incorrect');
+        throw new Exception('Old password is incorrect');
       }
   
       $password_set_successfully = $this->setUserPassword($user->id, $new_password);

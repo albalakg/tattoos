@@ -96,6 +96,13 @@ return [
             'days' => 1,
         ],
 
+        'global' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/global/global.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

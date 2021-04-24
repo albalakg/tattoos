@@ -8,7 +8,6 @@ use App\Domain\Users\Requests\LoginRequest;
 use App\Domain\Users\Requests\SignupRequest;
 use App\Domain\Users\Requests\VerifyEmailRequest;
 use App\Domain\Users\Requests\ResetPasswordRequest;
-use App\Domain\Users\Requests\ChangePasswordRequest;
 use App\Domain\Users\Requests\ForgotPasswordRequest;
 
 class AuthController extends Controller

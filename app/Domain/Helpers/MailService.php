@@ -6,6 +6,7 @@ use Exception;
 use App\Jobs\Helpers\MailPodcast;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\Application\ApplicationErrorMail;
 
 class MailService
 {  
@@ -34,6 +35,29 @@ class MailService
       LogService::error($ex->getMessage(), 'mail');
       return false;
     }
+  }
+  
+  /**
+   * Send a critical email to all the relavent people
+   * The content of the email will contain the details of the error
+   * @param string $content
+   * 
+   * @return bool
+  */
+  static public function criticalError(string $content) :bool
+  {
+    try{
+      // TODO: get the receivers from database
+      $data_to_send = (object) [
+        'content' => $content
+      ];
+
+      self::send(ApplicationErrorMail::class, $data_to_send, 'gal.blacky@gmail.com');
+
+      return true;
+    } catch(Exception $ex) {
+      return false;
+    }   
   }
   
   /**

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Mail\Auth;
+namespace App\Mail\User;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class EmailVerificationMail extends Mailable
+class UpdateEmailRequestMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -30,6 +30,6 @@ class EmailVerificationMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('MiToo - Email Confirmation')->view('mails.auth.emailConfirmation');
+        return $this->subject('MiToo - Update Email Request')->view('mails.profile.updateEmailRequest');
     }
 }

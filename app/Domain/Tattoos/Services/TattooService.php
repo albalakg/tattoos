@@ -14,6 +14,7 @@ use App\Domain\Tattoos\Models\TattooLike;
 use App\Domain\Tattoos\Models\TattooSave;
 use App\Domain\Tattoos\Models\TattooImage;
 use App\Domain\Tattoos\Models\TattooWatch;
+use App\Domain\Tattoos\Models\TattooComment;
 
 class TattooService extends BaseService
 {  
@@ -586,6 +587,28 @@ class TattooService extends BaseService
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
       return false;
+    }
+  }
+  
+  /**
+   * A user has been deleted
+   * Removes all data related to that user
+   *
+   * @param int $user_id
+   * @return void
+  */
+  public function userDeleted(int $user_id)
+  {
+    try {
+      TattooWatch::where('user_id', $user_id)->delete();
+      TattooSave::where('user_id', $user_id)->delete();
+      TattooLike::where('user_id', $user_id)->delete();
+      TattooComment::where('user_id', $user_id)->delete();
+
+      return true;
+    } catch(Exception $ex) {
+    LogService::error('deleteUserMetaData: ' . $ex->getMessage(), $this->log_file);
+    return false;
     }
   }
 }

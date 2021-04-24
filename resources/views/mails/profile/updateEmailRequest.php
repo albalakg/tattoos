@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiToo - Forgot Password</title>
+    <title>MiToo - Update Email Request</title>
 </head>
 <body>
     <table>
@@ -11,7 +11,7 @@
             <tr>
                 <td align="center">
                     <h1>
-                        Email Confirmation
+                        Update Email Request
                     </h1>
                 </td>
             </tr>
