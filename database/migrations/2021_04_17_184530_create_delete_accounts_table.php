@@ -18,7 +18,7 @@ class CreateDeleteAccountsTable extends Migration
             $table->string('token', 50)->unique();
             $table->primary('token');
             $table->integer('status')->unsigned();
-            $table->dateTime('created_at');
+            $table->timestamps();
         });
     }
 

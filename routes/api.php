@@ -1,19 +1,19 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 $namespace = 'App\Domain';
 $group = 'routes/groups';
 
+Route::get('lalala', function(){ return 12; });
+
 Route::prefix('auth')
     ->namespace($namespace)
-    ->middleware('throttle:1115,215553', 'guest')
+    ->middleware('throttle:1000,1000', 'guest')
     ->group(base_path("$group/auth.php"));
 
 Route::prefix('profile')
     ->namespace($namespace)
-    ->middleware('auth:api')
     ->group(base_path("$group/profile.php"));
 
 Route::prefix('users')

@@ -59,7 +59,7 @@ class UserController extends Controller
 
   public function deleteRequest()
   {
-    if( $res = $this->service->deleteUserRequest(Auth::user()) ) {
+    if( $this->service->deleteUserRequest(Auth::user()) ) {
       return response()->json([
         'status' => true,
         'message' => 'A request to delete the account completed successfully',
@@ -74,17 +74,16 @@ class UserController extends Controller
 
   public function deleteResponse(DeleteAccountResponseRequest $request)
   {
-    if( $res = $this->service->deleteUserResponse($request->email, $request->token, $request->status) ) {
+    if( $this->service->deleteUserResponse($request->email, $request->token, $request->status) ) {
       return response()->json([
         'status' => true,
-        'message' => 'Got user tattoos successfully',
-        'data' => $res
+        'message' => 'The account was deleting response received successfully',
       ], 201);
     }
 
     return response()->json([
       'status' => false,
-      'message' => 'Failed to get the user tattoos',
+      'message' => 'Failed to delete the account',
     ], 400);
   }
 

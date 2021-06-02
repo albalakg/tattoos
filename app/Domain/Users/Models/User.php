@@ -10,11 +10,12 @@ use App\Domain\Users\Models\UserSavedTattoo;
 use App\Domain\Users\Models\UserFollowStudio;
 use App\Domain\Users\Models\UserWatchedTattoo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-  use HasFactory, HasApiTokens;
+  use HasFactory, HasApiTokens, SoftDeletes;
 
   protected $hidden = [
     'password'

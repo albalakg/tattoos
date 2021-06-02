@@ -18,7 +18,7 @@ use App\Domain\Users\Models\ResetEmail;
 use App\Domain\Users\Models\UserDetail;
 use App\Domain\Users\Models\UserFriend;
 use App\Mail\Auth\EmailVerificationMail;
-use App\Mail\User\DeleteUserRequestMail;
+use App\Mail\User\DeleteAccountMail;
 use App\Domain\Helpers\PaginationService;
 use App\Domain\Tattoos\Models\TattooLike;
 use App\Domain\Tattoos\Models\TattooSave;
@@ -29,7 +29,7 @@ use App\Domain\Users\Models\ResetPassword;
 use App\Domain\Users\Models\UserFollowStudio;
 use App\Domain\Studios\Services\StudioService;
 use App\Domain\Tattoos\Services\TattooService;
-use App\Domain\Users\Models\DeleteUserRequest;
+use App\Domain\Users\Models\DeleteAccount;
 use App\Domain\Users\Models\EmailVerification;
 
 class UserService extends BaseService
@@ -568,14 +568,9 @@ class UserService extends BaseService
         throw new Exception('User not found');
       }
 
-      DeleteUserRequest::where('user_id', $user->id)
-                       ->update([
-                         'status' => StatusService::INACTIVE
-                       ]);
-  
       User::where('id', $user->id)->delete();
 
-      $delete_user_request = DeleteUserRequest::create([
+      $delete_user_request = DeleteAccount::create([
         'user_id' => $user->id,
         'status' => StatusService::PENDING,
         'token' => TokenService::createToken()
@@ -587,7 +582,7 @@ class UserService extends BaseService
         'token' => $delete_user_request->token
       ];
       
-      MailService::send(DeleteUserRequestMail::class, $data_to_send, $user->email);
+      MailService::send(DeleteAccountMail::class, $data_to_send, $user->email);
 
       LogService::info("User $user->id requested to delete account", $this->log_file);
       return true;
@@ -609,20 +604,20 @@ class UserService extends BaseService
   public function deleteUserResponse(string $email, string $token, int $status) :bool
   {
     try {
-      $user = $this->getUserByField('email', $email);
+      $user = User::where('email', $email)->withTrashed()->first();
       if(!$user) {
         throw new Exception('User not found');
       }
 
-      $delete_user_request_is_valid = DeleteUserRequest::where('user_id', $user->id)
-                                                       ->where('token', $token)
-                                                       ->exists();
-  
+      $delete_user_request_is_valid = DeleteAccount::where('user_id', $user->id)
+                                                    ->where('token', $token)
+                                                    ->where('status', StatusService::PENDING)
+                                                    ->exists();
       if(!$delete_user_request_is_valid) {
         throw new Exception('User delete request is not found');
       }
 
-      $this->updateDeleteUserRequest($email, $token, $status);
+      $this->updateDeleteAccount($user->id, $token, $status);
         
       if($status) {
         $this->deleteUser($user->id);
@@ -641,18 +636,18 @@ class UserService extends BaseService
   /**
    * Update the request to delete a user 
    *
-   * @param string $email
+   * @param int $user_id
    * @param string $token
    * @param int $status
    * @return bool
    */
-  private function updateDeleteUserRequest(string $email, string $token, int $status) :bool
+  private function updateDeleteAccount(int $user_id, string $token, int $status) :bool
   {
-    return DeleteUserRequest::where('email', $email)
-                            ->where('token', $token)
-                            ->update([
-                              'status' => $status,
-                            ]);
+    return DeleteAccount::where('user_id', $user_id)
+                        ->where('token', $token)
+                        ->update([
+                          'status' => $status,
+                        ]);
   }
   
   /**
@@ -701,7 +696,7 @@ class UserService extends BaseService
     try {
       UserDetail::where('user_id', $user_id)->delete();
       UserFriend::where('user_id', $user_id)->delete();
-      DeleteUserRequest::where('user_id', $user_id)->delete();
+      DeleteAccount::where('user_id', $user_id)->delete();
       EmailVerification::where('user_id', $user_id)->delete();
       ResetEmail::where('user_id', $user_id)->delete();
       ResetPassword::where('user_id', $user_id)->delete();

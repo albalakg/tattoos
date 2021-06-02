@@ -56,7 +56,7 @@ class FileService extends BaseService
    * @param string $path
    * @return bool
    */
-  private function delete(string $path) :bool
+  public function delete(string $path) :bool
   {
     try {
       LogService::info("Attempting to delete a file in path \"$path\"", $this->log_file);

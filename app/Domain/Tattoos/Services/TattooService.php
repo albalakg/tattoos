@@ -177,14 +177,14 @@ class TattooService extends BaseService
   /**
    * Add an image to the tattoo
    *
-   * @param int $tattoo_id
+   * @param object $tattoo
    * @param mixed $file
    * @return bool
   */
-  public function addImageToTattoo(int $tattoo_id, mixed $file)
+  public function addImageToTattoo(object $tattoo, mixed $file)
   {
     try {
-      if(!$this->isTattooExists($tattoo_id)) {
+      if(!$this->isTattooExists($tattoo->id)) {
         throw new Exception('Tattoo not found');
       }
       
@@ -194,11 +194,11 @@ class TattooService extends BaseService
       }
 
       TattooImage::create([
-        'tattoo_id' => $tattoo_id,
+        'tattoo_id' => $tattoo->id,
         'image' => $file_path
       ]);
 
-      LogService::info("Added to tattoo $tattoo_id the image $file_path", $this->log_file);
+      LogService::info("Added to tattoo $tattoo->id the image $file_path", $this->log_file);
       return true;
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
@@ -237,7 +237,7 @@ class TattooService extends BaseService
   private function deleteImageTattoo(int $tattoo_image_id)
   {
     try {
-      if( !$tattoo_image = TattooImage::find($tattoo_images_id)) {
+      if( !$tattoo_image = TattooImage::find($tattoo_image_id)) {
         throw new Exception('Failed to find the tattoo image');
       }
 
@@ -246,7 +246,7 @@ class TattooService extends BaseService
         throw new Exception('Failed to delete the tattoo image');
       }
 
-      $tattoo_images->delete();
+      $tattoo_image->delete();
 
       LogService::info("Tattoo image $tattoo_image_id deleted", $this->log_file);
       return true;
@@ -278,7 +278,7 @@ class TattooService extends BaseService
       $new_tattoo->save();
 
       foreach($tattoo->images AS $image) {
-        $this->addImageToTattoo($new_tattoo->id, $image);
+        $this->addImageToTattoo($new_tattoo, $image);
       }
       
       $this->saveTattooTags($new_tattoo->id, $tattoo->tags);
@@ -287,7 +287,7 @@ class TattooService extends BaseService
       return $new_tattoo;
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
-      $this->deleteTattoo($new_tattoo->id);
+      $this->deleteTattoo($new_tattoo->id, $user_id);
       return null;
     }
   }
@@ -342,7 +342,7 @@ class TattooService extends BaseService
 
       $this->saveTattooTags($tattoo->id, $tattoo->tags);
 
-      LogService::info("Tattoo $tattoo_id has been updated by $user_id", $this->log_file);
+      LogService::info("Tattoo $tattoo->id has been updated by $user_id", $this->log_file);
       return true;
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
@@ -395,11 +395,11 @@ class TattooService extends BaseService
   { 
     try {
       if($userService->isUserWatchedTattoo($user_id, $tattoo_id)) {
-        return false;;
+        return false;
       }
       
       if(!$userService->isUserExists($user_id)) {
-        return false('User not found');
+        throw new Exception('User not found');
       }
       
       TattooWatch::create([

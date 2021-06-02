@@ -6,8 +6,10 @@ use Illuminate\Support\Str;
 use App\Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
-class DeleteUserRequest extends Model
+class DeleteAccount extends Model
 {
+  protected $guarded = [];
+  
   public function user()
   {
     return $this->hasOne(User::class, 'id', 'user_id')
