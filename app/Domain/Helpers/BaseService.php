@@ -2,10 +2,7 @@
 
 namespace App\Domain\Helpers;
 
-use App\Domain\Helpers\LogService;
-use App\Domain\Helpers\ResponseService;
-
-class BaseService extends ResponseService
+class BaseService
 {
   public $log_file = 'custom';
  

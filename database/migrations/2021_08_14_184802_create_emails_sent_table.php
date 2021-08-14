@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRolesTable extends Migration
+class CreateEmailsSentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,12 @@ class CreateRolesTable extends Migration
      */
     public function up()
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('emails_sent', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 15);
+            $table->integer('email_type_id')->unsigned()->index();
+            $table->integer('status')->unsigned()->index();
             $table->dateTime('created_at');
+            $table->dateTime('finished_at');
         });
     }
 
@@ -27,6 +29,6 @@ class CreateRolesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('emails_sent');
     }
 }

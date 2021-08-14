@@ -6,36 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-  const VIEWER = 10,
-        ARTIST = 20,
-        OWNER  = 30,
-        WORKER  = 40,
-        ADMIN  = 50;
+  const NORMAL = 10,
+        ADMIN  = 20;
 
   const ROLES_LIST = [
-    'viewer' => self::VIEWER,
-    'artist' => self::ARTIST,
-    'owner' => self::OWNER,
-    'worker' => self::WORKER,
+    'normal' => self::NORMAL,
     'admin' => self::ADMIN,
   ];
 
   const IDS_LIST = [
-    self::VIEWER => 'viewer',
-    self::ARTIST => 'artist',
-    self::OWNER => 'owner',
-    self::WORKER => 'worker',
+    self::NORMAL => 'normal',
     self::ADMIN => 'admin',
   ];
-
-  const NAMES_LIST = [
-    'viewer',
-    'artist',
-    'owner',
-    'worker',
-    'admin',
-  ];
-
 
   /**
    * Get the role id by the name

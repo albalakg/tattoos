@@ -16,6 +16,10 @@ Route::prefix('profile')
     ->namespace($namespace)
     ->group(base_path("$group/profile.php"));
 
+Route::prefix('tattoos')
+    ->namespace($namespace)
+    ->group(base_path("$group/tattoos.php"));
+
 Route::prefix('users')
     ->namespace($namespace)
     ->group(base_path("$group/users.php"));

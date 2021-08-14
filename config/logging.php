@@ -61,6 +61,13 @@ return [
             'days' => 1,
         ],
 
+        'auth' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/auth/auth.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'mail' => [
             'driver' => 'daily',
             'path' => storage_path('logs/mails/mail.log'),

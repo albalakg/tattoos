@@ -5,10 +5,6 @@ namespace App\Domain\Users\Models;
 use App\Domain\Users\Models\Role;
 use Laravel\Passport\HasApiTokens;
 use App\Domain\Users\Models\UserDetail;
-use App\Domain\Users\Models\UserFriend;
-use App\Domain\Users\Models\UserSavedTattoo;
-use App\Domain\Users\Models\UserFollowStudio;
-use App\Domain\Users\Models\UserWatchedTattoo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -31,53 +27,18 @@ class User extends Authenticatable
     return $this->hasOne(UserDetail::class, 'user_id', 'id');
   }
 
-  public function likedTattoos()
+  public function isNormalUser()
   {
-    return $this->hasMany(UserLikedTattoo::class, 'user_id', 'id');
-  }
-
-  public function watchedTattoos()
-  {
-    return $this->hasMany(UserWatchedTattoo::class, 'user_id', 'id');
-  }
-
-  public function savedTattoos()
-  {
-    return $this->hasMany(UserSavedTattoo::class, 'user_id', 'id');
-  }
-
-  public function friends()
-  {
-    return $this->hasMany(UserFriend::class, 'user_id', 'id');
-  }
-
-  public function followingStudios()
-  {
-    return $this->hasMany(UserFollowStudio::class, 'user_id', 'id');
+    return $this->role_id === Role::NORMAL;
   }
 
   public function isAdmin()
   {
-    return $this->role->id === Role::ADMIN;
-  }
-  
-  public function isOwner()
-  {
-    return $this->role->id === Role::OWNER;
-  }
-
-  public function isArtist()
-  {
-    return $this->role->id === Role::ARTIST;
-  }
-
-  public function isViewer()
-  {
-    return $this->role->id === Role::VIEWER;
+    return $this->role_id === Role::ADMIN;
   }
 
   public function fullName()
   {
-    return $this->first_name . ' ' . $this->last_name;
+    return $this->details->first_name . ' ' . $this->details->last_name;
   }
 }

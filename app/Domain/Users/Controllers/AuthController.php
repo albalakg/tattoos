@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Users\Requests\LoginRequest;
 use App\Domain\Users\Requests\SignupRequest;
+use App\Domain\Users\Exceptions\AuthException;
 use App\Domain\Users\Requests\VerifyEmailRequest;
 use App\Domain\Users\Requests\ResetPasswordRequest;
 use App\Domain\Users\Requests\ForgotPasswordRequest;
@@ -19,7 +20,12 @@ class AuthController extends Controller
 
   public function login(LoginRequest $request)
   {
-    $res = $this->service->login($request->email, $request->password);
+    try {
+      $res = $this->service->login($request->email, $request->password);
+      return $this->successResponse('Logged in successfully', $res);
+    } catch (AuthException $ex) {
+      return $this->errorResponse('Failed to log in', $ex);
+    }
     if( is_array($res) ) {
       return response()->json([
         'status' => true,
