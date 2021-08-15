@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
             $table->integer('remember_me')->unsigned();
             $table->timestamps();
             $table->softDeletes();
-            $table->integer('created_by')->index()->unsigned();
+            $table->integer('created_by')->index()->unsigned()->nullable();
         });
     }
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLuEmailSentUsersTable extends Migration
+class CreateUserCourseExtensionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,14 @@ class CreateLuEmailSentUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('lu_email_sent_users', function (Blueprint $table) {
-            $table->integer('email_sent_id')->unsigned()->index();
-            $table->integer('user_id')->unsigned()->index();
+        Schema::create('user_course_extensions', function (Blueprint $table) {
+            $table->id();
+            $table->integer('user_course_id')->unsigned()->index();
+            $table->integer('course_lesson_id')->unsigned()->index();
+            $table->integer('progress')->unsigned()->index();
             $table->integer('status')->unsigned()->index();
             $table->dateTime('created_at');
+            $table->dateTime('finished_at')->nullable();
         });
     }
 
@@ -28,6 +31,6 @@ class CreateLuEmailSentUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('lu_email_sent_users');
+        Schema::dropIfExists('user_course_extensions');
     }
 }
