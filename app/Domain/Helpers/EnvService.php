@@ -3,7 +3,7 @@
 namespace App\Domain\Helpers;
 
 
-class EnviornmentService
+class EnvService
 {
   const LOCAL = 'local',
         PROD  = 'prod';
@@ -12,6 +12,11 @@ class EnviornmentService
   static public function isProd()
   {
     return config('app.env') === self::PROD;
+  }
+
+  static public function iNotsProd()
+  {
+    return config('app.env') !== self::PROD;
   }
 
   static public function isLocal()

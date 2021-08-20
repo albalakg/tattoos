@@ -10,7 +10,7 @@ class CreateUserCourseExtensionsTable extends Migration
      * Run the migrations.
      *
      * @return void
-     */
+    */
     public function up()
     {
         Schema::create('user_course_extensions', function (Blueprint $table) {

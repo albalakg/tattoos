@@ -16,7 +16,9 @@ class CreateCourseLessonDownloadsTable extends Migration
         Schema::create('course_lesson_downloads', function (Blueprint $table) {
             $table->integer('course_lesson_id')->unsigned()->index();
             $table->integer('user_id')->unsigned()->index();
+            $table->integer('status')->unsigned()->index();
             $table->dateTime('created_at');
+            $table->dateTime('finished_at');
         });
     }
 

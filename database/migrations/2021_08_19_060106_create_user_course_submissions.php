@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOrdersTable extends Migration
+class CreateUserCourseSubmissions extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,12 @@ class CreateOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('user_course_submissions', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->unsigned()->index();
-            $table->integer('content_type_id')->unsigned()->index();
-            $table->integer('order_number')->unsigned();
+            $table->integer('user_course_id')->unsigned()->index();
+            $table->string('video', 100);
             $table->integer('status')->unsigned()->index();
-            $table->string('content_name', 100);
-            $table->decimal('price');
+            $table->text('comment')->nullable();
             $table->timestamps();
         });
     }
@@ -32,6 +30,6 @@ class CreateOrdersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_orders');
+        Schema::dropIfExists('user_course_submissions');
     }
 }
