@@ -161,7 +161,7 @@ class UserService extends BaseService
    * @param array $user
    * @return object|null
   */
-  public function signup(array $user)
+  public function ignup(array $user)
   {
     try {
       $new_user = new User;

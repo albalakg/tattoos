@@ -1,75 +1,111 @@
 <?php
 
-namespace App\Domain\Helpers;
+namespace App\Services\Mail;
 
 use Exception;
-use App\Jobs\Helpers\MailPodcast;
+use Carbon\Carbon;
+use Illuminate\Mail\Mailable;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\Application\ApplicationErrorMail;
+use App\Services\Logger\LoggerService;
 
 class MailService
-{  
+{
+  const MAIL_LOG_DRIVER = 'mail';
+
   /**
-   * Send mail
-   * @param \Illuminate\Contracts\Mail\Mailable $mail
-   * @param object $data
-   * @param array|string $receivers
-   * 
+   * @var array
+   */
+  private $receivers;
+
+  /**
+   * @var int
+   */
+  private $delay;
+
+  /**
+   * @var LogService
+   */
+  private $log_service;
+
+  public function __construct()
+  {
+    $this->log_service = new LogService('mail');
+  }
+  
+  /**
+   * Send the mail in queue
+   *
+   * @param int $seconds
+   * @return self
+  */
+  public function setDelay(int $seconds): self
+  {
+    $this->delay = now()->addSeconds($seconds);
+    return $this;
+  }
+  
+  /**
+   * Send the email to the receivers
+   *
+   * @param mixed $emails
+   * @param mixed $email_class
+   * @param mixed $data
    * @return bool
   */
-  static public function send(string $mail, object $data, $receivers) :bool
+  public function send(mixed $emails, mixed $email_class, mixed $data): bool
   {
-    try{
-      if(!env('MAIL_STATUS', false)) {
-        LogService::info('Mail service is disabled', 'mail');
-        return true;
+    try {
+      $this->setReceivers($emails);
+      if(!$this->receivers) {
+        $this->errorLog('No receivers found ' . json_encode($emails));
       }
 
-      self::setLog($mail, $receivers);
-      
-      MailPodcast::dispatch($mail, $data, $receivers);
+      if($this->delay) {
+        Mail::to($this->receivers)->later($this->delay, new $email_class($data));
+      } else {
+        Mail::to($this->receivers)->send(new $email_class($data));
+      }
 
       return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), 'mail');
+    } catch (Exception $ex) {
+      $this->errorLog($ex->getMessage());
       return false;
     }
   }
   
   /**
-   * Send a critical email to all the relavent people
-   * The content of the email will contain the details of the error
-   * @param string $content
-   * 
-   * @return bool
-  */
-  static public function criticalError(string $content) :bool
-  {
-    try{
-      // TODO: get the receivers from database
-      $data_to_send = (object) [
-        'content' => $content
-      ];
-
-      self::send(ApplicationErrorMail::class, $data_to_send, 'gal.blacky@gmail.com');
-
-      return true;
-    } catch(Exception $ex) {
-      return false;
-    }   
-  }
-  
-  /**
-   * Create a log for attempting to send an email
+   * Set the receivers if single or multiple
    *
-   * @param string $mail
-   * @param array|string $receivers
+   * @param mixed $emails
+   * @return void
+  */
+  private function setReceivers(mixed $emails)
+  {
+    if(is_string($emails)) {
+      $this->receivers = [$emails];
+    }
+
+    if(is_array($emails)) {
+      $this->receivers = $emails;
+    }
+  }
+
+  /**
+   * @param string $message
    * @return void
    */
-  static private function setLog(string $mail, $receivers)
+  private function infoLog(string $message)
   {
-    $receivers = is_string($receivers) ? $receivers : json_encode($receivers);
-    LogService::info("Attempt to send mail: $mail to: $receivers", 'mail');
+    $this->log_service->info($message);
+  }
+
+  /**
+   * @param string $message
+   * @return void
+   */
+  private function errorLog(string $message)
+  {
+    $this->log_service->error($message);
   }
 }

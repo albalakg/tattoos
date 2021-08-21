@@ -43,6 +43,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Maintenance Mode
+    |--------------------------------------------------------------------------
+    |
+    | When your application is in maintenance mode, only authorized users can 
+    | access the application. All logged users will be forced logged out.
+    |
+    */
+
+    'maintenance' => (bool) env('MAINTENANCE_STATUS', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |

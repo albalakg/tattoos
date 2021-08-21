@@ -17,4 +17,9 @@ class UserDetail extends Model
   {
     return $this->hasOne(User::class, 'id', 'user_id');
   }
+  
+  public function getFullNameAttribute()
+  {
+    return $this->details->first_name . ' ' . $this->details->last_name;
+  }
 }

@@ -54,6 +54,20 @@ return [
             'days' => 14,
         ],
 
+        'login' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/login.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
+
+        'mail' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mail.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
+
         'users' => [
             'driver' => 'daily',
             'path' => storage_path('logs/users/users.log'),

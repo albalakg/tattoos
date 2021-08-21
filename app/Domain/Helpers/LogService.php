@@ -3,191 +3,160 @@
 namespace App\Domain\Helpers;
 
 use Exception;
-use App\Domain\Helpers\FileService;
+use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 
 class LogService
-{  
+{    
+    const SEPARATOR       = ' | ',
+          DEFAULT_CHANNEL = 'custom';
 
-  const DEFAULT_LOG_FILE = 'global';
+    /**
+     * Log object
+     *
+     * @var Log
+    */
+    private $log;
 
-  /**
-   * Create a new error log
-   *
-   * @param string $content
-   * @param string $logger
-   * @return bool
-  */
-  static public function error(string $content, string $logger = self::DEFAULT_LOG_FILE)
-  {
-    try {
-      $full_log_content = self::prepareLog($content);
-      self::setLog($full_log_content, 'error', $logger);
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
+    /**
+     * User object
+     *
+     * @var User
+    */
+    private $user;
+    
+    /**
+     * Log content
+     *
+     * @var string
+    */
+    private $log_meta_data = self::SEPARATOR;
+    
+    /**
+     * Start a logger channel
+     *
+     * @param string $channel
+     * @return void
+    */ 
+    public function __construct(string $channel = self::DEFAULT_CHANNEL, User $user = null)
+    {
+        $this->log = Log::channel($channel);
+        $this->user = $user;
+        $this->setMetaData();
     }
-  }
+    
+    /**
+     * Create a info log
+     *
+     * @param string $content
+     * @return string|null
+    */
+    public function info(string $content) :?string
+    {
+       return $this->writeLog($content, 'info');
+    }
+    
+    /**
+     * Create a error log
+     *
+     * @param string $content
+     * @return string|null
+    */
+    public function error(string $content) :?string
+    {
+       return $this->writeLog($content, 'error');
+    }
+    
+    /**
+     * Create a critical log
+     *
+     * @param string $content
+     * @return string|null
+    */
+    public function critical(string $content) :?string
+    {
+        // TODO: Maybe send an email
+       return $this->writeLog($content, 'critical');
+    }
+    
+    /**
+     * Create a warning log
+     *
+     * @param string $content
+     * @return string|null
+    */
+    public function warning(string $content) :?string
+    {
+       return $this->writeLog($content, 'warning');
+    }
+    
+    /**
+     * Create a debug log
+     *
+     * @param string $content
+     * @return string|null
+    */
+    public function debug(string $content) :?string
+    {
+       return $this->writeLog($content, 'debug');
+    }
+    
+    /**
+     * Write the log
+     * 
+     * @param string $content
+     * @param string $action
+     * @return string|null
+    */
+    private function writeLog(string $content, $action) :?string
+    {
+        try {
+            $full_log_content = $content . $this->log_meta_data;
+            $this->log->$action($full_log_content);
+            return $full_log_content;
+        } catch(Exception $ex) {
+            Log::channel(self::DEFAULT_CHANNEL)->critical($ex->getMessage());
+            // TODO: Send a system email
+            return null;
+        } 
+    }
 
-  /**
-   * Create a new info log
-   *
-   * @param string $content
-   * @param string $logger
-   * @return bool
-  */
-  static public function info(string $content, string $logger = self::DEFAULT_LOG_FILE)
-  {
-    try {
-      $full_log_content = self::prepareLog($content);
-      self::setLog($full_log_content, 'info', $logger);
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
-    }
-  }
-
-  /**
-   * Create a new critical log
-   *
-   * @param string $content
-   * @param string $logger
-   * @return bool
-  */
-  static public function critical(string $content, string $logger = self::DEFAULT_LOG_FILE)
-  {
-    try {
-      $full_log_content = self::prepareLog($content);
-      self::setLog($full_log_content, 'critical', $logger);
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
-    }
-  }
-  
-  /**
-   * Prepare log content
-   *
-   * @param string $content
-   * @return string
-   */
-  static private function prepareLog(string $content)
-  {
-    try {
-      $content = self::filterContent($content);
-      $log_content  = "ACTION: $content, ";
-      $log_content .= 'BROWSER: ' . request()->header('user-agent') . ', ';
-      $log_content .= 'IP: ' . request()->ip() . ', ';
-      $log_content .= 'USER: '; 
-      $log_content .= Auth::user() ? Auth::user()->id : 'unknown' . ', ';
-      $log_content .= 'URL: ' . request()->server('HTTP_REFERER');
-      return $log_content;
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
-      return '';
-    }
-  }
-  
-  /**
-   * Filter the content log to check if it is valid
-   * 
-   *
-   * @param string $content
-   * @return string
-  */
-  static private function filterContent(string $content)
-  {
-    try {
-      if( $fixed_content = self::searchSQLError($content) ) {
-        return $fixed_content;
-      }
-
-      return $content;
-    } catch(Exception $ex) {
-      LogService::error('deleteUserMetaData: ' . $ex->getMessage());
-      return $content;
-    }
-  }
-  
-  /**
-   * Search for a SQL Error
-   * If found then filter the undeeded data
-   *
-   * @param string $content
-   * @return string
-   */
-  static private function searchSQLError(string $content)
-  {
-    try {
-      if(strpos($content, 'SQLSTATE')) {
-        preg_match('/.*\(SQL/m', $content, $match);
-        if($match[0]) {
-          return str_replace('(SQL', '', $match[0]);
+    private function setMetaData()
+    {
+        try {
+            $this->writeUser();
+            $this->writeIpAddress();
+            $this->writeBrowser();
+            $this->writeURL();
+        } catch (Exception $ex) {
+            Log::channel(self::DEFAULT_CHANNEL)->critical($ex->getMessage());
+            // TODO: Send a system email
         }
-      } 
-    } catch(Exception $ex) {
-      self::critical($ex->getMessage());
-      return '';
     }
-  }
-  
-  /**
-   * Create a new log
-   *
-   * @param string $content
-   * @param string $type
-   * @param string $logger
-   * @return void
-  */
-  static public function setLog(string $content, string $type, string $logger = self::DEFAULT_LOG_FILE)
-  {
-    try {
-      Log::channel($logger)->$type($content);
-    } catch (Exception $ex) {
-      MailService::criticalError($ex->getMessage());
-      Log::channel(self::DEFAULT_LOG_FILE)->critical($ex->getMessage());
-    }
-  }
-  
-  /**
-   * Get the log
-   *
-   * @param string $log_name
-   * @return string
-   */
-  static public function getLog(string $log_name)
-  {
-    try {
-      $fileService = new FileService();
-      $log_path = 'logs/' . $log_name;
-      if(!$log_content = $fileService->get($log_path)) {
-        throw new Exception('Failed to get the log content');
-      }
-      
-      return $log_content;
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
-      return '';
-    }
-  }
-  
-  /**
-   * Search a key inside a log
-   *
-   * @param string $log_name
-   * @param string $search_key
-   * @return string
-   */
-  static public function searchInLog(string $log_name, string $search_key)
-  {
-    try {
-      if(!$log_content = self::getLog($log_name)) {
-        return '';
-      }
 
-      // TODO: search in a log
-
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
-      return '';
+    private function writeUser()
+    {
+        $this->log_meta_data .= 'USER: ' . $this->getUser() . self::SEPARATOR;
     }
-  }
+
+    private function writeIpAddress()
+    {
+        $this->log_meta_data .= 'IP: ' . request()->ip() . self::SEPARATOR;
+    }
+
+    private function writeBrowser()
+    {
+        $this->log_meta_data .= 'BROWSER: ' . request()->header('user-agent') . self::SEPARATOR;
+    }
+
+    private function writeURL()
+    {
+        $this->log_meta_data .= 'URL: ' . request()->server('HTTP_REFERER') . self::SEPARATOR;
+    }
+
+    private function getUser()
+    {
+        return $this->user ? $this->user->id : 'GUEST';
+    }
+
 }

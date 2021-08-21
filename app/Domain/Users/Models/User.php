@@ -72,8 +72,18 @@ class User extends Authenticatable
     return $this->role_id === Role::ADMIN;
   }
 
-  public function getFullNameAttribute()
+  public function isActive()
   {
-    return $this->details->first_name . ' ' . $this->details->last_name;
+    return $this->status === StatusService::ACTIVE;
+  }
+
+  public function isInactive()
+  {
+    return $this->status === StatusService::INACTIVE;
+  }
+
+  public function isWaitingForConfirmation()
+  {
+    return $this->status === StatusService::PENDING;
   }
 }

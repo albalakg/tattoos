@@ -3,108 +3,49 @@
 namespace App\Domain\Users\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Domain\Users\Services\UserService;
 use App\Domain\Users\Requests\LoginRequest;
+use App\Domain\Users\Services\LoginService;
 use App\Domain\Users\Requests\SignupRequest;
-use App\Domain\Users\Exceptions\AuthException;
 use App\Domain\Users\Requests\VerifyEmailRequest;
 use App\Domain\Users\Requests\ResetPasswordRequest;
 use App\Domain\Users\Requests\ForgotPasswordRequest;
+use App\Domain\Users\Services\UserService;
+use Exception;
 
 class AuthController extends Controller
 {
-  public function __construct()
-  {
-    $this->service = new UserService;
-  }
-
-  public function login(LoginRequest $request)
+  public function login(LoginRequest $request, LoginService $login_service)
   {
     try {
-      $res = $this->service->login($request->email, $request->password);
-      return $this->successResponse('Logged in successfully', $res);
-    } catch (AuthException $ex) {
-      return $this->errorResponse('Failed to log in', $ex);
+      $login_service->attempt($request->email, $request->password);
+      $this->successResponse('Logged successfully', $login_service->getResponse());
+    } catch (Exception $ex) {
+      $this->errorResponse($ex->getMessage());
     }
-    if( is_array($res) ) {
-      return response()->json([
-        'status' => true,
-        'message' => 'User logged in successfully',
-        'data' => $res
-      ], 200);
-    }
-    
-    if( is_string($res) ) {
-      return response()->json([
-        'status' => false,
-        'message' => $res,
-      ], 422);
-    }
-    
-    return response()->json([
-      'status' => false,
-      'message' => 'Failed to log in',
-    ], 400);
   }
 
-  public function signup(SignupRequest $request)
+  public function signup(SignupRequest $request, UserService $user_service)
   {
-    if( $res = $this->service->signup($request->validated()) ) {
-      return response()->json([
-        'status' => true,
-        'message' => 'User created successfully',
-        'data' => $res
-      ], 201);
-    }
+    $user_service->signup($request->validated());
+  }
 
-    return response()->json([
-      'status' => false,
-      'message' => 'Failed to create the user',
-    ], 400);
+  public function logout()
+  {
+  
   }
 
   public function resetPassword(ResetPasswordRequest $request)
   {
-    if( $this->service->resetPassword($request->password, $request->token, $request->email) ) {
-      return response()->json([
-        'status' => true,
-        'message' => 'Reseting your password finished successfully',
-      ], 200);
-    }
-
-    return response()->json([
-      'status' => false,
-      'message' => 'Failed to reset your password',
-    ], 400);
+   
   }
 
   public function forgotPassword(ForgotPasswordRequest $request)
   {
-    if( $this->service->forgotPassword($request->email) ) {
-      return response()->json([
-        'status' => true,
-        'message' => 'Forgot password finished successfully',
-      ], 200);
-    }
-
-    return response()->json([
-      'status' => false,
-      'message' => 'Failed to finish the forgot password process',
-    ], 400);
+  
   }
 
   public function verifyEmail(VerifyEmailRequest $request)
   {
-    if( $this->service->verifyEmail($request->token) ) {
-      return response()->json([
-        'status' => true,
-        'message' => 'Email verification finished successfully',
-      ], 200);
-    }
-
-    return response()->json([
-      'status' => false,
-      'message' => 'Failed to verify your email',
-    ], 400);
+ 
   }
 }

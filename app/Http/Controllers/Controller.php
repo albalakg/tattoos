@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Helpers\EnvService;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -31,11 +32,11 @@ class Controller extends BaseController
         );
     }
 
-    protected function errorResponse(string $message, string $error_message, $data = null, $status = Response::HTTP_OK) : JsonResponse
+    protected function errorResponse(string $message, $data = null, $status = Response::HTTP_BAD_REQUEST) : JsonResponse
     {
         return response()->json(
             [
-                'message' => config('app.env') ===  ? $message : $error_message,
+                'message' => $message,
                 'data' => $data
             ],
             $status
