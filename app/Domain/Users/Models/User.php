@@ -19,9 +19,11 @@ class User extends Authenticatable
     'password'
   ];
 
+  protected $guarded = [];
+
   public function role()
   {
-    return $this->hasOne(Role::class);
+    return $this->hasOne(Role::class, 'id', 'role_id');
   }
   
   public function details()

@@ -14,9 +14,9 @@ class DeleteAccountResponseRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email',
-            'token' => 'required|string|size:50',
-            'status' => 'required|numeric|in:0,1',
+            'email'     => 'required|email',
+            'token'     => 'required|string|size:50',
+            'status'    => 'required|numeric|in:0,1',
         ];
     }
 }

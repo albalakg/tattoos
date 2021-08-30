@@ -3,7 +3,7 @@
 namespace App\Listeners\Users;
 
 use App\Domain\Helpers\MailService;
-use App\Events\Users\NewUserEvent;
+use App\Events\Users\UserCreatedEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -14,7 +14,7 @@ class NewUserWelcomeEmail
      *
      * @return void
      */
-    public function __construct(MailService)
+    public function __construct()
     {
         //
     }
@@ -25,7 +25,7 @@ class NewUserWelcomeEmail
      * @param  NewUser  $event
      * @return void
      */
-    public function handle(NewUserEvent $event)
+    public function handle(UserCreatedEvent $event)
     {
         //
     }

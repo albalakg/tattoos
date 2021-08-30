@@ -32,7 +32,7 @@ use App\Domain\Tattoos\Services\TattooService;
 use App\Domain\Users\Models\DeleteAccount;
 use App\Domain\Users\Models\EmailVerification;
 
-class UserService extends BaseService
+class UserServiceCopy extends BaseService
 {
   public function __construct()
   {
@@ -42,12 +42,13 @@ class UserService extends BaseService
   /**
    * Logout a user
    *
+   * @param User $user
    * @return bool
    */
-  public function logout() :bool
+  public function logout(User $user) :bool
   {
     try {
-      Auth::user()->token()->revoke();
+      $user->token()->revoke();
       return true;
     } catch(Exception $ex) {
       LogService::error('logout: '. $ex->getMessage(), $this->log_file);

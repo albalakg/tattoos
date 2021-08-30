@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Auth;
+namespace App\Domain\Helpers;
 
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\Storage;

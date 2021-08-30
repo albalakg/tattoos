@@ -69,7 +69,7 @@ class MailService
 
       return true;
     } catch (Exception $ex) {
-      $this->errorLog($ex->getMessage());
+      $this->log_service->error($ex->getMessage());
       return false;
     }
   }
@@ -89,23 +89,5 @@ class MailService
     if(is_array($emails)) {
       $this->receivers = $emails;
     }
-  }
-
-  /**
-   * @param string $message
-   * @return void
-   */
-  private function infoLog(string $message)
-  {
-    $this->log_service->info($message);
-  }
-
-  /**
-   * @param string $message
-   * @return void
-   */
-  private function errorLog(string $message)
-  {
-    $this->log_service->error($message);
   }
 }

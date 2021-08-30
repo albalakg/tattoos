@@ -10,7 +10,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NewUserEvent
+class UserDeletedEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -34,6 +34,6 @@ class NewUserEvent
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('new-user');
+        return new PrivateChannel('user-deleted');
     }
 }

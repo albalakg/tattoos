@@ -19,7 +19,7 @@ class CreateUserEmailVerificationsTable extends Migration
             $table->string('token', 50);
             $table->string('email', 120);
             $table->dateTime('created_at');
-            $table->dateTime('verified_at');
+            $table->dateTime('verified_at')->nullable();
         });
     }
 

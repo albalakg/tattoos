@@ -6,7 +6,7 @@ use Exception;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Auth;
-use App\Services\Auth\MaintenanceService;
+use App\Domain\Helpers\MaintenanceService;
 
 class LoginService
 {        
@@ -18,7 +18,7 @@ class LoginService
     /**
      * @var LogService
     */
-    private $logger;
+    private $log_service;
     
     /**
      * @var bool
@@ -39,7 +39,7 @@ class LoginService
     */
     public function __construct()
     {
-        $this->logger = new LogService('login');
+        $this->log_service = new LogService('login');
         $this->is_maintenance = MaintenanceService::isActive();
     }
     
@@ -48,19 +48,22 @@ class LoginService
      *
      * @param string $email
      * @param string $password
-     * @return void
+     * @return self
     */
-    public function attempt(string $email, string $password)
+    public function attempt(string $email, string $password): self
     {
+        $this->log_service->info('Attempt login with email: ' . $email);
         $attempt = Auth::attempt(['email' => $email, 'password' => $password]);
         if(!$attempt) {
             $this->errorLog('User credentials are invalid');
         }
 
-        $this->isUserAuthorizedToAccess();
-
         $this->user = Auth::user();
+        
+        $this->isUserAuthorizedToAccess();
         $this->buildUserDetails();
+
+        return $this;
     }
     
     /**
@@ -87,7 +90,7 @@ class LoginService
         }
 
         if($this->is_maintenance && !$this->user->isAdmin()) {
-            $this->errorLog('User is unauthorized to login during maintenance mode');
+            $this->errorLog('Sorry, Unauthorized to login during maintenance mode');
         }
     }
     
@@ -99,8 +102,8 @@ class LoginService
     private function buildUserDetails()
     {
         $this->response = (object)[
-            'user_data' => $this->setUserToken(),
-            'token' => $this->setUserMetaData()
+            'token'     => $this->setUserToken(),
+            'user_data' => $this->setUserMetaData()
         ];
     }
     
@@ -122,13 +125,13 @@ class LoginService
     private function setUserMetaData(): array
     {
         return [
-            'first_name' => $this->user->details->first_name,
-            'last_name' => $this->user->details->last_name,
-            'email' => $this->user->email,
-            'phone' => $this->user->details->phone,
-            'gender' => $this->user->details->gender,
-            'birth_date' => $this->user->details->birth_date,
-            'role' => $this->user->role->role
+            'first_name'    => $this->user->details->first_name,
+            'last_name'     => $this->user->details->last_name,
+            'email'         => $this->user->email,
+            'phone'         => $this->user->details->phone,
+            'gender'        => $this->user->details->gender,
+            'birth_date'    => $this->user->details->birth_date,
+            'role'          => $this->user->role->role
         ];
     }
     
@@ -138,7 +141,7 @@ class LoginService
     */
     private function errorLog(string $message)
     {
-        $this->logger->error($message);
+        $this->log_service->error($message);
         throw new Exception($message);
     }
 }

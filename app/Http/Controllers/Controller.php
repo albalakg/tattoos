@@ -14,6 +14,8 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     
+    const DEFAULT_ERROR = 'Sorry, we encountered an error. Please let us know';
+
     /**
      * Service class
      *
@@ -26,6 +28,7 @@ class Controller extends BaseController
         return response()->json(
             [
                 'message' => $message,
+                'status' => true,
                 'data' => $data
             ],
             $status
@@ -36,7 +39,8 @@ class Controller extends BaseController
     {
         return response()->json(
             [
-                'message' => $message,
+                'message' => EnvService::isNotProd() ?  $message : self::DEFAULT_ERROR,
+                'status' => false,
                 'data' => $data
             ],
             $status

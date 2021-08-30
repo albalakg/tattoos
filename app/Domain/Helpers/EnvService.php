@@ -14,7 +14,7 @@ class EnvService
     return config('app.env') === self::PROD;
   }
 
-  static public function iNotsProd()
+  static public function isNotProd()
   {
     return config('app.env') !== self::PROD;
   }

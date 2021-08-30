@@ -36,7 +36,6 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->configureRateLimiting();
-
         $this->routes(function () {
             Route::prefix('api')
                 ->middleware('api')
@@ -46,6 +45,28 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
+
+            Route::prefix('api/auth')
+                ->namespace($this->getNamespace('Users'))
+                ->middleware('throttle:100,10', 'guest')
+                ->group(base_path("routes/groups/auth.php"));
+
+            Route::prefix('api/profile')
+                ->namespace($this->namespace)
+                ->group(base_path("routes/groups/profile.php"));
+
+            Route::prefix('api/users')
+                ->namespace($this->namespace)
+                ->group(base_path("routes/groups/users.php"));
+
+            Route::prefix('api/tags')
+                ->namespace($this->namespace)
+                ->group(base_path("routes/groups/tags.php"));
+
+            Route::prefix('api/cms')
+                ->namespace($this->namespace)
+                ->group(base_path("routes/groups/cms.php"));
+
         });
     }
 
@@ -59,5 +80,14 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60);
         });
+    }
+    
+    /**
+     * @param string $component
+     * @return string
+    */
+    private function getNamespace(string $component)
+    {
+        return "App\\Domain\\$component\\Controllers";
     }
 }
