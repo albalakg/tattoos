@@ -3,6 +3,7 @@
 namespace App\Domain\Users\Services;
 
 use Exception;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
@@ -11,6 +12,8 @@ use App\Domain\Helpers\StatusService;
 use App\Events\Users\UserCreatedEvent;
 use App\Events\Users\UserDeletedEvent;
 use App\Domain\Users\Models\UserDetail;
+use App\Events\Users\UserResetPasswordEvent;
+use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Interfaces\IBaseServiceInterface;
 use App\Domain\Users\Models\UserEmailVerification;
 
@@ -123,7 +126,19 @@ class UserService implements IBaseServiceInterface
   */
   public function resetPassword(string $email, string $token, string $password) 
   {
-    
+    $reset_password_request = UserResetPassword::where('email', $email)
+                                     ->where('token', $token)
+                                     ->where('status', StatusService::PENDING)
+                                     ->first();
+  
+    if(!$reset_password_request) {
+      throw new Exception('Failed to reset password');
+    }
+
+    $reset_password_request->update([
+      'status' => StatusService::ACTIVE,
+      'verified_at' => now()
+    ]);
   }
     
   /**
@@ -132,7 +147,23 @@ class UserService implements IBaseServiceInterface
   */
   public function forgotPassword(string $email) 
   {
-    
+    if(!$this->canResetPassword($email)) {
+      throw new Exception('Sorry, you have reached maximum reset attempts for today');
+    }
+
+    UserResetPassword::where('email', $email)
+                     ->where('status', StatusService::PENDING)
+                     ->update(['status' => StatusService::INACTIVE]);
+
+
+    $forgot_password_request = UserResetPassword::create([
+      'token' => Str::random(50),
+      'email' => $email,
+      'status' => StatusService::PENDING,
+      'created_at' => now()
+    ]);
+
+    event(new UserResetPasswordEvent($forgot_password_request));
   }
     
   /**
@@ -181,6 +212,20 @@ class UserService implements IBaseServiceInterface
   private function saveStatus(int $user_id, int $status): bool
   {
     return User::where('id', $user_id)->update(['status' => $status]);
+  }
+  
+  /**
+   * Check if user has requested to reset his password less then 3 times
+   * in the last 24 hours 
+   * 
+   * @param string $email
+   * @return bool
+  */
+  private function canResetPassword(string $email): bool
+  {
+    return UserResetPassword::where('email', $email)
+                            ->where('created_at', '>', Carbon::now()->subMinutes(1440))
+                            ->count() < 3;
   }
   
   /**

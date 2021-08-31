@@ -35,21 +35,11 @@ class AuthController extends Controller
     }
   }
 
-  public function logout(UserService $user_service)
-  {
-    try {
-      $user_service->logout(Auth::user());
-      return $this->successResponse('Logged out successfully');
-    } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
-    }
-  }
-
   public function resetPassword(ResetPasswordRequest $request, UserService $user_service)
   {
     try {
       $user_service->resetPassword($request->email, $request->token, $request->password);
-      return $this->successResponse('Registered successfully');
+      return $this->successResponse('You have reset your password successfully');
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }
@@ -59,7 +49,7 @@ class AuthController extends Controller
   {
     try {
       $user_service->forgotPassword($request->email);
-      return $this->successResponse('Registered successfully');
+      return $this->successResponse('An email has been sent to the requested address');
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }

@@ -7,6 +7,7 @@ use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Helpers\MaintenanceService;
+use App\Domain\Users\Models\UserLogAttempt;
 
 class LoginService
 {        
