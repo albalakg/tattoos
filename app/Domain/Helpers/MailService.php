@@ -39,7 +39,7 @@ class MailService
    * @param int $seconds
    * @return self
   */
-  public function setDelay(int $seconds): self
+  public function delay(int $seconds): self
   {
     $this->delay = now()->addSeconds($seconds);
     return $this;

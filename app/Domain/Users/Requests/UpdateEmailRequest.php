@@ -2,6 +2,8 @@
 
 namespace App\Domain\Users\Requests;
 
+use App\Rules\PasswordRule;
+use App\Domain\Helpers\RulesService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateEmailRequest extends FormRequest
@@ -15,7 +17,7 @@ class UpdateEmailRequest extends FormRequest
     {
         return [
             'email'     => 'required|email|unique:users,email',
-            'password'  => 'required|string|regex:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/i',
+            'password'  => ['required', new PasswordRule],
         ];
     }
 }

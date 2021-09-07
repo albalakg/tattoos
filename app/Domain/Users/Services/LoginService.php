@@ -56,7 +56,7 @@ class LoginService
         $this->log_service->info('Attempt login with email: ' . $email);
         $attempt = Auth::attempt(['email' => $email, 'password' => $password]);
         if(!$attempt) {
-            $this->errorLog('User credentials are invalid');
+            $this->errorLog('Email or password is invalid');
         }
 
         $this->user = Auth::user();
@@ -103,8 +103,15 @@ class LoginService
     private function buildUserDetails()
     {
         $this->response = (object)[
-            'token'     => $this->setUserToken(),
-            'user_data' => $this->setUserMetaData()
+            'first_name'    => $this->user->details->first_name,
+            'last_name'     => $this->user->details->last_name,
+            'email'         => $this->user->email,
+            'phone'         => $this->user->details->phone,
+            'gender'        => $this->user->details->gender,
+            'birth_date'    => $this->user->details->birth_date,
+            'role'          => $this->user->role->name,
+            'expired_at'    => now()->addMinutes(config('session.lifetime')),
+            'token'         => $this->setUserToken()
         ];
     }
     
@@ -118,23 +125,6 @@ class LoginService
         return $this->user->createToken(config('app.name'))->accessToken;
     }
     
-    /**
-     * Set the user meta data
-     *
-     * @return array
-    */
-    private function setUserMetaData(): array
-    {
-        return [
-            'first_name'    => $this->user->details->first_name,
-            'last_name'     => $this->user->details->last_name,
-            'email'         => $this->user->email,
-            'phone'         => $this->user->details->phone,
-            'gender'        => $this->user->details->gender,
-            'birth_date'    => $this->user->details->birth_date,
-            'role'          => $this->user->role->role
-        ];
-    }
     
     /**
      * @param string $message

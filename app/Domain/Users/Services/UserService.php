@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
+use Illuminate\Support\Facades\Hash;
 use App\Domain\Helpers\StatusService;
 use App\Events\Users\UserCreatedEvent;
 use App\Events\Users\UserDeletedEvent;
@@ -16,6 +17,7 @@ use App\Events\Users\UserResetPasswordEvent;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Interfaces\IBaseServiceInterface;
 use App\Domain\Users\Models\UserEmailVerification;
+use App\Services\Mail\MailService;
 
 class UserService implements IBaseServiceInterface
 {  
@@ -29,6 +31,15 @@ class UserService implements IBaseServiceInterface
     $this->log_service = new LogService('user');
   }
   
+  /**
+   * @param string $email
+   * @return User
+  */
+  public function getUserByEmail(string $email): User
+  {
+    return User::where('email', $email)->first();
+  } 
+
   /**
    * Check if a user is active
    *
@@ -132,13 +143,20 @@ class UserService implements IBaseServiceInterface
                                      ->first();
   
     if(!$reset_password_request) {
-      throw new Exception('Failed to reset password');
+      throw new Exception('Failed to reset password, request not found');
+    }
+    
+    $user = $this->getUserByEmail($email);
+    if(!$user) {
+      throw new Exception('Failed to reset password, user not found');
     }
 
     $reset_password_request->update([
       'status' => StatusService::ACTIVE,
       'verified_at' => now()
     ]);
+
+    $this->savePassword($user->email, $password);
   }
     
   /**
@@ -164,6 +182,38 @@ class UserService implements IBaseServiceInterface
     ]);
 
     event(new UserResetPasswordEvent($forgot_password_request));
+  }
+  
+  /**
+   * @param User $user
+   * @param string $old_password
+   * @param string $new_password
+   * @return void
+  */
+  public function changePassword(User $user, string $old_password, string $new_password)
+  {
+    if (!Hash::check($old_password, $user->password)) {
+      throw new Exception('Old password is incorrect');
+    }
+
+    $this->savePassword($user->id, $new_password);
+  }
+  
+  /**
+   * @param User $user
+   * @param string $email
+   * @param string $password
+   * @return void
+  */
+  public function changeEmail(User $user, string $email, string $password)
+  {
+    if (!Hash::check($password, $user->password)) {
+      throw new Exception('Password does is incorrect');
+    }
+
+    $user->email_verification = $this->saveEmailVerification($user->id, $email);
+    $mailService = new MailService;
+    // $mailService->delay(1)->send($email, UpdateEmailMail:class, $user);
   }
     
   /**
@@ -203,7 +253,7 @@ class UserService implements IBaseServiceInterface
       'created_at' => now()
     ]);
   }
-  
+
   /**
    * @param int $user_id
    * @param int $status
@@ -212,6 +262,26 @@ class UserService implements IBaseServiceInterface
   private function saveStatus(int $user_id, int $status): bool
   {
     return User::where('id', $user_id)->update(['status' => $status]);
+  }
+
+  /**
+   * @param int $user_id
+   * @param string $email
+   * @return bool
+  */
+  private function saveEmail(int $user_id, string $email): bool
+  {
+    return User::where('id', $user_id)->update(['email' => $email]);
+  }
+  
+  /**
+   * @param int $user_id
+   * @param string $password
+   * @return bool
+  */
+  private function savePassword(int $user_id, string $password): bool
+  {
+    return User::where('id', $user_id)->update(['password' => bcrypt($password)]);
   }
   
   /**

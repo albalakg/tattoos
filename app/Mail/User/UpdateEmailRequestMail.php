@@ -30,6 +30,6 @@ class UpdateEmailRequestMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('MiToo - Update Email Request')->view('mails.profile.updateEmailRequest');
+        return $this->subject('Update Email Request')->view('mails.profile.updateEmailRequest');
     }
 }

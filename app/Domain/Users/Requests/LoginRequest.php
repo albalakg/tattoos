@@ -2,6 +2,8 @@
 
 namespace App\Domain\Users\Requests;
 
+use App\Rules\PasswordRule;
+use App\Domain\Helpers\RulesService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
@@ -15,14 +17,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'email'     => 'required|email',
-            'password'  => 'required|string|regex:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/i',
-        ];
-    }
-    
-    public function messages()
-    {
-        return [
-            'password.regex' => 'Password must be between 8-20 chars and must contains numbers and letters'
+            'password'  => ['required', new PasswordRule],
         ];
     }
 }

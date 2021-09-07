@@ -28,28 +28,28 @@ class UserController extends Controller
     }
   }
 
-  public function changePassword(ChangePasswordRequest $request)
+  public function changePassword(ChangePasswordRequest $request, UserService $user_service)
+  {
+    try {
+      $user_service->changePassword(Auth::user(), $request->old_password, $request->password);
+      return $this->successResponse('Logged out successfully');
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex->getMessage());
+    }
+  }
+
+  public function updateEmail(UpdateEmailRequest $request, UserService $user_service)
+  {
+    try {
+      $user_service->changeEmail(Auth::user(), $request->email, $request->password);
+      return $this->successResponse('Logged out successfully');
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex->getMessage());
+    }
+  }
+
+  public function createUser(CreateUserRequest $request)
   {
     
-  }
-
-  public function getTattoos()
-  {
-   
-  }
-
-  public function deleteRequest()
-  {
- 
-  }
-
-  public function deleteResponse(DeleteAccountResponseRequest $request)
-  {
-    
-  }
-
-  public function updateEmail(UpdateEmailRequest $request)
-  {
-  
   }
 }

@@ -30,6 +30,6 @@ class DeleteUserRequestMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('MiToo - Delete Account Request')->view('mails.profile.deleteAccountRequest');
+        return $this->subject('Delete Account Request')->view('mails.profile.deleteAccountRequest');
     }
 }

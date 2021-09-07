@@ -30,6 +30,6 @@ class EmailVerificationMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('MiToo - Email Confirmation')->view('mails.auth.emailConfirmation');
+        return $this->subject('Email Confirmation')->view('mails.auth.emailConfirmation');
     }
 }

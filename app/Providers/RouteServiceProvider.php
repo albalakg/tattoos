@@ -38,7 +38,6 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
         $this->routes(function () {
             Route::prefix('api')
-                ->middleware('api')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/api.php'));
 
@@ -56,7 +55,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path("routes/groups/profile.php"));
 
             Route::prefix('api/users')
-                ->namespace($this->namespace)
+                ->namespace($this->getNamespace('Users'))
                 ->group(base_path("routes/groups/users.php"));
 
             Route::prefix('api/tags')

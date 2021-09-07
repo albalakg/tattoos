@@ -30,6 +30,6 @@ class ApplicationErrorMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('MiToo - Application Critical Error')->view('mails.app.applicationError');
+        return $this->subject('Application Critical Error')->view('mails.app.applicationError');
     }
 }
