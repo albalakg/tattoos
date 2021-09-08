@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Tattoos\Services\TattooService;
+use App\Domain\Users\Requests\CreateUserRequest;
 use App\Domain\Users\Requests\UpdateEmailRequest;
 use App\Domain\Users\Requests\ChangePasswordRequest;
 use App\Domain\Users\Requests\DeleteAccountResponseRequest;
@@ -48,8 +49,13 @@ class UserController extends Controller
     }
   }
 
-  public function createUser(CreateUserRequest $request)
+  public function create(CreateUserRequest $request, UserService $user_service)
   {
-    
+    try {
+      $response = $user_service->createUser((object) $request->validated(), Auth::user()->id);
+      return $this->successResponse('User created successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex->getMessage());
+    }
   }
 }

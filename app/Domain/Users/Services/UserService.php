@@ -67,8 +67,8 @@ class UserService implements IBaseServiceInterface
   public function signup(object $data): ?User
   {
     try {
-      $user = $this->saveUser($data);
-      $data->user_id = $user->id;
+      $user           = $this->saveUser($data);
+      $data->user_id  = $user->id;
       $this->saveUserDetails($data);
       $user->email_verification = $this->saveEmailVerification($user->id, $user->email);
       event(new UserCreatedEvent($user));
@@ -80,7 +80,32 @@ class UserService implements IBaseServiceInterface
       throw $ex;
     }
   }
-  
+    
+  /**
+   * Create user by an admin
+   *
+   * @param object $data
+   * @param int|null $created_by
+   * @return User|null
+  */
+  public function createUser(object $data, ?int $created_by): ?User
+  {
+    try {
+      $data->created_by = $created_by;
+      if(!$user = $this->saveUser($data)) {
+        throw new Exception('Failed to create a user');
+      }
+      
+      $data->user_id    = $user->id;
+      $this->saveUserDetails($data);
+      return $user;
+    } catch(Exception $ex) {
+      if(isset($user) && $user) {
+        $this->deleteUser($user->id);
+      }
+      throw $ex;
+    }
+  }
   
   /**
    * @param object $data
