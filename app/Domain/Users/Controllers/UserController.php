@@ -58,4 +58,14 @@ class UserController extends Controller
       return $this->errorResponse($ex->getMessage());
     }
   }
+
+  public function getAll(UserService $user_service)
+  {
+    try {
+      $response = $user_service->getAll();
+      return $this->successResponse('Users fetched successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex->getMessage());
+    }
+  }
 }

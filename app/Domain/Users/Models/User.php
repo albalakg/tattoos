@@ -16,7 +16,13 @@ class User extends Authenticatable
   use HasFactory, HasApiTokens, SoftDeletes;
 
   protected $hidden = [
-    'password'
+    'password', 'role_id'
+  ];
+
+  protected $casts = [
+    'created_at' => 'datetime:Y-m-d H:m:s',
+    'updated_at' => 'datetime:Y-m-d H:m:s',
+    'deleted_at' => 'datetime:Y-m-d H:m:s',
   ];
 
   protected $guarded = [];

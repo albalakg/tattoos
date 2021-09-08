@@ -30,6 +30,22 @@ class UserService implements IBaseServiceInterface
   {
     $this->log_service = new LogService('user');
   }
+
+  public function getAll()
+  {
+    return User::join('roles', 'roles.id', 'users.role_id')
+              ->join('user_details', 'user_details.user_id', 'users.id')
+              ->select(
+                'users.id',
+                'users.status',
+                'users.created_at',
+                'users.email',
+                'user_details.phone',
+                'user_details.first_name',
+                'user_details.last_name',
+              )
+              ->simplePaginate(1000);
+  }
   
   /**
    * @param string $email
@@ -95,7 +111,7 @@ class UserService implements IBaseServiceInterface
       if(!$user = $this->saveUser($data)) {
         throw new Exception('Failed to create a user');
       }
-      
+
       $data->user_id    = $user->id;
       $this->saveUserDetails($data);
       return $user;
