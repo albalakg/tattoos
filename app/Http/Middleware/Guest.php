@@ -17,7 +17,7 @@ class Guest
      */
     public function handle($request, Closure $next, ...$guards)
     {
-        if($request->hasHeader('Authorization')) {
+        if($request->hasHeader('Authorization') && isset(Auth::user()->id)) {
             return response()->json([
                 'message' => 'Must be a guest'
             ], 401); 

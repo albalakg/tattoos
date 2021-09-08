@@ -67,7 +67,6 @@ class RouteServiceProvider extends ServiceProvider
                 ->middleware('auth:api', 'admin')
                 ->namespace($this->namespace)
                 ->group(base_path("routes/groups/cms/users.php"));
-
         });
     }
 
