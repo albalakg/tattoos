@@ -6,11 +6,12 @@ use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Users\Services\UserService;
-use App\Domain\Tattoos\Services\TattooService;
 use App\Domain\Users\Requests\CreateUserRequest;
-use App\Domain\Users\Requests\UpdateEmailRequest;
+use App\Domain\Users\Requests\UpdateUserRequest;
+use App\Domain\Users\Requests\DeleteUsersRequest;
 use App\Domain\Users\Requests\ChangePasswordRequest;
-use App\Domain\Users\Requests\DeleteAccountResponseRequest;
+use App\Domain\Users\Requests\UpdateUserEmailRequest;
+use App\Domain\Users\Requests\UpdateUserPasswordRequest;
 
 class UserController extends Controller
 {
@@ -39,11 +40,21 @@ class UserController extends Controller
     }
   }
 
-  public function updateEmail(UpdateEmailRequest $request, UserService $user_service)
+  public function updateUserEmail(UpdateUserEmailRequest $request, UserService $user_service)
   {
     try {
-      $user_service->changeEmail(Auth::user(), $request->email, $request->password);
-      return $this->successResponse('Logged out successfully');
+      $user_service->updateUserEmail((object) $request->validated(), Auth::user()->id);
+      return $this->successResponse('User\'s email updated successfully');
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex->getMessage());
+    }
+  }
+
+  public function updateUserPassword(UpdateUserPasswordRequest $request, UserService $user_service)
+  {
+    try {
+      $user_service->updateUserPassword((object) $request->validated(), Auth::user()->id);
+      return $this->successResponse('User\'s password updated successfully');
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }
@@ -54,6 +65,26 @@ class UserController extends Controller
     try {
       $response = $user_service->createUser((object) $request->validated(), Auth::user()->id);
       return $this->successResponse('User created successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex->getMessage());
+    }
+  }
+
+  public function update(UpdateUserRequest $request, UserService $user_service)
+  {
+    try {
+      $response = $user_service->updateUser((object) $request->validated(), Auth::user()->id);
+      return $this->successResponse('User updated successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex->getMessage());
+    }
+  }
+
+  public function delete(DeleteUsersRequest $request, UserService $user_service)
+  {
+    try {
+      $response = $user_service->deleteUsers($request->ids, Auth::user()->id);
+      return $this->successResponse('Users deleted successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }

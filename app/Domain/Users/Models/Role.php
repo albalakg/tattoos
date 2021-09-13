@@ -9,6 +9,9 @@ class Role extends Model
   const NORMAL = 10,
         ADMIN  = 20;
 
+  const IDS = [self::NORMAL, self::ADMIN];
+  const NAMES = ['normal', 'admin'];
+
   const ROLES_LIST = [
     'normal' => self::NORMAL,
     'admin' => self::ADMIN,

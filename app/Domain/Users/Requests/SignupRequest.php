@@ -6,7 +6,6 @@ use App\Rules\PhoneRule;
 use App\Rules\LastNameRule;
 use App\Rules\PasswordRule;
 use App\Rules\FirstNameRule;
-use App\Domain\Helpers\RulesService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SignupRequest extends FormRequest

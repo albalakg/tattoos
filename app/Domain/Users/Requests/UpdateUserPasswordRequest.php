@@ -2,10 +2,11 @@
 
 namespace App\Domain\Users\Requests;
 
+use App\Rules\IDRule;
 use App\Rules\PasswordRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ChangePasswordRequest extends FormRequest
+class UpdateUserPasswordRequest extends FormRequest
 {
     public function authorize()
     {
@@ -15,8 +16,8 @@ class ChangePasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'old_password'  => ['required', new PasswordRule],
-            'password'      => ['required', 'different:old_password', new PasswordRule],
+            'id'        => ['required', new IDRule],
+            'password'  => ['required', 'confirmed', new PasswordRule],
         ];
     }
 }

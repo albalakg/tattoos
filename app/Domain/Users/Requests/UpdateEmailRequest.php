@@ -3,7 +3,6 @@
 namespace App\Domain\Users\Requests;
 
 use App\Rules\PasswordRule;
-use App\Domain\Helpers\RulesService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateEmailRequest extends FormRequest

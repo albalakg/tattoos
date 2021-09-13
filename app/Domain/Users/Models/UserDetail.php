@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserDetail extends Model
 {
-  protected $primaryKey = 'user_id';
-
   public $incrementing = false;
 
   public $timestamps = false;
+
+  const GENDER_VALUES = [1, 2, 3];
 
   public function user()
   {

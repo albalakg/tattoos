@@ -43,6 +43,9 @@ class UserService implements IBaseServiceInterface
                 'user_details.phone',
                 'user_details.first_name',
                 'user_details.last_name',
+                'user_details.gender',
+                'user_details.birth_date',
+                'roles.name AS role'
               )
               ->simplePaginate(1000);
   }
@@ -83,7 +86,9 @@ class UserService implements IBaseServiceInterface
   public function signup(object $data): ?User
   {
     try {
+      $data->role_id  = Role::NORMAL;
       $user           = $this->saveUser($data);
+      dd($user);
       $data->user_id  = $user->id;
       $this->saveUserDetails($data);
       $user->email_verification = $this->saveEmailVerification($user->id, $user->email);
@@ -108,6 +113,7 @@ class UserService implements IBaseServiceInterface
   {
     try {
       $data->created_by = $created_by;
+      $data->role_id    = Role::ROLES_LIST[strtolower($data->role)];
       if(!$user = $this->saveUser($data)) {
         throw new Exception('Failed to create a user');
       }
@@ -122,6 +128,33 @@ class UserService implements IBaseServiceInterface
       throw $ex;
     }
   }
+    
+  /**
+   * Update user by an admin
+   *
+   * @param object $data
+   * @param int|null $created_by
+   * @return User|null
+  */
+  public function updateUser(object $data, ?int $updated_by)
+  {
+    try {
+      $data->updated_by = $updated_by;
+      $data->role_id    = Role::ROLES_LIST[strtolower($data->role)];
+      if(!$user = $this->saveUser($data)) {
+        throw new Exception('Failed to update a user');
+      }
+
+      $data->user_id    = $user->id;
+      $this->saveUserDetails($data);
+      return $data;
+    } catch(Exception $ex) {
+      if(isset($user) && $user) {
+        $this->deleteUser($user->id);
+      }
+      throw $ex;
+    }
+  }
   
   /**
    * @param object $data
@@ -129,17 +162,43 @@ class UserService implements IBaseServiceInterface
   */
   public function saveUser(object $data): ?User
   {
-    $user               = new User;
-    $user->role_id      = Role::NORMAL;
-    $user->email        = $data->email;
-    $user->password     = bcrypt($data->password);
+    if(isset($data->id)) {
+      if(!$user = User::find($data->id)) {
+        throw new Exception('Failed to find user');
+      }
+    } else {
+      $user = new User();
+    }
+
+    $user->role_id      = $data->role_id;
     $user->status       = StatusService::PENDING;
+
+    if(isset($data->email)) {
+      $user->email        = $data->email;
+    }
+
+    if(isset($data->password)) {
+      $user->password     = bcrypt($data->password);
+    }
+
     if(isset($data->created_by)) {
-      $user->created_by = $data->created_by;
+      $user->created_by   = $data->created_by;
     }
 
     $user->save();
     return $user;
+  }
+  
+  /**
+   * @param array $ids
+   * @param int $deleted_by
+   * @return void
+  */
+  public function deleteUsers(array $ids, int $deleted_by)
+  {
+    foreach($ids AS $id) {
+      $this->deleteUser($id);
+    }
   }
   
   /**
@@ -240,6 +299,26 @@ class UserService implements IBaseServiceInterface
     $this->savePassword($user->id, $new_password);
   }
   
+  /**
+   * @param object $data
+   * @param int $updated_by
+   * @return bool
+  */
+  public function updateUserEmail(object $data, int $updated_by): bool
+  {
+    return User::where('id', $data->id)->update(['email' => $data->email]);
+  } 
+  
+  /**
+   * @param object $data
+   * @param int $updated_by
+   * @return bool
+  */
+  public function updateUserPassword(object $data, int $updated_by): bool
+  {
+    return $this->savePassword($data->id, $data->password);
+  } 
+   
   /**
    * @param User $user
    * @param string $email
@@ -347,7 +426,11 @@ class UserService implements IBaseServiceInterface
   */
   private function saveUserDetails(object $data): ?UserDetail
   {
-    if(!$user_data = UserDetail::find($data->user_id)) {
+    if(isset($data->id)) {
+      if(!$user_data = UserDetail::where('user_id', $data->id)->first()) {
+        throw new Exception('Failed to find user');
+      }
+    } else {
       $user_data = new UserDetail();
     }
 
