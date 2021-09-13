@@ -59,14 +59,19 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->getNamespace('Users'))
                 ->group(base_path("routes/groups/users.php"));
 
-            Route::prefix('api/tags')
+            Route::prefix('api/cms/tags')
                 ->namespace($this->namespace)
-                ->group(base_path("routes/groups/tags.php"));
+                ->group(base_path("routes/groups/cms/tags.php"));
 
             Route::prefix('api/cms/users')
                 ->middleware('auth:api', 'admin')
                 ->namespace($this->namespace)
                 ->group(base_path("routes/groups/cms/users.php"));
+
+            Route::prefix('api/cms/videos')
+                ->middleware('auth:api', 'admin')
+                ->namespace($this->namespace)
+                ->group(base_path("routes/groups/cms/videos.php"));
         });
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Domain\Users\Requests;
 
-use App\Rules\PasswordRule;
+use App\Domain\Users\Rules\PasswordRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest

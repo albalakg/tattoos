@@ -3,7 +3,7 @@
 namespace App\Domain\Users\Models;
 
 use App\Domain\Users\Models\User;
-use App\Domain\Courses\Models\Course;
+use App\Domain\Content\Models\Course;
 use Illuminate\Database\Eloquent\Model;
 
 class UserCourse extends Model

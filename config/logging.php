@@ -75,6 +75,13 @@ return [
             'days' => 1,
         ],
 
+        'videos' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/videos/videos.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'auth' => [
             'driver' => 'daily',
             'path' => storage_path('logs/auth/auth.log'),
@@ -85,34 +92,6 @@ return [
         'mail' => [
             'driver' => 'daily',
             'path' => storage_path('logs/mails/mail.log'),
-            'level' => 'debug',
-            'days' => 1,
-        ],
-
-        'tattoos' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/tattoos/tattoos.log'),
-            'level' => 'debug',
-            'days' => 1,
-        ],
-
-        'tattoo_comments' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/tattoo_comments/tattoo_comments.log'),
-            'level' => 'debug',
-            'days' => 1,
-        ],
-
-        'studios' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/studios/studios.log'),
-            'level' => 'debug',
-            'days' => 1,
-        ],
-
-        'studio_comments' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/studio_comments/studio_comments.log'),
             'level' => 'debug',
             'days' => 1,
         ],

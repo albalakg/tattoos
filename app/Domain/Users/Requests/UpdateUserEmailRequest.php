@@ -2,7 +2,7 @@
 
 namespace App\Domain\Users\Requests;
 
-use App\Rules\IDRule;
+use App\Domain\Users\Rules\IDRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateUserEmailRequest extends FormRequest

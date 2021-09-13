@@ -2,12 +2,12 @@
 
 namespace App\Domain\Users\Requests;
 
-use App\Rules\PhoneRule;
-use App\Rules\GenderRule;
-use App\Rules\LastNameRule;
-use App\Rules\PasswordRule;
-use App\Rules\FirstNameRule;
-use App\Rules\RoleRule;
+use App\Domain\Users\Rules\PhoneRule;
+use App\Domain\Users\Rules\GenderRule;
+use App\Domain\Users\Rules\LastNameRule;
+use App\Domain\Users\Rules\PasswordRule;
+use App\Domain\Users\Rules\FirstNameRule;
+use App\Domain\Users\Rules\RoleRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateUserRequest extends FormRequest

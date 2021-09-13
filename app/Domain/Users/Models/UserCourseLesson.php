@@ -4,7 +4,7 @@ namespace App\Domain\Users\Models;
 
 use App\Domain\Users\Models\UserCourse;
 use Illuminate\Database\Eloquent\Model;
-use App\Domain\Courses\Models\CourseLesson;
+use App\Domain\Content\Models\CourseLesson;
 
 class UserCourseLesson extends Model
 {

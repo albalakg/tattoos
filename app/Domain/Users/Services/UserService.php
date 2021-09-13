@@ -28,7 +28,7 @@ class UserService implements IBaseServiceInterface
   
   public function __construct()
   {
-    $this->log_service = new LogService('user');
+    $this->log_service = new LogService('users');
   }
 
   public function getAll()

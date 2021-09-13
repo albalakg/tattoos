@@ -2,10 +2,10 @@
 
 namespace App\Domain\Tags\Models;
 
-use App\Domain\Courses\Models\Course;
+use App\Domain\Content\Models\Course;
 use Illuminate\Database\Eloquent\Model;
-use App\Domain\Courses\Models\CourseTag;
-use App\Domain\Courses\Models\CourseLessonTag;
+use App\Domain\Content\Models\CourseTag;
+use App\Domain\Content\Models\CourseLessonTag;
 
 class Tag extends Model
 {

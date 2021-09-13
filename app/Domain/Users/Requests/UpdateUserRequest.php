@@ -2,13 +2,13 @@
 
 namespace App\Domain\Users\Requests;
 
-use App\Rules\IDRule;
-use App\Rules\RoleRule;
-use App\Rules\PhoneRule;
-use App\Rules\GenderRule;
-use App\Rules\StatusRule;
-use App\Rules\LastNameRule;
-use App\Rules\FirstNameRule;
+use App\Domain\Users\Rules\IDRule;
+use App\Domain\Users\Rules\RoleRule;
+use App\Domain\Users\Rules\PhoneRule;
+use App\Domain\Users\Rules\GenderRule;
+use App\Domain\Users\Rules\StatusRule;
+use App\Domain\Users\Rules\LastNameRule;
+use App\Domain\Users\Rules\FirstNameRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateUserRequest extends FormRequest

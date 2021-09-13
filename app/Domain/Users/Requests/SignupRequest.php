@@ -2,10 +2,10 @@
 
 namespace App\Domain\Users\Requests;
 
-use App\Rules\PhoneRule;
-use App\Rules\LastNameRule;
-use App\Rules\PasswordRule;
-use App\Rules\FirstNameRule;
+use App\Domain\Users\Rules\PhoneRule;
+use App\Domain\Users\Rules\LastNameRule;
+use App\Domain\Users\Rules\PasswordRule;
+use App\Domain\Users\Rules\FirstNameRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SignupRequest extends FormRequest
