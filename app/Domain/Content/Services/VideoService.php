@@ -18,14 +18,27 @@ class VideoService
     }
     
     /**
+   * @return object
+  */
+  public function getAll(): object
+  {
+    return Video::select(
+                'videos.id',
+                'videos.name',
+                'videos.status',
+                'videos.description',
+                'videos.video_path',
+              )
+              ->simplePaginate(1000);
+  }
+    
+    /**
      * @param object $videoData
      * @param int $created_by
      * @return Video
     */
     public function createVideo(object $videoData, int $created_by): ?Video
     {
-        
-
         return null;
     }
 }

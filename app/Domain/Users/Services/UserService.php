@@ -30,8 +30,11 @@ class UserService implements IBaseServiceInterface
   {
     $this->log_service = new LogService('users');
   }
-
-  public function getAll()
+  
+  /**
+   * @return object
+  */
+  public function getAll(): object
   {
     return User::join('roles', 'roles.id', 'users.role_id')
               ->join('user_details', 'user_details.user_id', 'users.id')

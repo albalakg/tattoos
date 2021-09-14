@@ -1,6 +1,6 @@
 <?php
 
-use App\Domain\Users\Controllers\VideoController;
+use App\Domain\Content\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('create', [VideoController::class, 'create']);

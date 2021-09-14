@@ -75,6 +75,13 @@ return [
             'days' => 1,
         ],
 
+        'files' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/files/files.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'videos' => [
             'driver' => 'daily',
             'path' => storage_path('logs/videos/videos.log'),
