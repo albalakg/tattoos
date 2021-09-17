@@ -15,11 +15,10 @@ use App\Events\Users\UserDeletedEvent;
 use App\Domain\Users\Models\UserDetail;
 use App\Events\Users\UserResetPasswordEvent;
 use App\Domain\Users\Models\UserResetPassword;
-use App\Domain\Interfaces\IBaseServiceInterface;
 use App\Domain\Users\Models\UserEmailVerification;
 use App\Services\Mail\MailService;
 
-class UserService implements IBaseServiceInterface
+class UserService
 {  
   /**
    * @var LogService
@@ -50,6 +49,7 @@ class UserService implements IBaseServiceInterface
                 'user_details.birth_date',
                 'roles.name AS role'
               )
+              ->orderBy('users.created_at', 'desc')
               ->simplePaginate(1000);
   }
   

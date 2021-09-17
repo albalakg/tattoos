@@ -84,7 +84,14 @@ return [
 
         'videos' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/videos/videos.log'),
+            'path' => storage_path('logs/content/videos/videos.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'courses' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/courses/courses.log'),
             'level' => 'debug',
             'days' => 1,
         ],

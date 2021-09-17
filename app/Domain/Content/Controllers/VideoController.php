@@ -18,28 +18,8 @@ class VideoController extends Controller
   public function create(CreateVideoRequest $request, VideoService $video_service)
   {
     try {
-      $response = $video_service->createVideo((object) $request->validated(), Auth::video()->id);
+      $response = $video_service->createVideo((object) $request->validated(), Auth::user()->id);
       return $this->successResponse('Video created successfully', $response);
-    } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
-    }
-  }
-
-  public function update(UpdateVideoRequest $request, VideoService $video_service)
-  {
-    try {
-      $response = $video_service->updateVideo((object) $request->validated(), Auth::video()->id);
-      return $this->successResponse('Video updated successfully', $response);
-    } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
-    }
-  }
-
-  public function delete(DeleteVideosRequest $request, VideoService $video_service)
-  {
-    try {
-      $response = $video_service->deleteVideos($request->ids, Auth::video()->id);
-      return $this->successResponse('Videos deleted successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }

@@ -18,6 +18,13 @@ class CreateCoursesTable extends Migration
             $table->string('name', 100)->unique();
             $table->integer('category_id')->unsigned()->index();
             $table->integer('status')->unsigned()->index();
+            $table->string('image', 255)->nullable();
+            $table->string('trailer', 255)->nullable();
+            $table->decimal('price')->nullable();
+            $table->text('description')->nullable();
+            $table->integer('discount')->unsigned()->nullable();
+            $table->integer('view_order')->unsigned();
+            $table->integer('created_by')->unsigned();
             $table->timestamps();
             $table->softDeletes();
         });

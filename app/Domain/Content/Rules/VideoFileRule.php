@@ -26,7 +26,8 @@ class VideoFileRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        dd($value);
+        // TODO: Set Video Rules
+        return true;
     }
 
     /**
@@ -36,6 +37,6 @@ class VideoFileRule implements Rule
      */
     public function message()
     {
-        return 'Status is not valid';
+        return 'Video file is not valid';
     }
 }

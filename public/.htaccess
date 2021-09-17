@@ -3,11 +3,12 @@
         Options -MultiViews -Indexes
     </IfModule>
 
-    <IfModule mod_headers.c>
-        Header set Access-Control-Allow-Origin "*"
-    </IfModule>
-
     RewriteEngine On
+
+    <IfModule mod_headers.c>
+        Header add Access-Control-Allow-Origin "*"
+        Header add test "1"
+    </IfModule>
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

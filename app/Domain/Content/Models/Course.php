@@ -11,6 +11,10 @@ use App\Domain\Content\Models\CourseComment;
 
 class Course extends Model
 {
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:m:s',
+    ];
+
     public function areas()
     {
         return $this->hasMany(CourseArea::class, 'course_id', 'id');
@@ -55,7 +59,13 @@ class Course extends Model
                     ->where('status', StatusService::PENDING);
     }
 
-    public function lessons()
+    public function areasWithLessons()
+    {
+        return $this->hasMany(CourseArea::class, 'course_id', 'id')
+                    ->with('lessons');
+    }
+
+    public function activeAreasWithLessons()
     {
         return $this->hasMany(CourseArea::class, 'course_id', 'id')
                     ->where('status', StatusService::ACTIVE)
@@ -64,11 +74,28 @@ class Course extends Model
 
     public function activeLessons()
     {
+        return $this->hasMany(CourseLesson::class, 'course_id', 'id')
+                    ->where('status', StatusService::ACTIVE);
+    }
+
+    public function inactiveLessons()
+    {
+        return $this->hasMany(CourseLesson::class, 'course_id', 'id')
+                    ->where('status', StatusService::INACTIVE);
+    }
+
+    public function lessons()
+    {
+        return $this->hasMany(CourseLesson::class, 'course_id', 'id');
+    }
+
+    public function areasWithActiveLessons()
+    {
         return $this->hasMany(CourseArea::class, 'course_id', 'id')
                     ->with('activeLessons');
     }
 
-    public function inactiveLessons()
+    public function areasWithInactiveLessons()
     {
         return $this->hasMany(CourseArea::class, 'course_id', 'id')
                     ->with('inactiveLessons');
