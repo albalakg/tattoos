@@ -16,7 +16,7 @@ class UpdateUserPasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'        => ['required', new IDRule],
+            'id'        => ['required', new IDRule, 'exists:users,id'],
             'password'  => ['required', 'confirmed', new PasswordRule],
         ];
     }

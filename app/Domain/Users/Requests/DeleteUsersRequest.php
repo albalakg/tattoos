@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Requests;
 
+use App\Domain\Users\Rules\IDRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DeleteUsersRequest extends FormRequest
@@ -15,7 +16,7 @@ class DeleteUsersRequest extends FormRequest
     {
         return [
             'ids'   => 'required|array|between:1,100',
-            'ids.*' => 'numeric' 
+            'ids.*' => [new IDRule]
         ];
     }
 }

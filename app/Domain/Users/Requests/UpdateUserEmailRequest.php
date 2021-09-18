@@ -15,7 +15,7 @@ class UpdateUserEmailRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'        => ['required', new IDRule],
+            'id'        => ['required', new IDRule, 'exists:users,id'],
             'email'     => 'required|email|unique:users,email,' . request()->id,
         ];
     }
