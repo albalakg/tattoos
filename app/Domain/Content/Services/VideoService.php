@@ -2,13 +2,14 @@
 
 namespace App\Domain\Content\Services;
 
+use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
 use App\Domain\Content\Models\Video;
 use App\Domain\Helpers\StatusService;
-use Exception;
+use App\Domain\Interfaces\IContentService;
 
-class VideoService
+class VideoService implements IContentService
 {
   const FILES_PATH = 'content/videos';
 
@@ -50,7 +51,7 @@ class VideoService
    * @param int $created_by
    * @return Video
   */
-  public function createVideo(object $videoData, int $created_by): ?Video
+  public function create(object $videoData, int $created_by): ?Video
   {
     $video               = new Video;
     $video->name         = $videoData->name;
@@ -65,10 +66,10 @@ class VideoService
     
   /**
    * @param object $videoData
-   * @param int $created_by
+   * @param int $updated_by
    * @return Video
   */
-  public function updateVideo(object $videoData, int $created_by): ?Video
+  public function update(object $videoData, int $updated_by): ?Video
   {
     if(!$video = Video::find($videoData->id)) {
       throw new Exception('Video not found');
@@ -77,6 +78,7 @@ class VideoService
     $video->name         = $videoData->name;
     $video->description  = $videoData->description;
     $video->status       = $videoData->status;
+
     if(!empty($videoData->file)) {
       $this->deleteVideoFile($video);
       $video->video_path   = FileService::create($videoData->file, self::FILES_PATH);
@@ -91,28 +93,32 @@ class VideoService
    * @param int $deleted_by
    * @return void
   */
-  public function deleteVideos(array $ids, int $deleted_by)
+  public function multipleDelete(array $ids, int $deleted_by)
   {
     foreach($ids AS $video_id) {
-      if($error = $this->deleteVideo($video_id, $deleted_by)) {
+      if($error = $this->delete($video_id, $deleted_by)) {
         return $error;
       }
     }
   } 
-
-  private function deleteVideo(int $video_id, int $deleted_by)
+  
+  /**
+   * @param int $video_id
+   * @param int $deleted_by
+   * @return void
+  */
+  public function delete(int $video_id, int $deleted_by)
   {
     try {
-      if($this->isVideoInUsed($video_id)) {
-        throw new Exception('Cannot delete video, in use');
-      }
-  
       if(!$video = Video::find($video_id)) {
         throw new Exception('Video not found');
       }
+
+      if($this->isVideoInUsed($video_id)) {
+        throw new Exception('Cannot delete video that is used');
+      }
   
       $this->deleteVideoFile($video);
-
       $video->delete();
       
     } catch(Exception $ex) {
@@ -126,7 +132,7 @@ class VideoService
    * @param Video $video
    * @return bool
   */
-  private function deleteVideoFile(Video $video)
+  private function deleteVideoFile(Video $video): bool
   {
     return FileService::delete($video->video_path);
   } 

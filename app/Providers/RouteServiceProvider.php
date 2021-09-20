@@ -73,6 +73,16 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path("routes/groups/cms/courses.php"));
 
+            Route::prefix('api/cms/course-areas')
+                ->middleware('auth:api', 'admin')
+                ->namespace($this->namespace)
+                ->group(base_path("routes/groups/cms/courseAreas.php"));
+
+            Route::prefix('api/cms/lessons')
+                ->middleware('auth:api', 'admin')
+                ->namespace($this->namespace)
+                ->group(base_path("routes/groups/cms/lessons.php"));
+
             Route::prefix('api/cms/course-categories')
                 ->middleware('auth:api', 'admin')
                 ->namespace($this->namespace)

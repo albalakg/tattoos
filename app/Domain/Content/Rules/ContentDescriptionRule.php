@@ -4,7 +4,7 @@ namespace App\Domain\Content\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 
-class VideoDescriptionRule implements Rule
+class ContentDescriptionRule implements Rule
 {
     /**
      * Create a new rule instance.
@@ -38,6 +38,6 @@ class VideoDescriptionRule implements Rule
      */
     public function message()
     {
-        return 'Video Description is not valid';
+        return 'Content Description is not valid';
     }
 }

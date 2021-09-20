@@ -10,6 +10,10 @@ use App\Domain\Content\Models\CourseLessonComment;
 
 class CourseLesson extends Model
 {
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:m:s',
+    ];
+    
     public function area()
     {
         return $this->hasOne(CourseArea::class, 'id', 'course_area_id');

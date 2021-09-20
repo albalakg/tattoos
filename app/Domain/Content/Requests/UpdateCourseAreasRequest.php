@@ -2,13 +2,13 @@
 
 namespace App\Domain\Content\Requests;
 
-use App\Domain\Content\Rules\StatusRule;
-use App\Domain\Content\Rules\ContentNameRule;
-use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Content\Rules\ContentDescriptionRule;
 use App\Domain\Users\Rules\IDRule;
+use App\Domain\Content\Rules\StatusRule;
+use Illuminate\Foundation\Http\FormRequest;
+use App\Domain\Content\Rules\ContentNameRule;
+use App\Domain\Content\Rules\ContentDescriptionRule;
 
-class UpdateVideoRequest extends FormRequest
+class UpdateCourseAreasRequest extends FormRequest
 {
     public function authorize()
     {
@@ -18,11 +18,13 @@ class UpdateVideoRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'            => ['required', 'bail', new IDRule, 'exists:videos,id'],
+            'id'            => ['required', 'bail', new IDRule, 'exists:course_areas,id'],
             'name'          => ['required', new ContentNameRule],
+            'course_id'     => ['required', new IDRule],
             'description'   => ['nullable', new ContentDescriptionRule],
+            'image'         => ['nullable', 'file', 'max:5000'],
+            'trailer'       => ['nullable', 'file', 'max:10000'],
             'status'        => ['required', new StatusRule],
-            'file'          => ['nullable', 'file', 'max:20000']
         ];
     }
 }

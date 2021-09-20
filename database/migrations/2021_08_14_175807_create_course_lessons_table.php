@@ -18,7 +18,9 @@ class CreateCourseLessonsTable extends Migration
             $table->integer('course_id')->unsigned()->index();
             $table->integer('course_area_id')->unsigned()->index();
             $table->integer('video_id')->unsigned();
+            $table->integer('status')->unsigned()->index();
             $table->string('name', 100);
+            $table->text('content')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

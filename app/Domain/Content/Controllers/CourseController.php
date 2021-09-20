@@ -18,7 +18,7 @@ class CourseController extends Controller
   public function create(CreateCourseRequest $request, CourseService $course_service)
   {
     try {
-      $response = $course_service->createCourse((object) $request->validated(), Auth::user()->id);
+      $response = $course_service->create((object) $request->validated(), Auth::user()->id);
       return $this->successResponse('Course created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());

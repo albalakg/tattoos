@@ -2,10 +2,9 @@
 
 namespace App\Domain\Content\Requests;
 
-use App\Domain\Content\Rules\VideoFileRule;
-use App\Domain\Content\Rules\VideoNameRule;
+use App\Domain\Content\Rules\ContentNameRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Content\Rules\VideoDescriptionRule;
+use App\Domain\Content\Rules\ContentDescriptionRule;
 
 class CreateVideoRequest extends FormRequest
 {
@@ -17,8 +16,8 @@ class CreateVideoRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'          => ['required', new VideoNameRule],
-            'description'   => ['nullable', new VideoDescriptionRule],
+            'name'          => ['required', new ContentNameRule],
+            'description'   => ['nullable', new ContentDescriptionRule],
             'file'          => ['required', 'file', 'max:20000']
         ];
     }

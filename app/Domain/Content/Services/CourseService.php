@@ -2,12 +2,14 @@
 
 namespace App\Domain\Content\Services;
 
+use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
 use App\Domain\Content\Models\Course;
 use App\Domain\Helpers\StatusService;
+use App\Domain\Interfaces\IContentService;
 
-class CourseService
+class CourseService implements IContentService
 {
   const FILES_PATH = 'content/courses';
 
@@ -50,7 +52,7 @@ class CourseService
    * @param int $created_by
    * @return Course|null
   */
-  public function createCourse(object $courseData, int $created_by): ?Course
+  public function create(object $courseData, int $created_by): ?Course
   {
     $course               = new Course;
     $course->category_id  = $courseData->category_id;
@@ -66,5 +68,64 @@ class CourseService
     $course->save();
 
     return $course;
+  }
+
+  /**
+   * @param object $courseData
+   * @param int $updated_by
+   * @return Course|null
+  */
+  public function update(object $courseData, int $updated_by): ?Course
+  {
+    if(!$course = Course::find($courseData->id)) {
+      throw new Exception('Course not found');
+    };
+
+    $course->category_id  = $courseData->category_id;
+    $course->name         = $courseData->name;
+    $course->description  = $courseData->description;
+    $course->price        = $courseData->price;
+    $course->discount     = $courseData->discount;
+    $course->view_order   = 0;
+    $course->status       = $courseData->status;
+    $course->updated_by   = $updated_by;
+    
+    if(!empty($course->image)) {
+      $course->image        = FileService::create($courseData->image, self::FILES_PATH);
+    }
+
+    if(!empty($course->trailer)) {
+      $course->trailer        = FileService::create($courseData->trailer, self::FILES_PATH);
+    }
+    
+    $course->save();
+    return $course;
+  }
+  
+  /**
+   * @param string $path
+   * @param int $deleted_by
+   * @return void
+  */
+  public function multipleDelete(array $ids, int $deleted_by)
+  {
+    foreach($ids AS $video_id) {
+      if($error = $this->delete($video_id, $deleted_by)) {
+        return $error;
+      }
+    }
+  } 
+  
+  /**
+   * @param int $video_id
+   * @param int $deleted_by
+   * @return void
+  */
+  public function delete(int $video_id, int $deleted_by)
+  {
+    try {
+      
+    } catch(Exception $ex) {
+    }
   }
 }

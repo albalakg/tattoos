@@ -19,7 +19,7 @@ class CreateCourseAreasTable extends Migration
             $table->string('name', 100);
             $table->text('description');
             $table->string('image', 100);
-            $table->string('course_area_trailer', 100);
+            $table->string('trailer', 100);
             $table->integer('view_order')->unsigned()->index();
             $table->integer('status')->unsigned()->index();
             $table->timestamps();

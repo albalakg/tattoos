@@ -5,49 +5,46 @@ namespace App\Domain\Content\Controllers;
 use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Domain\Content\Services\VideoService;
-use App\Domain\Content\Requests\CreateVideoRequest;
-use App\Domain\Content\Requests\UpdateVideoRequest;
-use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CourseLessonService;
+use App\Domain\Content\Requests\CreateVideoRequest;
 
-class VideoController extends Controller
+class CourseLessonController extends Controller
 {
-  public function getAll(VideoService $video_service)
+  public function getAll(CourseLessonService $lesson_service)
   {
     try {
-      $response = $video_service->getAll();
+      $response = $lesson_service->getAll();
       return $this->successResponse('Videos fetched successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }
   }
 
-  public function create(CreateVideoRequest $request, VideoService $video_service)
+  public function create(CreateCourseLessonRequest $request, CourseLessonService $lesson_service)
   {
     try {
-      $response = $video_service->create((object) $request->validated(), Auth::user()->id);
+      $response = $lesson_service->create((object) $request->validated(), Auth::user()->id);
       return $this->successResponse('Video created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }
   }
 
-  public function update(UpdateVideoRequest $request, VideoService $video_service)
+  public function update(UpdateVideoRequest $request, CourseLessonService $lesson_service)
   {
     try {
-      $response = $video_service->update((object) $request->validated(), Auth::user()->id);
+      $response = $lesson_service->update((object) $request->validated(), Auth::user()->id);
       return $this->successResponse('Video updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }
   }
 
-public function delete(DeleteRequest $request)
+public function delete(DeleteVideosRequest $request)
   {
     try {
-      $video_service = new VideoService(new CourseLessonService);
-      $response = $video_service->multipleDelete($request->ids, Auth::user()->id);
+      $lesson_service = new CourseLessonService();
+      $response = $lesson_service->delete($request->ids, Auth::user()->id);
       return $this->successResponse('Video deleted successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());

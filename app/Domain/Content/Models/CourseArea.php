@@ -8,9 +8,33 @@ use Illuminate\Database\Eloquent\Model;
 
 class CourseArea extends Model
 {
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:m:s',
+    ];
+    
+    protected $appends = ['imageSrc', 'trailerSrc'];
+
+    public function getImageSrcAttribute()
+    {
+        return config('app.url') . '/' . 'files/' . $this->image;  
+    }
+
+    public function getTrailerSrcAttribute()
+    {
+        return config('app.url') . '/' . 'files/' . $this->trailer;  
+    }
+
     public function course()
     {
         return $this->hasOne(Course::class, 'id', 'course_id');
+    }
+    
+
+    public function category()
+    {
+        return $this->hasOne(Course::class, 'id', 'course_id')
+                    ->join('course_categories', 'course_categories.id', 'courses.category_id')
+                    ->select('courses.id', 'course_categories.name');
     }
     
     public function lessons()

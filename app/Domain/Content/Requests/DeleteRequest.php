@@ -2,14 +2,10 @@
 
 namespace App\Domain\Content\Requests;
 
-use App\Domain\Content\Rules\StatusRule;
-use App\Domain\Content\Rules\VideoFileRule;
-use App\Domain\Content\Rules\VideoNameRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Content\Rules\VideoDescriptionRule;
 use App\Domain\Users\Rules\IDRule;
 
-class DeleteVideosRequest extends FormRequest
+class DeleteRequest extends FormRequest
 {
     public function authorize()
     {
