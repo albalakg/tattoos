@@ -5,8 +5,9 @@ namespace App\Domain\Content\Services;
 use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
-use App\Domain\Content\Models\CourseArea;
 use App\Domain\Helpers\StatusService;
+use App\Domain\Content\Models\CourseArea;
+use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
 
 class CourseAreaService implements IContentService
@@ -28,14 +29,22 @@ class CourseAreaService implements IContentService
     $this->course_lesson_service = $course_lesson_service;
     $this->log_service = new LogService('courses');
   }
+  
+  /**
+   * @param int $course_area_id
+   * @return CourseArea|null
+  */
+  public function getById(int $course_area_id): ?CourseArea
+  {
+    return CourseArea::find($course_area_id);
+  }
 
   /**
    * @return object
   */
   public function getAll(): object
   {
-    return CourseArea::join('courses', 'courses.id', 'course_areas.course_id')
-              ->join('course_categories', 'course_categories.id', 'courses.category_id')
+    return $this->baseQueryBuilder()
               ->select(
                 'course_areas.id',
                 'course_areas.name',
@@ -159,5 +168,16 @@ class CourseAreaService implements IContentService
   private function isCourseAreaInUsed(int $course_area_id): bool
   {
     return $this->course_lesson_service->isCourseAreaInUsed($course_area_id);
+  }
+  
+  /**
+   * Build base query
+   *
+   * @return Builder
+  */   
+  private function baseQueryBuilder(): Builder
+  {
+    return CourseArea::join('courses', 'courses.id', 'course_areas.course_id')
+            ->join('course_categories', 'course_categories.id', 'courses.category_id');
   }
 }

@@ -9,26 +9,31 @@ use App\Domain\Content\Services\CourseService;
 use App\Domain\Content\Requests\CreateCourseRequest;
 
 class CourseController extends Controller
-{
+{  
+  /**
+   * @var CourseService
+  */
+  private $course_service;
+  
   public function __construct()
   {
-    $this->service = new CourseService;
+    $this->course_service = new CourseService;
   }
 
-  public function create(CreateCourseRequest $request, CourseService $course_service)
+  public function create(CreateCourseRequest $request)
   {
     try {
-      $response = $course_service->create((object) $request->validated(), Auth::user()->id);
+      $response = $this->course_service->create((object) $request->validated(), Auth::user()->id);
       return $this->successResponse('Course created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }
   }
 
-  public function getAll(CourseService $course_service)
+  public function getAll()
   {
     try {
-      $response = $course_service->getAll();
+      $response = $this->course_service->getAll();
       return $this->successResponse('Courses fetched successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());

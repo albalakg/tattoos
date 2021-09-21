@@ -122,6 +122,7 @@ class VideoService implements IContentService
       $video->delete();
       
     } catch(Exception $ex) {
+      $this->log_service->error($ex);
       return $this->course_lesson_service->getLessonsWithVideo($video_id);
     }
   }

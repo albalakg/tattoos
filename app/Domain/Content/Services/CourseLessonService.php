@@ -5,9 +5,10 @@ namespace App\Domain\Content\Services;
 use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
-use App\Domain\Content\Models\CourseLesson;
 use App\Domain\Helpers\StatusService;
+use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
+use App\Domain\Content\Models\CourseLesson;
 
 class CourseLessonService implements IContentService
 {
@@ -17,9 +18,15 @@ class CourseLessonService implements IContentService
    * @var LogService
   */
   private $log_service;
+
+  /**
+   * @var CourseAreaService
+  */
+  private $course_area_service;
   
-  public function __construct()
+  public function __construct(CourseAreaService $course_area_service = null)
   {
+    $this->course_area_service = $course_area_service;
     $this->log_service = new LogService('courses');
   }
   
@@ -59,21 +66,7 @@ class CourseLessonService implements IContentService
   */
   public function getAll(): object
   {
-    return CourseLesson::query()
-              ->join('course_areas', 'course_areas.id', 'course_lessons.course_area_id')
-              ->join('courses', 'courses.id', 'course_lessons.course_id')
-              ->join('course_categories', 'course_categories.id', 'courses.category_id')
-              ->join('videos', 'videos.id', 'course_lessons.video_id')
-              ->select(
-                'course_lessons.id',
-                'course_lessons.name',
-                'course_lessons.status',
-                'course_lessons.created_at',
-                'courses.name AS course_name',
-                'course_areas.name AS course_area_name',
-                'course_categories.name AS course_category_name',
-                'videos.video_path',
-              )
+    return $this->baseQueryBuilder()
               ->orderBy('course_lessons.created_at', 'desc')
               ->simplePaginate(1000);
   }
@@ -85,20 +78,18 @@ class CourseLessonService implements IContentService
   */
   public function create(object $lessonData, int $created_by): ?CourseLesson
   {
-    $lesson               = new CourseLesson;
-    $lesson->category_id  = $lessonData->category_id;
-    $lesson->name         = $lessonData->name;
-    $lesson->description  = $lessonData->description;
-    $lesson->price        = $lessonData->price;
-    $lesson->discount     = $lessonData->discount;
-    $lesson->view_order   = 0;
-    $lesson->status       = StatusService::PENDING;
-    $lesson->image        = FileService::create($lessonData->image, self::FILES_PATH);
-    $lesson->trailer      = FileService::create($lessonData->trailer, self::FILES_PATH);
-    $lesson->created_by   = $created_by;
+    $lesson                   = new CourseLesson;
+    $lesson->course_id        = $this->course_area_service->getById($lessonData->course_area_id)->course_id;
+    $lesson->course_area_id   = $lessonData->course_area_id;
+    $lesson->video_id         = $lessonData->video_id;
+    $lesson->name             = $lessonData->name;
+    $lesson->content          = $lessonData->content;
+    $lesson->status           = StatusService::PENDING;
     $lesson->save();
 
-    return $lesson;
+    return $this->baseQueryBuilder()
+          ->where('course_lessons.id', $lesson->id)
+          ->first();
   }
 
   /**
@@ -140,25 +131,21 @@ class CourseLessonService implements IContentService
   */
   public function multipleDelete(array $ids, int $deleted_by)
   {
-    foreach($ids AS $video_id) {
-      if($error = $this->delete($video_id, $deleted_by)) {
+    foreach($ids AS $lesson_id) {
+      if($error = $this->delete($lesson_id, $deleted_by)) {
         return $error;
       }
     }
   } 
   
   /**
-   * @param int $video_id
+   * @param int $lesson_id
    * @param int $deleted_by
    * @return void
   */
-  public function delete(int $video_id, int $deleted_by)
+  public function delete(int $lesson_id, int $deleted_by)
   {
-    try {
-      
-    } catch(Exception $ex) {
-
-    }
+    CourseLesson::where('id', $lesson_id)->delete();
   }
     
   /**
@@ -168,5 +155,29 @@ class CourseLessonService implements IContentService
   public function isCourseAreaInUsed(int $course_area_id): bool
   {
     return CourseLesson::where('course_area_id', $course_area_id)->exists();
+  }
+  
+  /**
+   * Build base query
+   *
+   * @return Builder
+  */   
+  private function baseQueryBuilder(): Builder
+  {
+    return CourseLesson::query()
+            ->join('course_areas', 'course_areas.id', 'course_lessons.course_area_id')
+            ->join('courses', 'courses.id', 'course_lessons.course_id')
+            ->join('course_categories', 'course_categories.id', 'courses.category_id')
+            ->join('videos', 'videos.id', 'course_lessons.video_id')
+            ->select(
+              'course_lessons.id',
+              'course_lessons.name',
+              'course_lessons.status',
+              'course_lessons.created_at',
+              'courses.name AS course_name',
+              'course_areas.name AS course_area_name',
+              'course_categories.name AS course_category_name',
+              'videos.video_path',
+            );
   }
 }

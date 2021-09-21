@@ -13,30 +13,40 @@ use App\Domain\Content\Requests\UpdateCourseAreasRequest;
 
 class CourseAreaController extends Controller
 {
-  public function getAll(CourseAreaService $course_area_service)
+  /**
+   * @var CourseAreaService
+  */
+  private $course_area_service;
+  
+  public function __construct()
+  {
+    $this->course_area_service = new CourseAreaService;
+  }
+
+  public function getAll()
   {
     try {
-      $response = $course_area_service->getAll();
+      $response = $this->course_area_service->getAll();
       return $this->successResponse('Course Areas fetched successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }
   }
 
-  public function create(CreateCourseAreaRequest $request, CourseAreaService $course_area_service)
+  public function create(CreateCourseAreaRequest $request)
   {
     try {
-      $response = $course_area_service->create((object) $request->validated(), Auth::user()->id);
+      $response = $this->course_area_service->create((object) $request->validated(), Auth::user()->id);
       return $this->successResponse('Course Areas created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }
   }
 
-  public function update(UpdateCourseAreasRequest $request, CourseAreaService $course_area_service)
+  public function update(UpdateCourseAreasRequest $request)
   {
     try {
-      $response = $course_area_service->update((object) $request->validated(), Auth::user()->id);
+      $response = $this->course_area_service->update((object) $request->validated(), Auth::user()->id);
       return $this->successResponse('Course Areas updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
@@ -46,8 +56,7 @@ class CourseAreaController extends Controller
 public function delete(DeleteRequest $request)
   {
     try {
-      $course_area_service = new CourseAreaService(new CourseLessonService);
-      $response = $course_area_service->multipleDelete($request->ids, Auth::user()->id);
+      $response = $this->course_area_service->multipleDelete($request->ids, Auth::user()->id);
       return $this->successResponse('Course Areas deleted successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());

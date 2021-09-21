@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Helpers\EnvService;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
+use App\Domain\Helpers\EnvService;
+use App\Domain\Helpers\LogService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -37,6 +38,9 @@ class Controller extends BaseController
 
     protected function errorResponse(string $message, $data = null, $status = Response::HTTP_BAD_REQUEST) : JsonResponse
     {
+        $logger = new LogService;
+        $logger->error($message);
+
         return response()->json(
             [
                 'message' => EnvService::isNotProd() ?  $message : self::DEFAULT_ERROR,

@@ -109,19 +109,19 @@ class CourseService implements IContentService
   */
   public function multipleDelete(array $ids, int $deleted_by)
   {
-    foreach($ids AS $video_id) {
-      if($error = $this->delete($video_id, $deleted_by)) {
+    foreach($ids AS $course_id) {
+      if($error = $this->delete($course_id, $deleted_by)) {
         return $error;
       }
     }
   } 
   
   /**
-   * @param int $video_id
+   * @param int $course_id
    * @param int $deleted_by
    * @return void
   */
-  public function delete(int $video_id, int $deleted_by)
+  public function delete(int $course_id, int $deleted_by)
   {
     try {
       

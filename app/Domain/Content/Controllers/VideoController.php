@@ -13,30 +13,40 @@ use App\Domain\Content\Services\CourseLessonService;
 
 class VideoController extends Controller
 {
-  public function getAll(VideoService $video_service)
+  /**
+   * @var VideoService
+  */
+  private $video_service;
+  
+  public function __construct()
+  {
+    $this->video_service = new VideoService;
+  }
+
+  public function getAll()
   {
     try {
-      $response = $video_service->getAll();
+      $response = $this->video_service->getAll();
       return $this->successResponse('Videos fetched successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }
   }
 
-  public function create(CreateVideoRequest $request, VideoService $video_service)
+  public function create(CreateVideoRequest $request)
   {
     try {
-      $response = $video_service->create((object) $request->validated(), Auth::user()->id);
+      $response = $this->video_service->create((object) $request->validated(), Auth::user()->id);
       return $this->successResponse('Video created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }
   }
 
-  public function update(UpdateVideoRequest $request, VideoService $video_service)
+  public function update(UpdateVideoRequest $request)
   {
     try {
-      $response = $video_service->update((object) $request->validated(), Auth::user()->id);
+      $response = $this->video_service->update((object) $request->validated(), Auth::user()->id);
       return $this->successResponse('Video updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());

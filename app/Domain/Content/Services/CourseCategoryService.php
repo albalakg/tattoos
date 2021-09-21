@@ -93,8 +93,6 @@ class CourseCategoryService implements IContentService
   */
   public function delete(int $courseCategory_id, int $deleted_by)
   {
-    try {
-    } catch(Exception $ex) {
-    }
+    
   }
 }

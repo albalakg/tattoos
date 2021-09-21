@@ -5,9 +5,12 @@ namespace App\Domain\Content\Models;
 use App\Domain\Content\Models\Course;
 use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CourseArea extends Model
 {
+    use SoftDeletes;
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:m:s',
     ];

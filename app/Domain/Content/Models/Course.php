@@ -8,9 +8,12 @@ use App\Domain\Content\Models\CourseArea;
 use App\Domain\Content\Models\CourseRank;
 use App\Domain\Content\Models\CourseView;
 use App\Domain\Content\Models\CourseComment;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Course extends Model
 {
+    use SoftDeletes;
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:m:s',
     ];

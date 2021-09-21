@@ -82,6 +82,13 @@ return [
             'days' => 1,
         ],
 
+        'custom' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/custom/custom.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'videos' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/videos/videos.log'),
