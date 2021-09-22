@@ -9,6 +9,7 @@ use App\Domain\Helpers\StatusService;
 use App\Domain\Content\Models\CourseArea;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
+use Illuminate\Database\Eloquent\Collection;
 
 class CourseAreaService implements IContentService
 {
@@ -23,11 +24,18 @@ class CourseAreaService implements IContentService
    * @var CourseLessonService
   */
   private $course_lesson_service;
+    
+  /**
+   * Contain the error data
+   *
+   * @var mixed
+  */
+  public $error_data;
   
   public function __construct(CourseLessonService $course_lesson_service = null)
   {
     $this->course_lesson_service = $course_lesson_service;
-    $this->log_service = new LogService('courses');
+    $this->log_service = new LogService('courseAreas');
   }
   
   /**
@@ -39,6 +47,26 @@ class CourseAreaService implements IContentService
     return CourseArea::find($course_area_id);
   }
 
+  /**
+   * @param int $course_id
+   * @return bool
+  */
+  public function isCourseInUsed(int $course_id): bool
+  {
+    return CourseArea::where('course_id', $course_id)->exists();
+  }
+
+  /**
+   * @param int $course_id
+   * @return Collection
+  */
+  public function getCourseAreasOfCourse(int $course_id): Collection
+  {
+    return CourseArea::where('course_id', $course_id)
+                    ->select('id', 'name', 'status')
+                    ->get();
+  }
+  
   /**
    * @return object
   */
@@ -102,10 +130,12 @@ class CourseAreaService implements IContentService
     $courseArea->status       = $courseAreaData->status;
     
     if(!empty($courseAreaData->image)) {
+      FileService::delete($courseAreaData->image);
       $courseArea->image      = FileService::create($courseAreaData->image, self::FILES_PATH);
     }
 
     if(!empty($courseAreaData->trailer)) {
+      FileService::delete($courseAreaData->trailer);
       $courseArea->trailer    = FileService::create($courseAreaData->trailer, self::FILES_PATH);
     }
     
@@ -134,31 +164,19 @@ class CourseAreaService implements IContentService
   */
   public function delete(int $course_area_id, int $deleted_by)
   {
-    try {
-      if(!$course_area = CourseArea::find($course_area_id)) {
-        throw new Exception('Course Area not found');
-      }
-
-      if($this->isCourseAreaInUsed($course_area_id)) {
-        throw new Exception('Cannot delete Course Area that is used');
-      }
-  
-      $this->deleteCourseAreaFile($course_area->image);
-      $this->deleteCourseAreaFile($course_area->trailer);
-      $course_area->delete();
-      
-    } catch(Exception $ex) {
-      return $this->course_lesson_service->getLessonsWithCourseArea($course_area_id);
+    if(!$course_area = CourseArea::find($course_area_id)) {
+      throw new Exception('Course Area not found');
     }
-  }
-  
-  /**
-   * @param string $path
-   * @return bool
-  */
-  private function deleteCourseAreaFile(string $path): bool
-  {
-    return FileService::delete($path);
+
+    if($this->isCourseAreaInUsed($course_area_id)) {
+      $this->error_data = $this->course_lesson_service->getLessonsOfCourseArea($course_area_id);
+      throw new Exception('Cannot delete Course Area that is being used');
+    }
+
+    FileService::delete($course_area->image);
+    FileService::delete($course_area->trailer);
+
+    $course_area->delete();
   }
   
   /**

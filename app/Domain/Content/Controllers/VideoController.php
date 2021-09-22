@@ -58,7 +58,7 @@ public function delete(DeleteRequest $request)
     try {
       $video_service = new VideoService(new CourseLessonService);
       $response = $video_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Video deleted successfully', $response);
+      return $this->successResponse('Videos deleted successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }

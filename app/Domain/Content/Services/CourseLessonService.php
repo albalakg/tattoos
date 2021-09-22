@@ -9,10 +9,11 @@ use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
 use App\Domain\Content\Models\CourseLesson;
+use Illuminate\Database\Eloquent\Collection;
 
 class CourseLessonService implements IContentService
 {
-  const FILES_PATH = 'content/courses';
+  const FILES_PATH = 'content/course-lessons';
 
   /**
    * @var LogService
@@ -27,7 +28,7 @@ class CourseLessonService implements IContentService
   public function __construct(CourseAreaService $course_area_service = null)
   {
     $this->course_area_service = $course_area_service;
-    $this->log_service = new LogService('courses');
+    $this->log_service = new LogService('courseLessons');
   }
   
   /**
@@ -43,11 +44,11 @@ class CourseLessonService implements IContentService
   
   /**
    * @param int $course_area_id
-   * @return Lesson|null
+   * @return Collection|null
   */
-  public function getLessonsWithCourseArea(int $course_area_id): ?CourseLesson
+  public function getLessonsOfCourseArea(int $course_area_id): ?Collection
   {
-    return CourseLesson::where('$course_area_id', $course_area_id)
+    return CourseLesson::where('course_area_id', $course_area_id)
                       ->select('id', 'name', 'status')
                       ->get();
   }
@@ -100,25 +101,14 @@ class CourseLessonService implements IContentService
   public function update(object $lessonData, int $updated_by): ?CourseLesson
   {
     if(!$lesson = CourseLesson::find($lessonData->id)) {
-      throw new Exception('CourseLesson not found');
+      throw new Exception('Course Lesson not found');
     };
 
-    $lesson->category_id  = $lessonData->category_id;
-    $lesson->name         = $lessonData->name;
-    $lesson->description  = $lessonData->description;
-    $lesson->price        = $lessonData->price;
-    $lesson->discount     = $lessonData->discount;
-    $lesson->view_order   = 0;
-    $lesson->status       = $lessonData->status;
-    $lesson->updated_by   = $updated_by;
-    
-    if(!empty($lesson->image)) {
-      $lesson->image        = FileService::create($lessonData->image, self::FILES_PATH);
-    }
-
-    if(!empty($lesson->trailer)) {
-      $lesson->trailer        = FileService::create($lessonData->trailer, self::FILES_PATH);
-    }
+    $lesson->course_id      = $this->course_area_service->getById($lessonData->course_area_id)->course_id;
+    $lesson->course_area_id = $lessonData->course_area_id;
+    $lesson->name           = $lessonData->name;
+    $lesson->content        = $lessonData->content;
+    $lesson->status         = $lessonData->status;
     
     $lesson->save();
     return $lesson;
@@ -171,7 +161,11 @@ class CourseLessonService implements IContentService
             ->join('videos', 'videos.id', 'course_lessons.video_id')
             ->select(
               'course_lessons.id',
+              'course_lessons.course_id',
+              'course_lessons.video_id',
+              'course_lessons.course_area_id',
               'course_lessons.name',
+              'course_lessons.content',
               'course_lessons.status',
               'course_lessons.created_at',
               'courses.name AS course_name',

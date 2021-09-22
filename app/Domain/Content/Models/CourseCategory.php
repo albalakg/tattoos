@@ -9,8 +9,19 @@ class CourseCategory extends Model
 {
     use SoftDeletes;
 
-    public function course()
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:m:s',
+    ];
+    
+    protected $appends = ['imageSrc'];
+
+    public function getImageSrcAttribute()
     {
-        return $this->hasOne(Course::class, 'id', 'course_id');
+        return config('app.url') . '/' . 'files/' . $this->image;  
+    }
+
+    public function courses()
+    {
+        return $this->hasMany(Course::class, 'category_id', 'id');
     }
 }

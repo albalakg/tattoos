@@ -9,6 +9,7 @@ use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Services\CourseLessonService;
 use App\Domain\Content\Requests\CreateCourseLessonRequest;
+use App\Domain\Content\Requests\UpdateCourseLessonRequest;
 
 class CourseLessonController extends Controller
 {  
@@ -44,7 +45,7 @@ class CourseLessonController extends Controller
     }
   }
 
-  public function update(CreateCourseLessonRequest $request)
+  public function update(UpdateCourseLessonRequest $request)
   {
     try {
       $response = $this->lesson_service->update((object) $request->validated(), Auth::user()->id);
@@ -58,7 +59,7 @@ public function delete(DeleteRequest $request)
   {
     try {
       $response = $this->lesson_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Lesson deleted successfully', $response);
+      return $this->successResponse('Lessons deleted successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }

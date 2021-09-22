@@ -80,7 +80,7 @@ class VideoService implements IContentService
     $video->status       = $videoData->status;
 
     if(!empty($videoData->file)) {
-      $this->deleteVideoFile($video);
+      FileService::delete($video->video_path);
       $video->video_path   = FileService::create($videoData->file, self::FILES_PATH);
     }
 
@@ -115,10 +115,10 @@ class VideoService implements IContentService
       }
 
       if($this->isVideoInUsed($video_id)) {
-        throw new Exception('Cannot delete video that is used');
+        throw new Exception('Cannot delete video that is being used');
       }
   
-      $this->deleteVideoFile($video);
+      FileService::delete($video->video_path);
       $video->delete();
       
     } catch(Exception $ex) {
@@ -126,17 +126,6 @@ class VideoService implements IContentService
       return $this->course_lesson_service->getLessonsWithVideo($video_id);
     }
   }
-  
-  /**
-   * Delete the video file from the storage
-   *
-   * @param Video $video
-   * @return bool
-  */
-  private function deleteVideoFile(Video $video): bool
-  {
-    return FileService::delete($video->video_path);
-  } 
   
   /**
    * @param int $video_id

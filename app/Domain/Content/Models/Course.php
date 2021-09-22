@@ -17,6 +17,18 @@ class Course extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:m:s',
     ];
+    
+    protected $appends = ['trailerSrc', 'imageSrc'];
+
+    public function getImageSrcAttribute()
+    {
+        return config('app.url') . '/' . 'files/' . $this->image;  
+    }
+
+    public function getTrailerSrcAttribute()
+    {
+        return config('app.url') . '/' . 'files/' . $this->trailer;  
+    }
 
     public function areas()
     {

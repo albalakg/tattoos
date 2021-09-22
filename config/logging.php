@@ -96,6 +96,27 @@ return [
             'days' => 1,
         ],
 
+        'courseCategories' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/courseCategories/courseCategories.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'courseAreas' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/courseAreas/courseAreas.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'courseLessons' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/courseLessons/courseLessons.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'courses' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/courses/courses.log'),
