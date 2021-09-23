@@ -124,6 +124,13 @@ return [
             'days' => 1,
         ],
 
+        'tests' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/tests/tests.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'auth' => [
             'driver' => 'daily',
             'path' => storage_path('logs/auth/auth.log'),

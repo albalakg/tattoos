@@ -6,6 +6,7 @@ use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
 use App\Domain\Content\Models\Video;
+use Illuminate\Pagination\Paginator;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Interfaces\IContentService;
 
@@ -30,19 +31,19 @@ class VideoService implements IContentService
   }
     
   /**
-   * @return object
+   * @return Paginator
   */
-  public function getAll(): object
+  public function getAll(): Paginator
   {
     return Video::select(
-                'videos.id',
-                'videos.name',
-                'videos.status',
-                'videos.description',
-                'videos.video_path',
-                'videos.created_at',
+                'id',
+                'name',
+                'status',
+                'description',
+                'video_path',
+                'created_at',
               )
-              ->orderBy('videos.created_at', 'desc')
+              ->orderBy('created_at', 'desc')
               ->simplePaginate(1000);
   }
     

@@ -5,6 +5,7 @@ namespace App\Domain\Content\Services;
 use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
+use Illuminate\Pagination\Paginator;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Content\Models\CourseArea;
 use Illuminate\Database\Eloquent\Builder;
@@ -68,9 +69,9 @@ class CourseAreaService implements IContentService
   }
   
   /**
-   * @return object
+   * @return Paginator
   */
-  public function getAll(): object
+  public function getAll(): Paginator
   {
     return $this->baseQueryBuilder()
               ->select(

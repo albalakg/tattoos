@@ -5,6 +5,7 @@ namespace App\Domain\Content\Services;
 use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
+use Illuminate\Pagination\Paginator;
 use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
@@ -63,9 +64,9 @@ class CourseLessonService implements IContentService
   }
 
   /**
-   * @return object
+   * @return Paginator
   */
-  public function getAll(): object
+  public function getAll(): Paginator
   {
     return $this->baseQueryBuilder()
               ->orderBy('course_lessons.created_at', 'desc')
