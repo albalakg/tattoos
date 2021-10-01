@@ -23,7 +23,7 @@ class CourseService implements IContentService
   private $log_service;
 
   /**
-   * @var CourseAreaService
+   * @var CourseAreaService|null
   */
   private $course_area_service;
   
@@ -40,7 +40,16 @@ class CourseService implements IContentService
     $this->log_service = new LogService('courses');
   }
   
-    /**
+  /**
+   * @param int $course_id
+   * @return Course
+  */
+  public function getCourse(int $course_id): ?Course
+  {
+    return Course::find($course_id);
+  } 
+
+  /**
    * @return Paginator
   */
   public function getAll(): Paginator
@@ -73,22 +82,22 @@ class CourseService implements IContentService
   }
     
   /**
-   * @param object $courseData
+   * @param object $course_data
    * @param int $created_by
    * @return Course|null
   */
-  public function create(object $courseData, int $created_by): ?Course
+  public function create(object $course_data, int $created_by): ?Course
   {
     $course               = new Course;
-    $course->category_id  = $courseData->category_id;
-    $course->name         = $courseData->name;
-    $course->description  = $courseData->description;
-    $course->price        = $courseData->price;
-    $course->discount     = $courseData->discount;
+    $course->category_id  = $course_data->category_id;
+    $course->name         = $course_data->name;
+    $course->description  = $course_data->description;
+    $course->price        = $course_data->price;
+    $course->discount     = $course_data->discount;
     $course->view_order   = 0;
     $course->status       = StatusService::PENDING;
-    $course->image        = FileService::create($courseData->image, self::FILES_PATH);
-    $course->trailer      = FileService::create($courseData->trailer, self::FILES_PATH);
+    $course->image        = FileService::create($course_data->image, self::FILES_PATH);
+    $course->trailer      = FileService::create($course_data->trailer, self::FILES_PATH);
     $course->created_by   = $created_by;
     $course->save();
 
@@ -96,32 +105,32 @@ class CourseService implements IContentService
   }
 
   /**
-   * @param object $courseData
+   * @param object $course_data
    * @param int $updated_by
    * @return Course|null
   */
-  public function update(object $courseData, int $updated_by): ?Course
+  public function update(object $course_data, int $updated_by): ?Course
   {
-    if(!$course = Course::find($courseData->id)) {
+    if(!$course = Course::find($course_data->id)) {
       throw new Exception('Course not found');
     };
 
-    $course->category_id  = $courseData->category_id;
-    $course->name         = $courseData->name;
-    $course->description  = $courseData->description;
-    $course->price        = $courseData->price;
-    $course->discount     = $courseData->discount;
+    $course->category_id  = $course_data->category_id;
+    $course->name         = $course_data->name;
+    $course->description  = $course_data->description;
+    $course->price        = $course_data->price;
+    $course->discount     = $course_data->discount;
     $course->view_order   = 0;
-    $course->status       = $courseData->status;
+    $course->status       = $course_data->status;
     
-    if(!empty($courseData->image)) {
+    if(!empty($course_data->image)) {
       FileService::delete($course->image);
-      $course->image      = FileService::create($courseData->image, self::FILES_PATH);
+      $course->image      = FileService::create($course_data->image, self::FILES_PATH);
     }
     
-    if(!empty($courseData->trailer)) {
+    if(!empty($course_data->trailer)) {
       FileService::delete($course->trailer);
-      $course->trailer    = FileService::create($courseData->trailer, self::FILES_PATH);
+      $course->trailer    = FileService::create($course_data->trailer, self::FILES_PATH);
     }
     
     $course->save();

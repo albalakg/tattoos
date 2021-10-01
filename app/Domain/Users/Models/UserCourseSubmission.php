@@ -23,33 +23,18 @@ class UserCourseSubmission extends Model
   public function user()
   {
     return $this->hasOne(UserCourse::class, 'id', 'user_course_id')
-                ->join('users', 'users.id', 'user_courses.user_id')
+                ->join('user_details', 'user_details.user_id', 'user_courses.user_id')
                 ->select(
                   'user_course_id',
                   'user_courses.user_id',
-                  'users.first_name',
-                  'users.last_name',
-                  'user_courses.user_id'
-                );
-  }
-
-  public function metaData()
-  {
-    return $this->hasOne(UserCourse::class, 'id', 'user_course_id')
-                ->join('users', 'users.id', 'user_courses.user_id')
-                ->join('courses', 'courses.id', 'user_courses.course_id')
-                ->select(
-                  'user_course_id',
-                  'courses.name', 
-                  'user_courses.user_id',
-                  'users.first_name',
-                  'users.last_name',
-                  'user_courses.user_id'
+                  'user_details.first_name',
+                  'user_details.last_name',
                 );
   }
 
   public function comments()
   {
-    return $this->hasMany(UserCourseSubmissionComment::class, 'user_course_submission_id', 'id');
+    return $this->hasMany(UserCourseSubmissionComment::class, 'user_course_submission_id', 'id')
+                ->orderBy('created_at', 'desc');
   }
 }

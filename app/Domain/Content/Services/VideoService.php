@@ -20,7 +20,7 @@ class VideoService implements IContentService
   private $log_service;
 
   /**
-   * @var CourseLessonService
+   * @var CourseLessonService|null
   */
   private $course_lesson_service;
   
@@ -48,17 +48,17 @@ class VideoService implements IContentService
   }
     
   /**
-   * @param object $videoData
+   * @param object $video_data
    * @param int $created_by
    * @return Video
   */
-  public function create(object $videoData, int $created_by): ?Video
+  public function create(object $video_data, int $created_by): ?Video
   {
     $video               = new Video;
-    $video->name         = $videoData->name;
-    $video->description  = $videoData->description;
+    $video->name         = $video_data->name;
+    $video->description  = $video_data->description;
     $video->status       = StatusService::ACTIVE;
-    $video->video_path   = FileService::create($videoData->file, self::FILES_PATH);
+    $video->video_path   = FileService::create($video_data->file, self::FILES_PATH);
     $video->created_by   = $created_by;
     $video->save();
 
@@ -66,23 +66,23 @@ class VideoService implements IContentService
   }
     
   /**
-   * @param object $videoData
+   * @param object $video_data
    * @param int $updated_by
    * @return Video
   */
-  public function update(object $videoData, int $updated_by): ?Video
+  public function update(object $video_data, int $updated_by): ?Video
   {
-    if(!$video = Video::find($videoData->id)) {
+    if(!$video = Video::find($video_data->id)) {
       throw new Exception('Video not found');
     }
 
-    $video->name         = $videoData->name;
-    $video->description  = $videoData->description;
-    $video->status       = $videoData->status;
+    $video->name         = $video_data->name;
+    $video->description  = $video_data->description;
+    $video->status       = $video_data->status;
 
-    if(!empty($videoData->file)) {
+    if(!empty($video_data->file)) {
       FileService::delete($video->video_path);
-      $video->video_path   = FileService::create($videoData->file, self::FILES_PATH);
+      $video->video_path   = FileService::create($video_data->file, self::FILES_PATH);
     }
 
     $video->save();
@@ -110,22 +110,17 @@ class VideoService implements IContentService
   */
   public function delete(int $video_id, int $deleted_by)
   {
-    try {
-      if(!$video = Video::find($video_id)) {
-        throw new Exception('Video not found');
-      }
-
-      if($this->isVideoInUsed($video_id)) {
-        throw new Exception('Cannot delete video that is being used');
-      }
-  
-      FileService::delete($video->video_path);
-      $video->delete();
-      
-    } catch(Exception $ex) {
-      $this->log_service->error($ex);
-      return $this->course_lesson_service->getLessonsWithVideo($video_id);
+    if(!$video = Video::find($video_id)) {
+      throw new Exception('Video not found');
     }
+
+    if($this->isVideoInUsed($video_id)) {
+      $this->error_data = $this->course_lesson_service->getLessonsWithVideo($video_id);
+      throw new Exception('Cannot delete video that is being used');
+    }
+
+    FileService::delete($video->video_path);
+    $video->delete();
   }
   
   /**

@@ -21,7 +21,7 @@ class UpdateUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'            => ['required', new IDRule, 'exists:users,id'],
+            'id'            => ['required', 'bail', new IDRule, 'exists:users,id'],
             'first_name'    => ['required', new FirstNameRule],
             'last_name'     => ['required', new LastNameRule],
             'role'          => ['required', new RoleRule],

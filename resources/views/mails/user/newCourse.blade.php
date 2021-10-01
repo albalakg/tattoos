@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Account Request</title>
+    <title>New Course</title>
 </head>
 <body>
     <table>
@@ -11,7 +11,7 @@
             <tr>
                 <td align="center">
                     <h1>
-                        Delete Account Request
+                    New Course
                     </h1>
                 </td>
             </tr>
@@ -22,9 +22,13 @@
                     <p>
                         Hello {{ $data->user_name }},
                         <br>
-                        Are you sure you want to delete your account?
+                        You have just started the course "{{ $data->course }}".
                         <br>
-                        From the moment the account is deleted, there is no way to restore the lost data.
+                        The course cost {{ $data->price }} NIS.
+                        <br>
+                        The course ends at {{ $data->end_at }}.
+                        <br>
+                        Thanks
                     </p>
                 </td>
             </tr>

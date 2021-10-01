@@ -9,7 +9,7 @@ use App\Domain\Content\Models\CourseLessonDetail;
 class Video extends Model
 {
     protected $casts = [
-        'created_at' => 'datetime:Y-m-d H:m:s',
+        'created_at' => 'datetime:Y-m-d H:i:s',
     ];
 
     protected $appends = ['video'];

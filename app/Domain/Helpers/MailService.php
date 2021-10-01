@@ -1,17 +1,16 @@
 <?php
 
-namespace App\Services\Mail;
+namespace App\Domain\Helpers;
 
 use Exception;
-use Carbon\Carbon;
 use Illuminate\Mail\Mailable;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Mail;
-use App\Services\Logger\LoggerService;
 
 class MailService
 {
   const MAIL_LOG_DRIVER = 'mail';
+  const DEFAULT_DELAY = 1; // Seconds
 
   /**
    * @var array
@@ -39,7 +38,7 @@ class MailService
    * @param int $seconds
    * @return self
   */
-  public function delay(int $seconds): self
+  public function delay(int $seconds = self::DEFAULT_DELAY): self
   {
     $this->delay = now()->addSeconds($seconds);
     return $this;
@@ -48,17 +47,22 @@ class MailService
   /**
    * Send the email to the receivers
    *
-   * @param mixed $emails
-   * @param mixed $email_class
-   * @param mixed $data
+   * @param string|array $emails
+   * @param string $email_class
+   * @param object|array $data
    * @return bool
   */
-  public function send(mixed $emails, mixed $email_class, mixed $data): bool
+  public function send($emails, string $email_class, $data): bool
   {
     try {
+      // If mail service is off skip
+      if(!config('mail.status')) {
+        return true;
+      }
+
       $this->setReceivers($emails);
       if(!$this->receivers) {
-        $this->errorLog('No receivers found ' . json_encode($emails));
+        throw new Exception('No receivers found');
       }
 
       if($this->delay) {

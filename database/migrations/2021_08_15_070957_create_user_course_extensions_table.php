@@ -16,11 +16,9 @@ class CreateUserCourseExtensionsTable extends Migration
         Schema::create('user_course_extensions', function (Blueprint $table) {
             $table->id();
             $table->integer('user_course_id')->unsigned()->index();
-            $table->integer('course_lesson_id')->unsigned()->index();
-            $table->integer('progress')->unsigned()->index();
-            $table->integer('status')->unsigned()->index();
+            $table->integer('extra_days')->unsigned()->index();
             $table->dateTime('created_at');
-            $table->dateTime('finished_at')->nullable();
+            $table->integer('created_by')->unsigned()->index();
         });
     }
 

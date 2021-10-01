@@ -19,6 +19,7 @@ class CreateUserCourseSubmissions extends Migration
             $table->string('video', 100);
             $table->integer('status')->unsigned()->index();
             $table->text('comment')->nullable();
+            $table->dateTime('finished_at')->nullable();
             $table->timestamps();
         });
     }

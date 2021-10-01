@@ -22,7 +22,7 @@ class CourseLessonService implements IContentService
   private $log_service;
 
   /**
-   * @var CourseAreaService
+   * @var CourseAreaService|null
   */
   private $course_area_service;
   
@@ -74,18 +74,18 @@ class CourseLessonService implements IContentService
   }
     
   /**
-   * @param object $lessonData
+   * @param object $lesson_data
    * @param int $created_by
    * @return CourseLesson|null
   */
-  public function create(object $lessonData, int $created_by): ?CourseLesson
+  public function create(object $lesson_data, int $created_by): ?CourseLesson
   {
     $lesson                   = new CourseLesson;
-    $lesson->course_id        = $this->course_area_service->getById($lessonData->course_area_id)->course_id;
-    $lesson->course_area_id   = $lessonData->course_area_id;
-    $lesson->video_id         = $lessonData->video_id;
-    $lesson->name             = $lessonData->name;
-    $lesson->content          = $lessonData->content;
+    $lesson->course_id        = $this->course_area_service->getById($lesson_data->course_area_id)->course_id;
+    $lesson->course_area_id   = $lesson_data->course_area_id;
+    $lesson->video_id         = $lesson_data->video_id;
+    $lesson->name             = $lesson_data->name;
+    $lesson->content          = $lesson_data->content;
     $lesson->status           = StatusService::PENDING;
     $lesson->save();
 
@@ -95,21 +95,21 @@ class CourseLessonService implements IContentService
   }
 
   /**
-   * @param object $lessonData
+   * @param object $lesson_data
    * @param int $updated_by
    * @return CourseLesson|null
   */
-  public function update(object $lessonData, int $updated_by): ?CourseLesson
+  public function update(object $lesson_data, int $updated_by): ?CourseLesson
   {
-    if(!$lesson = CourseLesson::find($lessonData->id)) {
+    if(!$lesson = CourseLesson::find($lesson_data->id)) {
       throw new Exception('Course Lesson not found');
     };
 
-    $lesson->course_id      = $this->course_area_service->getById($lessonData->course_area_id)->course_id;
-    $lesson->course_area_id = $lessonData->course_area_id;
-    $lesson->name           = $lessonData->name;
-    $lesson->content        = $lessonData->content;
-    $lesson->status         = $lessonData->status;
+    $lesson->course_id      = $this->course_area_service->getById($lesson_data->course_area_id)->course_id;
+    $lesson->course_area_id = $lesson_data->course_area_id;
+    $lesson->name           = $lesson_data->name;
+    $lesson->content        = $lesson_data->content;
+    $lesson->status         = $lesson_data->status;
     
     $lesson->save();
     return $lesson;

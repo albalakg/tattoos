@@ -16,9 +16,10 @@ class CreateUserCourseLessonsTable extends Migration
         Schema::create('user_course_lessons', function (Blueprint $table) {
             $table->id();
             $table->integer('user_course_id')->unsigned()->index();
-            $table->integer('extra_days')->unsigned()->index();
+            $table->integer('course_lesson_id')->unsigned()->index();
+            $table->integer('status')->unsigned()->index();
             $table->dateTime('created_at');
-            $table->integer('created_by')->unsigned()->index();
+            $table->dateTime('finished_at')->nullable();
         });
     }
 

@@ -117,6 +117,13 @@ return [
             'days' => 1,
         ],
 
+        'userCourses' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/userCourses/userCourses.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'courses' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/courses/courses.log'),

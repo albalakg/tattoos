@@ -20,12 +20,19 @@ class User extends Authenticatable
   ];
 
   protected $casts = [
-    'created_at' => 'datetime:Y-m-d H:m:s',
-    'updated_at' => 'datetime:Y-m-d H:m:s',
-    'deleted_at' => 'datetime:Y-m-d H:m:s',
+    'created_at' => 'datetime:Y-m-d H:i:s',
+    'updated_at' => 'datetime:Y-m-d H:i:s',
+    'deleted_at' => 'datetime:Y-m-d H:i:s',
   ];
 
   protected $guarded = [];
+
+  protected $appends = ['fullName'];
+
+  public function getFullNameAttribute()
+  {
+      return $this->first_name . ' ' . $this->last_name;  
+  }
 
   public function role()
   {

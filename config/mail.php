@@ -15,6 +15,8 @@ return [
 
     'default' => env('MAIL_MAILER', 'smtp'),
 
+    'status' => env('MAIL_STATUS', true),
+
     /*
     |--------------------------------------------------------------------------
     | Mailer Configurations

@@ -22,7 +22,7 @@ class CourseAreaService implements IContentService
   private $log_service;
   
   /**
-   * @var CourseLessonService
+   * @var CourseLessonService|null
   */
   private $course_lesson_service;
     
@@ -92,56 +92,56 @@ class CourseAreaService implements IContentService
   }
     
   /**
-   * @param object $courseAreaData
+   * @param object $course_area_data
    * @param int $created_by
    * @return CourseArea|null 
   */
-  public function create(object $courseAreaData, int $created_by): ?CourseArea
+  public function create(object $course_area_data, int $created_by): ?CourseArea
   {
-    $courseArea               = new CourseArea;
-    $courseArea->course_id    = $courseAreaData->course_id;
-    $courseArea->name         = $courseAreaData->name;
-    $courseArea->description  = $courseAreaData->description;
-    $courseArea->view_order   = 0;
-    $courseArea->status       = StatusService::PENDING;
-    $courseArea->image        = FileService::create($courseAreaData->image, self::FILES_PATH);
-    $courseArea->trailer      = FileService::create($courseAreaData->trailer, self::FILES_PATH);
-    $courseArea->created_by   = $created_by;
-    $courseArea->save();
+    $course_area               = new CourseArea;
+    $course_area->course_id    = $course_area_data->course_id;
+    $course_area->name         = $course_area_data->name;
+    $course_area->description  = $course_area_data->description;
+    $course_area->view_order   = 0;
+    $course_area->status       = StatusService::PENDING;
+    $course_area->image        = FileService::create($course_area_data->image, self::FILES_PATH);
+    $course_area->trailer      = FileService::create($course_area_data->trailer, self::FILES_PATH);
+    $course_area->created_by   = $created_by;
+    $course_area->save();
 
-    $courseArea->load('category');
-    return $courseArea;
+    $course_area->load('category');
+    return $course_area;
   }
 
   /**
-   * @param object $courseAreaData
+   * @param object $course_area_data
    * @param int $updated_by
    * @return CourseArea|null
   */
-  public function update(object $courseAreaData, int $updated_by): ?CourseArea
+  public function update(object $course_area_data, int $updated_by): ?CourseArea
   {
-    if(!$courseArea = CourseArea::find($courseAreaData->id)) {
+    if(!$course_area = CourseArea::find($course_area_data->id)) {
       throw new Exception('Course Area not found');
     };
 
-    $courseArea->course_id    = $courseAreaData->course_id;
-    $courseArea->name         = $courseAreaData->name;
-    $courseArea->description  = $courseAreaData->description;
-    $courseArea->view_order   = 0;
-    $courseArea->status       = $courseAreaData->status;
+    $course_area->course_id    = $course_area_data->course_id;
+    $course_area->name         = $course_area_data->name;
+    $course_area->description  = $course_area_data->description;
+    $course_area->view_order   = 0;
+    $course_area->status       = $course_area_data->status;
     
-    if(!empty($courseAreaData->image)) {
-      FileService::delete($courseAreaData->image);
-      $courseArea->image      = FileService::create($courseAreaData->image, self::FILES_PATH);
+    if(!empty($course_area_data->image)) {
+      FileService::delete($course_area_data->image);
+      $course_area->image      = FileService::create($course_area_data->image, self::FILES_PATH);
     }
 
-    if(!empty($courseAreaData->trailer)) {
-      FileService::delete($courseAreaData->trailer);
-      $courseArea->trailer    = FileService::create($courseAreaData->trailer, self::FILES_PATH);
+    if(!empty($course_area_data->trailer)) {
+      FileService::delete($course_area_data->trailer);
+      $course_area->trailer    = FileService::create($course_area_data->trailer, self::FILES_PATH);
     }
     
-    $courseArea->save();
-    return $courseArea;
+    $course_area->save();
+    return $course_area;
   }
   
   /**

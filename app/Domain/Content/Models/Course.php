@@ -15,7 +15,7 @@ class Course extends Model
     use SoftDeletes;
 
     protected $casts = [
-        'created_at' => 'datetime:Y-m-d H:m:s',
+        'created_at' => 'datetime:Y-m-d H:i:s',
     ];
     
     protected $appends = ['trailerSrc', 'imageSrc'];

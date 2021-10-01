@@ -37,10 +37,6 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
         $this->routes(function () {
-            Route::prefix('api')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/api.php'));
-
             Route::middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
@@ -93,10 +89,15 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path("routes/groups/cms/videos.php"));
 
-            Route::prefix('api/cms/tests')
+            Route::prefix('api/cms/user-courses')
                 ->middleware('auth:api', 'admin')
                 ->namespace($this->namespace)
-                ->group(base_path("routes/groups/cms/tests.php"));
+                ->group(base_path("routes/groups/cms/userCourses.php"));
+                
+            Route::prefix('api')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/api.php'));
+
         });
     }
 

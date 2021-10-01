@@ -8,15 +8,16 @@ use Illuminate\Support\Str;
 use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
+use App\Domain\Helpers\MailService;
 use Illuminate\Support\Facades\Hash;
 use App\Domain\Helpers\StatusService;
 use App\Events\Users\UserCreatedEvent;
 use App\Events\Users\UserDeletedEvent;
 use App\Domain\Users\Models\UserDetail;
+use App\Mail\User\UpdateEmailRequestMail;
 use App\Events\Users\UserResetPasswordEvent;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Users\Models\UserEmailVerification;
-use App\Services\Mail\MailService;
 
 class UserService
 {  
@@ -54,6 +55,15 @@ class UserService
   }
   
   /**
+   * @param int $user_id
+   * @return User|null
+  */
+  public function getUser(int $user_id): ?User
+  {
+    return User::find($user_id);
+  }
+  
+  /**
    * @param string $email
    * @return User
   */
@@ -71,6 +81,15 @@ class UserService
   public function isActive(object $user) :bool
   {
     return $user->status === StatusService::ACTIVE;
+  }
+  
+  /**
+   * @param User $user
+   * @return string
+  */
+  public function getFullName(User $user): string
+  {
+    return  $user->first_name . ' ' . $user->last_name;
   }
 
   /**
@@ -336,7 +355,7 @@ class UserService
 
     $user->email_verification = $this->saveEmailVerification($user->id, $email);
     $mailService = new MailService;
-    // $mailService->delay(1)->send($email, UpdateEmailMail:class, $user);
+    $mailService->delay()->send($email, UpdateEmailRequestMail::class, $user);
   }
     
   /**
