@@ -8,6 +8,10 @@ use App\Domain\Users\Models\UserCourseSubmissionComment;
 
 class UserCourseSubmission extends Model
 {
+  protected $casts = [
+    'created_at' => 'datetime:Y-m-d H:i:s',
+  ];
+
   public function userCourse()
   {
     return $this->hasOne(UserCourse::class, 'id', 'user_course_id');

@@ -84,10 +84,10 @@ class UserService
   }
   
   /**
-   * @param User $user
+   * @param Object $user
    * @return string
   */
-  public function getFullName(User $user): string
+  public function getFullName(Object $user): string
   {
     return  $user->first_name . ' ' . $user->last_name;
   }

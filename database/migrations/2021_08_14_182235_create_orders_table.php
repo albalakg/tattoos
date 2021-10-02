@@ -17,6 +17,7 @@ class CreateOrdersTable extends Migration
             $table->id();
             $table->integer('user_id')->unsigned()->index();
             $table->integer('content_type_id')->unsigned()->index();
+            $table->integer('content_id')->unsigned()->index();
             $table->integer('order_number')->unsigned();
             $table->integer('status')->unsigned()->index();
             $table->string('content_name', 100);
