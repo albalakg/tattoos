@@ -2,9 +2,9 @@
 
 namespace App\Domain\Content\Requests;
 
-use App\Domain\Content\Rules\ContentNameRule;
+use App\Rules\NameRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Content\Rules\ContentDescriptionRule;
+use App\Rules\DescriptionRule;
 
 class CreateCourseCategoryRequest extends FormRequest
 {
@@ -16,8 +16,8 @@ class CreateCourseCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'          => ['required', new ContentNameRule],
-            'description'   => ['nullable', new ContentDescriptionRule],
+            'name'          => ['required', new NameRule],
+            'description'   => ['nullable', new DescriptionRule],
             'image'         => ['required', 'file', 'max:5000'],
         ];
     }

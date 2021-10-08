@@ -6,9 +6,9 @@ use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
 use App\Domain\Content\Models\Video;
-use Illuminate\Pagination\Paginator;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Interfaces\IContentService;
+use Illuminate\Database\Eloquent\Collection;
 
 class VideoService implements IContentService
 {
@@ -31,9 +31,9 @@ class VideoService implements IContentService
   }
     
   /**
-   * @return Paginator
+   * @return Collection
   */
-  public function getAll(): Paginator
+  public function getAll(): Collection
   {
     return Video::select(
                 'id',
@@ -44,7 +44,7 @@ class VideoService implements IContentService
                 'created_at',
               )
               ->orderBy('created_at', 'desc')
-              ->simplePaginate(1000);
+              ->get();
   }
     
   /**

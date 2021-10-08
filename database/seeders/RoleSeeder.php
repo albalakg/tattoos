@@ -14,6 +14,7 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
+        Role::truncate();
         $roles = [
             ['id' => Role::NORMAL, 'name' => 'Normal', 'created_at' => now()],
             ['id' => Role::ADMIN, 'name' => 'Admin', 'created_at' => now()],

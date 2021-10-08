@@ -1,14 +1,18 @@
 <?php
 
-namespace App\Domain\Tags\Models;
+namespace App\Domain\Support\Models;
 
 use App\Domain\Users\Models\User;
-use App\Domain\Tags\Models\OrderLog;
+use App\Domain\Support\Models\OrderLog;
 use Illuminate\Database\Eloquent\Model;
-use App\Domain\Tags\Models\SupportTicketMessage;
+use App\Domain\Support\Models\SupportTicketMessage;
 
 class SupportTicket extends Model
 {
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:i:s',
+    ];
+    
     public function messages()
     {
         return $this->hasMany(SupportTicketMessage::class, 'support_ticket_id', 'id');

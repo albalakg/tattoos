@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domain\Tags\Models;
+namespace App\Domain\Orders\Models;
 
-use App\Domain\Tags\Models\Order;
+use App\Domain\Orders\Models\Order;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderLog extends Model

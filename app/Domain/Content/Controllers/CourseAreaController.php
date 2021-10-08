@@ -38,7 +38,7 @@ class CourseAreaController extends Controller
   public function create(CreateCourseAreaRequest $request)
   {
     try {
-      $response = $this->course_area_service->create((object) $request->validated(), Auth::user()->id);
+      $response = $this->course_area_service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Course Area created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
@@ -48,7 +48,7 @@ class CourseAreaController extends Controller
   public function update(UpdateCourseAreasRequest $request)
   {
     try {
-      $response = $this->course_area_service->update((object) $request->validated(), Auth::user()->id);
+      $response = $this->course_area_service->update($request->validated(), Auth::user()->id);
       return $this->successResponse('Course Area updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());

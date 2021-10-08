@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Domain\Content\Requests;
+namespace App\Domain\Support\Requests;
 
 use App\Rules\NameRule;
-use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\DescriptionRule;
+use Illuminate\Foundation\Http\FormRequest;
 
-class CreateVideoRequest extends FormRequest
+class CreateSupportCategoryRequest extends FormRequest
 {
     public function authorize()
     {
@@ -16,9 +16,8 @@ class CreateVideoRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'          => ['required', new NameRule],
+            'name'          => ['required', 'bail', new NameRule, 'unique:support_categories,name'],
             'description'   => ['nullable', new DescriptionRule],
-            'file'          => ['required', 'file', 'max:20000']
         ];
     }
 }

@@ -16,6 +16,7 @@ class CreateSupportCategoriesTable extends Migration
         Schema::create('support_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100)->unique();
+            $table->text('description')->nullable();
             $table->integer('status')->unsigned()->index();
             $table->softDeletes();
             $table->timestamps();

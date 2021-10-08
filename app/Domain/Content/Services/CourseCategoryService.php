@@ -5,10 +5,10 @@ namespace App\Domain\Content\Services;
 use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
-use Illuminate\Pagination\Paginator;
 use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
+use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Models\CourseCategory;
 
 class CourseCategoryService implements IContentService
@@ -39,13 +39,13 @@ class CourseCategoryService implements IContentService
   }
   
     /**
-   * @return Paginator
+   * @return Collection
   */
-  public function getAll(): Paginator
+  public function getAll(): Collection
   {
     return  $this->baseQueryBuilder()
               ->orderBy('created_at', 'desc')
-              ->simplePaginate(1000);
+              ->get();
   }
     
   /**

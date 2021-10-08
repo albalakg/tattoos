@@ -124,6 +124,20 @@ return [
             'days' => 1,
         ],
 
+        'orders' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/orders/orders.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'support' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/support/support.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'courses' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/courses/courses.log'),

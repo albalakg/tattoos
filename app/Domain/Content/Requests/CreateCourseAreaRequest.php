@@ -2,9 +2,9 @@
 
 namespace App\Domain\Content\Requests;
 
-use App\Domain\Content\Rules\ContentNameRule;
+use App\Rules\NameRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Content\Rules\ContentDescriptionRule;
+use App\Rules\DescriptionRule;
 use App\Domain\Users\Rules\IDRule;
 
 class CreateCourseAreaRequest extends FormRequest
@@ -17,9 +17,9 @@ class CreateCourseAreaRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'          => ['required', new ContentNameRule],
+            'name'          => ['required', new NameRule],
             'course_id'     => ['required', new IDRule],
-            'description'   => ['nullable', new ContentDescriptionRule],
+            'description'   => ['nullable', new DescriptionRule],
             'image'         => ['required', 'file', 'max:5000'],
             'trailer'       => ['required', 'file', 'max:10000'],
             'price'         => 'nullable|numeric|min:1',

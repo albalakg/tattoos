@@ -151,7 +151,7 @@ class LogService
 
     private function writeURL()
     {
-        $this->log_meta_data .= 'URL: ' . request()->server('HTTP_REFERER') . self::SEPARATOR;
+        $this->log_meta_data .= 'URL: ' . request()->url() . self::SEPARATOR;
     }
 
     private function getUser()

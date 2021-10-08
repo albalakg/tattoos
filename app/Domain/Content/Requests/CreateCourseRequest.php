@@ -2,9 +2,9 @@
 
 namespace App\Domain\Content\Requests;
 
-use App\Domain\Content\Rules\ContentNameRule;
+use App\Rules\NameRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Content\Rules\ContentDescriptionRule;
+use App\Rules\DescriptionRule;
 use App\Domain\Users\Rules\IDRule;
 
 class CreateCourseRequest extends FormRequest
@@ -18,8 +18,8 @@ class CreateCourseRequest extends FormRequest
     {
         return [
             'category_id'   => ['required', 'bail', new IDRule, 'exists:course_categories,id'],
-            'name'          => ['required', new ContentNameRule],
-            'description'   => ['nullable', new ContentDescriptionRule],
+            'name'          => ['required', new NameRule],
+            'description'   => ['nullable', new DescriptionRule],
             'image'         => ['required', 'file', 'max:5000'],
             'trailer'       => ['required', 'file', 'max:10000'],
             'price'         => 'nullable|numeric|min:1',

@@ -20,7 +20,6 @@ class CreateOrdersTable extends Migration
             $table->integer('content_id')->unsigned()->index();
             $table->integer('order_number')->unsigned();
             $table->integer('status')->unsigned()->index();
-            $table->string('content_name', 100);
             $table->decimal('price');
             $table->timestamps();
         });

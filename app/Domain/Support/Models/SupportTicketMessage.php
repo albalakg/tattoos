@@ -4,7 +4,7 @@ namespace App\Domain\Tags\Models;
 
 use App\Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use App\Domain\Tags\Models\SupportTicket;
+use App\Domain\Support\Models\SupportTicket;
 
 class SupportTicketMessage extends Model
 {

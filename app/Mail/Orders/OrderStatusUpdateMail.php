@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class TestStatusUpdateMail extends Mailable
+class OrderStatusUpdateMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -30,6 +30,6 @@ class TestStatusUpdateMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Test Updated')->view('mails.test.updateTestStatus');
+        return $this->subject('Order Updated')->view('mails.order.updateOrderStatus');
     }
 }

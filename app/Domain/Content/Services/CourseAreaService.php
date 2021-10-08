@@ -5,7 +5,6 @@ namespace App\Domain\Content\Services;
 use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
-use Illuminate\Pagination\Paginator;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Content\Models\CourseArea;
 use Illuminate\Database\Eloquent\Builder;
@@ -69,9 +68,9 @@ class CourseAreaService implements IContentService
   }
   
   /**
-   * @return Paginator
+   * @return Collection
   */
-  public function getAll(): Paginator
+  public function getAll(): Collection
   {
     return $this->baseQueryBuilder()
               ->select(
@@ -88,24 +87,24 @@ class CourseAreaService implements IContentService
               )
               ->withCount('lessons')
               ->orderBy('course_areas.created_at', 'desc')
-              ->simplePaginate(1000);
+              ->get();
   }
     
   /**
-   * @param object $course_area_data
+   * @param $course_area_data
    * @param int $created_by
    * @return CourseArea|null 
   */
-  public function create(object $course_area_data, int $created_by): ?CourseArea
+  public function create($course_area_data, int $created_by): ?CourseArea
   {
     $course_area               = new CourseArea;
-    $course_area->course_id    = $course_area_data->course_id;
-    $course_area->name         = $course_area_data->name;
-    $course_area->description  = $course_area_data->description;
+    $course_area->course_id    = $course_area_data['course_id'];
+    $course_area->name         = $course_area_data['name'];
+    $course_area->description  = $course_area_data['description'];
     $course_area->view_order   = 0;
     $course_area->status       = StatusService::PENDING;
-    $course_area->image        = FileService::create($course_area_data->image, self::FILES_PATH);
-    $course_area->trailer      = FileService::create($course_area_data->trailer, self::FILES_PATH);
+    $course_area->image        = FileService::create($course_area_data['image'], self::FILES_PATH);
+    $course_area->trailer      = FileService::create($course_area_data['trailer'], self::FILES_PATH);
     $course_area->created_by   = $created_by;
     $course_area->save();
 
@@ -114,30 +113,30 @@ class CourseAreaService implements IContentService
   }
 
   /**
-   * @param object $course_area_data
+   * @param $course_area_data
    * @param int $updated_by
    * @return CourseArea|null
   */
-  public function update(object $course_area_data, int $updated_by): ?CourseArea
+  public function update($course_area_data, int $updated_by): ?CourseArea
   {
-    if(!$course_area = CourseArea::find($course_area_data->id)) {
+    if(!$course_area = CourseArea::find($course_area_data['id'])) {
       throw new Exception('Course Area not found');
     };
 
-    $course_area->course_id    = $course_area_data->course_id;
-    $course_area->name         = $course_area_data->name;
-    $course_area->description  = $course_area_data->description;
+    $course_area->course_id    = $course_area_data['course_id'];
+    $course_area->name         = $course_area_data['name'];
+    $course_area->description  = $course_area_data['description'];
     $course_area->view_order   = 0;
-    $course_area->status       = $course_area_data->status;
+    $course_area->status       = $course_area_data['status'];
     
-    if(!empty($course_area_data->image)) {
-      FileService::delete($course_area_data->image);
-      $course_area->image      = FileService::create($course_area_data->image, self::FILES_PATH);
+    if(!empty($course_area_data['image'])) {
+      FileService::delete($course_area_data['image']);
+      $course_area->image      = FileService::create($course_area_data['image'], self::FILES_PATH);
     }
 
-    if(!empty($course_area_data->trailer)) {
-      FileService::delete($course_area_data->trailer);
-      $course_area->trailer    = FileService::create($course_area_data->trailer, self::FILES_PATH);
+    if(!empty($course_area_data['trailer'])) {
+      FileService::delete($course_area_data['trailer']);
+      $course_area->trailer    = FileService::create($course_area_data['trailer'], self::FILES_PATH);
     }
     
     $course_area->save();

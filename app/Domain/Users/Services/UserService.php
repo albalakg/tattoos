@@ -51,7 +51,7 @@ class UserService
                 'roles.name AS role'
               )
               ->orderBy('users.created_at', 'desc')
-              ->simplePaginate(1000);
+              ->get();
   }
   
   /**

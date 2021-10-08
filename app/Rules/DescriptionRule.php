@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Domain\Content\Rules;
+namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 
-class ContentNameRule implements Rule
+class DescriptionRule implements Rule
 {
     /**
      * Create a new rule instance.
@@ -28,7 +28,7 @@ class ContentNameRule implements Rule
         if(!is_string($value)) return false;
 
         $value_length = strlen($value);
-        return $value_length >= 2 && $value_length <= 40;
+        return $value_length >= 1 && $value_length <= 5000;
     }
 
     /**
@@ -38,6 +38,6 @@ class ContentNameRule implements Rule
      */
     public function message()
     {
-        return 'Content name is not valid';
+        return 'Description is not valid';
     }
 }

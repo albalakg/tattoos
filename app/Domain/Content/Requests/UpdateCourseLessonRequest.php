@@ -5,7 +5,7 @@ namespace App\Domain\Content\Requests;
 use App\Domain\Users\Rules\IDRule;
 use App\Domain\Content\Rules\StatusRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Content\Rules\ContentNameRule;
+use App\Rules\NameRule;
 
 class UpdateCourseLessonRequest extends FormRequest
 {
@@ -18,7 +18,7 @@ class UpdateCourseLessonRequest extends FormRequest
     {
         return [
             'id'                => ['required', 'bail', new IDRule, 'exists:course_lessons,id'],
-            'name'              => ['required', new ContentNameRule],
+            'name'              => ['required', new NameRule],
             'course_area_id'    => ['required', 'bail', new IDRule, 'exists:course_areas,id'],
             'video_id'          => ['required', 'bail', new IDRule, 'exists:videos,id'],
             'status'            => ['required', new StatusRule],

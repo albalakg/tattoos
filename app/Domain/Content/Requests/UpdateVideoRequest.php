@@ -3,9 +3,9 @@
 namespace App\Domain\Content\Requests;
 
 use App\Domain\Content\Rules\StatusRule;
-use App\Domain\Content\Rules\ContentNameRule;
+use App\Rules\NameRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Content\Rules\ContentDescriptionRule;
+use App\Rules\DescriptionRule;
 use App\Domain\Users\Rules\IDRule;
 
 class UpdateVideoRequest extends FormRequest
@@ -19,8 +19,8 @@ class UpdateVideoRequest extends FormRequest
     {
         return [
             'id'            => ['required', 'bail', new IDRule, 'exists:videos,id'],
-            'name'          => ['required', new ContentNameRule],
-            'description'   => ['nullable', new ContentDescriptionRule],
+            'name'          => ['required', new NameRule],
+            'description'   => ['nullable', new DescriptionRule],
             'status'        => ['required', new StatusRule],
             'file'          => ['nullable', 'file', 'max:20000']
         ];

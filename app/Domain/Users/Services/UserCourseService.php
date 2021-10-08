@@ -6,12 +6,12 @@ use Exception;
 use Illuminate\Support\Carbon;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\MailService;
-use Illuminate\Pagination\Paginator;
 use App\Domain\Helpers\StatusService;
 use App\Mail\User\AddCourseToUserMail;
 use App\Domain\Users\Models\UserCourse;
 use App\Mail\Tests\TestStatusUpdateMail;
 use App\Events\Users\UserCourseCreatedEvent;
+use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Users\Models\UserCourseLesson;
 use App\Events\Users\UserCourseDisabledEvent;
 use App\Domain\Content\Services\CourseService;
@@ -50,9 +50,9 @@ class UserCourseService
   }
   
   /**
-   * @return Paginator
+   * @return Collection
   */
-  public function getAllTests(): Paginator
+  public function getAllTests(): Collection
   {
     $tests = UserCourseSubmission::query()
             ->with('comments', 'userCourse')
@@ -67,7 +67,7 @@ class UserCourseService
               'updated_at'
             )
             ->orderBy('created_at', 'desc')
-            ->simplePaginate(1000);
+            ->get();
 
     foreach($tests AS $test_index => $test) {
       foreach($test->comments AS $comment_index => $comment) {
@@ -79,9 +79,9 @@ class UserCourseService
   }
   
   /**
-   * @return Paginator
+   * @return Collection
   */
-  public function getAll(): Paginator
+  public function getAll(): Collection
   {
     return UserCourse::query()
               ->select(
@@ -97,7 +97,7 @@ class UserCourseService
               )
               ->withCount('finishedLessons')
               ->orderBy('created_at', 'desc')
-              ->simplePaginate(1000);
+              ->get();
   }
   
   /**
@@ -114,15 +114,13 @@ class UserCourseService
 
     $comment->update(['status' => $status]);
     $comment->load('user');
+    $comment->user_name = $this->user_service->getFullName($comment->user);
 
     $mail_service = new MailService;
     $mail_service->delay()->send(
       $comment->user->email,
       TestStatusUpdateMail::class,
-      [
-        'user_name'   => $this->user_service->getFullName($comment->user),
-        'comment'     => $comment->comment,
-      ]
+      $comment
     );
   }
   
@@ -165,7 +163,7 @@ class UserCourseService
   {
     return UserCourseLesson::where('user_course_id', $user_course_id)
                             ->orderBy('created_at', 'desc')
-                            ->simplePaginate(1000);
+                            ->get();
   }
   
   /**
