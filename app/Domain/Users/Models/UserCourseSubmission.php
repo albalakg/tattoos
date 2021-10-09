@@ -39,6 +39,6 @@ class UserCourseSubmission extends Model
   public function comments()
   {
     return $this->hasMany(UserCourseSubmissionComment::class, 'user_course_submission_id', 'id')
-                ->orderBy('created_at', 'desc');
+                ->orderBy('id', 'desc');
   }
 }

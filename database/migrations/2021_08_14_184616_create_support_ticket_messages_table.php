@@ -14,10 +14,10 @@ class CreateSupportTicketMessagesTable extends Migration
     public function up()
     {
         Schema::create('support_ticket_messages', function (Blueprint $table) {
+            $table->id();
             $table->integer('support_ticket_id')->unsigned()->index();
             $table->text('message');
-            $table->integer('is_read')->unsigned()->index();
-            $table->string('file_path', 100);
+            $table->string('file_path', 100)->nullable();
             $table->dateTime('created_at');
             $table->integer('created_by')->unsigned()->index();
         });

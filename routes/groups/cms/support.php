@@ -6,6 +6,11 @@ use App\Domain\Support\Controllers\SupportCategoryController;
 
 Route::group(['prefix' => 'tickets'], function () {
     Route::get('', [SupportController::class, 'getAll']);
+
+        
+    Route::group(['prefix' => 'messages'], function () {
+        Route::post('create', [SupportController::class, 'createSupportTicketMessage']);
+    });
 });
 
 Route::group(['prefix' => 'categories'], function () {

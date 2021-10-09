@@ -4,7 +4,7 @@ namespace App\Domain\Content\Requests;
 
 use App\Rules\NameRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Users\Rules\IDRule;
+use App\Rules\IDRule;
 
 class CreateCourseLessonRequest extends FormRequest
 {

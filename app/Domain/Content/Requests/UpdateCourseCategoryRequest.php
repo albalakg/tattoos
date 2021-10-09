@@ -2,7 +2,7 @@
 
 namespace App\Domain\Content\Requests;
 
-use App\Domain\Users\Rules\IDRule;
+use App\Rules\IDRule;
 use App\Domain\Content\Rules\StatusRule;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\NameRule;

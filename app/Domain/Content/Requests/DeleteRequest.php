@@ -3,7 +3,7 @@
 namespace App\Domain\Content\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Users\Rules\IDRule;
+use App\Rules\IDRule;
 
 class DeleteRequest extends FormRequest
 {

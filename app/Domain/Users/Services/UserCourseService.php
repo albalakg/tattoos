@@ -66,7 +66,7 @@ class UserCourseService
               'finished_at',
               'updated_at'
             )
-            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->get();
 
     foreach($tests AS $test_index => $test) {
@@ -96,7 +96,7 @@ class UserCourseService
                 'created_by',
               )
               ->withCount('finishedLessons')
-              ->orderBy('created_at', 'desc')
+              ->orderBy('id', 'desc')
               ->get();
   }
   
@@ -162,7 +162,7 @@ class UserCourseService
   public function getUserCourseProgress(int $user_course_id): object
   {
     return UserCourseLesson::where('user_course_id', $user_course_id)
-                            ->orderBy('created_at', 'desc')
+                            ->orderBy('id', 'desc')
                             ->get();
   }
   

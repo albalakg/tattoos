@@ -2,7 +2,7 @@
 
 namespace App\Domain\Users\Requests;
 
-use App\Domain\Users\Rules\IDRule;
+use App\Rules\IDRule;
 use App\Domain\Users\Rules\PasswordRule;
 use Illuminate\Foundation\Http\FormRequest;
 

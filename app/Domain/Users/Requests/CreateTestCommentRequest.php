@@ -3,7 +3,7 @@
 namespace App\Domain\Users\Requests;
 
 use App\Domain\Users\Rules\CommentRule;
-use App\Domain\Users\Rules\IDRule;
+use App\Rules\IDRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateTestCommentRequest extends FormRequest

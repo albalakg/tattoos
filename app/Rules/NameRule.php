@@ -7,13 +7,19 @@ use Illuminate\Contracts\Validation\Rule;
 class NameRule implements Rule
 {
     /**
+     * @var string
+    */
+    private $name;
+
+    /**
      * Create a new rule instance.
-     *
+     * 
+     * @param string $name
      * @return void
      */
-    public function __construct()
+    public function __construct(string $name = 'ID')
     {
-        //
+        $this->name = $name;
     }
 
     /**
@@ -38,6 +44,6 @@ class NameRule implements Rule
      */
     public function message()
     {
-        return 'Name is not valid';
+        return $this->name . ' is not valid';
     }
 }

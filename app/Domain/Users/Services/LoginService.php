@@ -103,6 +103,7 @@ class LoginService
     private function buildUserDetails()
     {
         $this->response = (object)[
+            'id'            => $this->user->id,
             'first_name'    => $this->user->details->first_name,
             'last_name'     => $this->user->details->last_name,
             'email'         => $this->user->email,

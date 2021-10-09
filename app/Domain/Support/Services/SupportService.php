@@ -3,13 +3,19 @@ namespace App\Domain\Support\Services;
 
 use Exception;
 use App\Domain\Helpers\LogService;
+use App\Domain\Helpers\FileService;
 use App\Domain\Helpers\MailService;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Support\Models\SupportTicket;
+use App\Mail\Tests\SupportTicketMessageMail;
 use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Support\Models\SupportTicketMessage;
+use Carbon\Carbon;
 
 class SupportService
 {
+  const SUPPORT_TICKET_MESSAGES_FILES_PATH = 'support/tickets/messages';
+
   /**
    * @var LogService
   */
@@ -37,7 +43,9 @@ class SupportService
   */
   public function getAll(): Collection
   {
-    return SupportTicket::orderBy('created_at', 'desc')
+    return SupportTicket::query()
+                ->with('messages')
+                ->orderBy('id', 'desc')
                 ->get();
   }
     
@@ -62,5 +70,39 @@ class SupportService
       SupportStatusUpdateMail::class,
       $support
     );
+  }
+    
+  /**
+   * @param array $data
+   * @param int $created_by
+   * @return SupportTicketMessage
+  */
+  public function createSupportTicketMessage(array $data, int $created_by): SupportTicketMessage
+  {
+    if(!$support = SupportTicket::find($data['support_ticket_id'])) {
+      throw new Exception('Support Ticket not found');
+    }
+
+    $support_ticket_message                     = new SupportTicketMessage();
+    $support_ticket_message->support_ticket_id  = $data['support_ticket_id'];
+    $support_ticket_message->message            = $data['message'];
+    $support_ticket_message->created_at         = now();
+    $support_ticket_message->created_by         = $created_by;
+
+    if(!empty($data['file_path'])) {
+      $support_ticket_message->file_path = FileService::create($data['file_path'], self::SUPPORT_TICKET_MESSAGES_FILES_PATH);
+    }
+
+    $support_ticket_message->save();
+    $support_ticket_message->load('customer');
+
+    $mail_service = new MailService;
+    $mail_service->delay()->send(
+      $support_ticket_message->customer->email,
+      SupportTicketMessageMail::class,
+      $support_ticket_message
+    );
+
+    return $support_ticket_message; 
   }
 }

@@ -3,7 +3,7 @@
 namespace App\Domain\Support\Requests;
 
 use App\Domain\Content\Rules\StatusRule;
-use App\Domain\Users\Rules\IDRule;
+use App\Rules\IDRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSupportTicketStatusRequest extends FormRequest

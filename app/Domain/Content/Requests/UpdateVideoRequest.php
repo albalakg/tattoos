@@ -6,7 +6,7 @@ use App\Domain\Content\Rules\StatusRule;
 use App\Rules\NameRule;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\DescriptionRule;
-use App\Domain\Users\Rules\IDRule;
+use App\Rules\IDRule;
 
 class UpdateVideoRequest extends FormRequest
 {

@@ -1,19 +1,25 @@
 <?php
 
-namespace App\Domain\Users\Rules;
+namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 
 class IDRule implements Rule
 {
     /**
+     * @var string
+    */
+    private $name;
+
+    /**
      * Create a new rule instance.
-     *
+     * 
+     * @param string $name
      * @return void
      */
-    public function __construct()
+    public function __construct(string $name = 'ID')
     {
-        //
+        $this->name = $name;
     }
 
     /**
@@ -37,6 +43,6 @@ class IDRule implements Rule
      */
     public function message()
     {
-        return 'Last name is not valid';
+        return $this->name . ' is not valid';
     }
 }

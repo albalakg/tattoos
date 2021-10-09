@@ -2,7 +2,7 @@
 
 namespace App\Domain\Users\Requests;
 
-use App\Domain\Users\Rules\IDRule;
+use App\Rules\IDRule;
 use App\Domain\Users\Rules\RoleRule;
 use App\Domain\Users\Rules\PhoneRule;
 use App\Domain\Users\Rules\GenderRule;
