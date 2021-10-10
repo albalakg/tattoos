@@ -6,7 +6,7 @@ use App\Domain\Support\Controllers\SupportCategoryController;
 
 Route::group(['prefix' => 'tickets'], function () {
     Route::get('', [SupportController::class, 'getAll']);
-
+    Route::post('status/update', [SupportController::class, 'updateStatus']);
         
     Route::group(['prefix' => 'messages'], function () {
         Route::post('create', [SupportController::class, 'createSupportTicketMessage']);

@@ -5,6 +5,7 @@ use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\MailService;
 use App\Domain\Orders\Models\Order;
+use App\Domain\Orders\Models\OrderLog;
 use App\Mail\Tests\OrderStatusUpdateMail;
 use App\Domain\Users\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
@@ -48,6 +49,8 @@ class OrderService
       throw new Exception('Order not found');
     }
 
+    $this->saveOrderLog($order, $updated_by);
+
     $order->update(['status' => $status]);
     $order->load('user');
 
@@ -57,5 +60,24 @@ class OrderService
       OrderStatusUpdateMail::class,
       $order
     );
+  }
+  
+  /**
+   * @param Order $order
+   * @param int $created_by
+   * @return void
+  */
+  private function saveOrderLog(Order $order, int $created_by)
+  {
+    try {
+      $order_log              = new OrderLog();
+      $order_log->order_id    = $order->id;
+      $order_log->status      = $order->status;
+      $order_log->created_at  = now();
+      $order_log->created_by  = $created_by;
+      $order_log->save();
+    } catch(Exception $ex) {
+      $this->log_service->error('Failed to save order log. Error: ' . $ex->getMessage());
+    }
   }
 }

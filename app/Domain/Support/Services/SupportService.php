@@ -9,8 +9,8 @@ use App\Domain\Users\Services\UserService;
 use App\Domain\Support\Models\SupportTicket;
 use App\Mail\Tests\SupportTicketMessageMail;
 use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Support\Models\SupportTicketLog;
 use App\Domain\Support\Models\SupportTicketMessage;
-use Carbon\Carbon;
 
 class SupportService
 {
@@ -61,7 +61,8 @@ class SupportService
       throw new Exception('Support not found');
     }
 
-    $support->update(['status' => $status]);
+    $support->status = $status;
+    $support->save();
     $support->load('user');
     
     $mail_service = new MailService;
@@ -70,6 +71,8 @@ class SupportService
       SupportStatusUpdateMail::class,
       $support
     );
+
+    $this->saveSupportTicketLog($support, $updated_by);
   }
     
   /**
@@ -79,7 +82,7 @@ class SupportService
   */
   public function createSupportTicketMessage(array $data, int $created_by): SupportTicketMessage
   {
-    if(!$support = SupportTicket::find($data['support_ticket_id'])) {
+    if(!SupportTicket::where('id', $data['support_ticket_id'])->exists()) {
       throw new Exception('Support Ticket not found');
     }
 
@@ -104,5 +107,25 @@ class SupportService
     );
 
     return $support_ticket_message; 
+  }
+  
+  /**
+   * @param SupportTicket $support_ticket
+   * @param int $created_by
+   * @return void
+  */
+  private function saveSupportTicketLog(SupportTicket $support_ticket, int $created_by)
+  {
+    try {
+      $support_ticket_log              = new SupportTicketLog();
+      $support_ticket_log->support_ticket_id    = $support_ticket->id;
+      $support_ticket_log->status      = $support_ticket->status;
+      $support_ticket_log->created_at  = now();
+      $support_ticket_log->created_by  = $created_by;
+      $support_ticket_log->save();
+    } catch(Exception $ex) {
+      dd($ex);
+      $this->log_service->error('Failed to save support ticket log. Error: ' . $ex->getMessage());
+    }
   }
 }

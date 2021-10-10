@@ -37,7 +37,7 @@ class OrderController extends Controller
   {
     try {
       $response = $this->service->updateStatus($request->id, $request->status, Auth::user()->id);
-      return $this->successResponse('Orders fetched successfully', $response);
+      return $this->successResponse('Order\'s status updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }

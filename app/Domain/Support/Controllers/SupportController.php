@@ -40,7 +40,7 @@ class SupportController extends Controller
   {
     try {
       $response = $this->service->updateStatus($request->id, $request->status, Auth::user()->id);
-      return $this->successResponse('Support fetched successfully', $response);
+      return $this->successResponse('Support\'s status updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
     }

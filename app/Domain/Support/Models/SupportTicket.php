@@ -5,6 +5,7 @@ namespace App\Domain\Support\Models;
 use App\Domain\Users\Models\User;
 use App\Domain\Support\Models\OrderLog;
 use Illuminate\Database\Eloquent\Model;
+use App\Domain\Support\Models\SupportTicketLog;
 use App\Domain\Support\Models\SupportTicketMessage;
 
 class SupportTicket extends Model
@@ -16,6 +17,12 @@ class SupportTicket extends Model
     public function messages()
     {
         return $this->hasMany(SupportTicketMessage::class, 'support_ticket_id', 'id')
+                    ->orderBy('id', 'desc');
+    }
+    
+    public function logs()
+    {
+        return $this->hasMany(SupportTicketLog::class, 'support_ticket_id', 'id')
                     ->orderBy('id', 'desc');
     }
     
