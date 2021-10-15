@@ -38,7 +38,7 @@ class CourseLessonController extends Controller
   public function create(CreateCourseLessonRequest $request)
   {
     try {
-      $response = $this->lesson_service->create((object) $request->validated(), Auth::user()->id);
+      $response = $this->lesson_service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Lesson created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
@@ -48,7 +48,7 @@ class CourseLessonController extends Controller
   public function update(UpdateCourseLessonRequest $request)
   {
     try {
-      $response = $this->lesson_service->update((object) $request->validated(), Auth::user()->id);
+      $response = $this->lesson_service->update($request->validated(), Auth::user()->id);
       return $this->successResponse('Lesson updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());

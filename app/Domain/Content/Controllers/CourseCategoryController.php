@@ -39,7 +39,7 @@ class CourseCategoryController extends Controller
   public function create(CreateCourseCategoryRequest $request)
   {
     try {
-      $response = $this->course_category_service->create((object) $request->validated(), Auth::user()->id);
+      $response = $this->course_category_service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Course Category created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
@@ -49,7 +49,7 @@ class CourseCategoryController extends Controller
   public function update(UpdateCourseCategoryRequest $request)
   {
     try {
-      $response = $this->course_category_service->update((object) $request->validated(), Auth::user()->id);
+      $response = $this->course_category_service->update($request->validated(), Auth::user()->id);
       return $this->successResponse('Course Category updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());

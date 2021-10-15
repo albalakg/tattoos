@@ -49,16 +49,16 @@ class CourseCategoryService implements IContentService
   }
     
   /**
-   * @param object $data
+   * @param array $data
    * @param int $created_by
    * @return CourseCategory|null
   */
-  public function create(object $data, int $created_by): ?CourseCategory
+  public function create(array $data, int $created_by): ?CourseCategory
   {
     $course_category               = new CourseCategory;
-    $course_category->name         = $data->name;
-    $course_category->description  = $data->description;
-    $course_category->image        = FileService::create($data->image, self::FILES_PATH);
+    $course_category->name         = $data['name'];
+    $course_category->description  = $data['description'];
+    $course_category->image        = FileService::create($data['image'], self::FILES_PATH);
     $course_category->status       = StatusService::PENDING;
     $course_category->created_by   = $created_by;
     $course_category->save();
@@ -67,21 +67,21 @@ class CourseCategoryService implements IContentService
   }
     
   /**
-   * @param object $data
+   * @param array $data
    * @param int $updated_by
    * @return CourseCategory|null
   */
-  public function update(object $data, int $updated_by): ?CourseCategory
+  public function update(array $data, int $updated_by): ?CourseCategory
   {
-    if(!$course_category = CourseCategory::find($data->id)) {
+    if(!$course_category = CourseCategory::find($data['id'])) {
       throw new Exception('Course Category not found');
     };
 
-    $course_category->name         = $data->name;
-    $course_category->description  = $data->description;
-    if(!empty($data->image)) {
+    $course_category->name         = $data['name'];
+    $course_category->description  = $data['description'];
+    if(!empty($data['image'])) {
       FileService::delete($course_category->image);
-      $course_category->image      = FileService::create($data->image, self::FILES_PATH);
+      $course_category->image      = FileService::create($data['image'], self::FILES_PATH);
     }
     $course_category->status       = StatusService::PENDING;
     $course_category->save();
@@ -119,7 +119,7 @@ class CourseCategoryService implements IContentService
       throw new Exception('Cannot delete Course that is being used');
     }
 
-    FileService::delete($course_category->image);
+    // FileService::delete($course_category->image);
 
     $course_category->delete();
   }

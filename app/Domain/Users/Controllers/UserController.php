@@ -43,7 +43,7 @@ class UserController extends Controller
   public function updateUserEmail(UpdateUserEmailRequest $request, UserService $user_service)
   {
     try {
-      $user_service->updateUserEmail((object) $request->validated(), Auth::user()->id);
+      $user_service->updateUserEmail($request->validated(), Auth::user()->id);
       return $this->successResponse('User\'s email updated successfully');
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
@@ -53,7 +53,7 @@ class UserController extends Controller
   public function updateUserPassword(UpdateUserPasswordRequest $request, UserService $user_service)
   {
     try {
-      $user_service->updateUserPassword((object) $request->validated(), Auth::user()->id);
+      $user_service->updateUserPassword($request->validated(), Auth::user()->id);
       return $this->successResponse('User\'s password updated successfully');
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
@@ -63,7 +63,7 @@ class UserController extends Controller
   public function create(CreateUserRequest $request, UserService $user_service)
   {
     try {
-      $response = $user_service->createUser((object) $request->validated(), Auth::user()->id);
+      $response = $user_service->createUser($request->validated(), Auth::user()->id);
       return $this->successResponse('User created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
@@ -73,7 +73,7 @@ class UserController extends Controller
   public function update(UpdateUserRequest $request, UserService $user_service)
   {
     try {
-      $response = $user_service->updateUser((object) $request->validated(), Auth::user()->id);
+      $response = $user_service->updateUser($request->validated(), Auth::user()->id);
       return $this->successResponse('User updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());

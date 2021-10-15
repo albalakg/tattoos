@@ -28,7 +28,7 @@ class AuthController extends Controller
   public function signup(SignupRequest $request, UserService $user_service)
   {
     try {
-      $user_service->signup((object) $request->validated());
+      $user_service->signup($request->validated());
       return $this->successResponse('Registered successfully');
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());

@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use phpDocumentor\Reflection\Types\Nullable;
 
 class CreateCourseLessonsTable extends Migration
 {
@@ -15,8 +16,8 @@ class CreateCourseLessonsTable extends Migration
     {
         Schema::create('course_lessons', function (Blueprint $table) {
             $table->id();
-            $table->integer('course_id')->unsigned()->index();
-            $table->integer('course_area_id')->unsigned()->index();
+            $table->integer('course_id')->nullable()->unsigned()->index();
+            $table->integer('course_area_id')->nullable()->unsigned()->index();
             $table->integer('video_id')->unsigned();
             $table->integer('status')->unsigned()->index();
             $table->string('name', 100);

@@ -91,52 +91,66 @@ class CourseAreaService implements IContentService
   }
     
   /**
-   * @param $course_area_data
+   * @param array $data
    * @param int $created_by
    * @return CourseArea|null 
   */
-  public function create($course_area_data, int $created_by): ?CourseArea
+  public function create(array $data, int $created_by): ?CourseArea
   {
     $course_area               = new CourseArea;
-    $course_area->course_id    = $course_area_data['course_id'];
-    $course_area->name         = $course_area_data['name'];
-    $course_area->description  = $course_area_data['description'];
+    $course_area->course_id    = $data['course_id'];
+    $course_area->name         = $data['name'];
+    $course_area->description  = $data['description'];
     $course_area->view_order   = 0;
     $course_area->status       = StatusService::PENDING;
-    $course_area->image        = FileService::create($course_area_data['image'], self::FILES_PATH);
-    $course_area->trailer      = FileService::create($course_area_data['trailer'], self::FILES_PATH);
+    $course_area->image        = FileService::create($data['image'], self::FILES_PATH);
+    $course_area->trailer      = FileService::create($data['trailer'], self::FILES_PATH);
     $course_area->created_by   = $created_by;
     $course_area->save();
+
+    $result = $this->assignLessons($course_area, $data['lessons']);
+    if(!$result) {
+      $this->forceDelete($course_area->id, $created_by);
+      throw new Exception('Failed to create Course Area, failed to find the assigned lessons');
+    }
 
     $course_area->load('category');
     return $course_area;
   }
 
   /**
-   * @param $course_area_data
+   * @param array $data
    * @param int $updated_by
    * @return CourseArea|null
   */
-  public function update($course_area_data, int $updated_by): ?CourseArea
+  public function update(array $data, int $updated_by): ?CourseArea
   {
-    if(!$course_area = CourseArea::find($course_area_data['id'])) {
+    if(!$course_area = CourseArea::find($data['id'])) {
       throw new Exception('Course Area not found');
     };
 
-    $course_area->course_id    = $course_area_data['course_id'];
-    $course_area->name         = $course_area_data['name'];
-    $course_area->description  = $course_area_data['description'];
+    $course_area->course_id    = $data['course_id'];
+    $course_area->name         = $data['name'];
+    $course_area->description  = $data['description'];
     $course_area->view_order   = 0;
-    $course_area->status       = $course_area_data['status'];
+    $course_area->status       = $data['status'];
     
-    if(!empty($course_area_data['image'])) {
-      FileService::delete($course_area_data['image']);
-      $course_area->image      = FileService::create($course_area_data['image'], self::FILES_PATH);
+    if(!empty($data['image'])) {
+      FileService::delete($data['image']);
+      $course_area->image      = FileService::create($data['image'], self::FILES_PATH);
     }
 
-    if(!empty($course_area_data['trailer'])) {
-      FileService::delete($course_area_data['trailer']);
-      $course_area->trailer    = FileService::create($course_area_data['trailer'], self::FILES_PATH);
+    if(!empty($data['trailer'])) {
+      FileService::delete($data['trailer']);
+      $course_area->trailer    = FileService::create($data['trailer'], self::FILES_PATH);
+    }
+
+    if(!empty($data['lessons'])) {
+      $this->assignLessons($course_area, $data['lessons']);
+    }
+
+    if(!empty($data['deleted_lessons'])) {
+      $this->unAssignLessons($data['deleted_lessons']);
     }
     
     $course_area->save();
@@ -173,10 +187,29 @@ class CourseAreaService implements IContentService
       throw new Exception('Cannot delete Course Area that is being used');
     }
 
+    $course_area->delete();
+  }
+  
+  /**
+   * @param int $course_area_id
+   * @param int $deleted_by
+   * @return void
+  */
+  public function forceDelete(int $course_area_id, int $deleted_by)
+  {
+    if(!$course_area = CourseArea::find($course_area_id)) {
+      throw new Exception('Course Area not found');
+    }
+
+    if($this->isCourseAreaInUsed($course_area_id)) {
+      $this->error_data = $this->course_lesson_service->getLessonsOfCourseArea($course_area_id);
+      throw new Exception('Cannot fully delete Course Area that is being used');
+    }
+
     FileService::delete($course_area->image);
     FileService::delete($course_area->trailer);
 
-    $course_area->delete();
+    $course_area->forceDelete();
   }
   
   /**
@@ -197,5 +230,32 @@ class CourseAreaService implements IContentService
   {
     return CourseArea::join('courses', 'courses.id', 'course_areas.course_id')
             ->join('course_categories', 'course_categories.id', 'courses.category_id');
+  }
+  
+  /**
+   * @param CourseArea $course_area
+   * @param array $lessons
+   * @return bool
+  */
+  private function assignLessons(CourseArea $course_area, array $lessons): bool
+  {
+    if(count($lessons)) {
+      return $this->course_lesson_service->assignCourseArea($lessons, $course_area->id, $course_area->course_id);
+    }
+
+    return false;
+  }
+  
+  /**
+   * @param array $lessons
+   * @return bool
+  */
+  private function unAssignLessons(array $lessons): bool
+  {
+    if(count($lessons)) {
+      return $this->course_lesson_service->unAssignLessons($lessons);
+    }
+
+    return false;
   }
 }

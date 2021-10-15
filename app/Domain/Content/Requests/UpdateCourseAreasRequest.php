@@ -18,13 +18,17 @@ class UpdateCourseAreasRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'            => ['required', 'bail', new IDRule, 'exists:course_areas,id'],
-            'name'          => ['required', new NameRule],
-            'course_id'     => ['required', new IDRule],
-            'description'   => ['nullable', new DescriptionRule],
-            'image'         => ['nullable', 'file', 'max:5000'],
-            'trailer'       => ['nullable', 'file', 'max:10000'],
-            'status'        => ['required', new StatusRule],
+            'id'                => ['required', 'bail', new IDRule, 'exists:course_areas,id'],
+            'name'              => ['required', new NameRule],
+            'course_id'         => ['required', new IDRule],
+            'description'       => ['nullable', new DescriptionRule],
+            'image'             => ['nullable', 'file', 'max:5000'],
+            'trailer'           => ['nullable', 'file', 'max:10000'],
+            'status'            => ['required', new StatusRule],
+            'lessons'           => 'nullable|array|between:0,100',
+            'lessons.*'         => 'nullable|numeric|min:1|max:' . PHP_INT_MAX,
+            'deleted_lessons'   => 'nullable|array|between:0,100',
+            'deleted_lessons.*' => 'nullable|numeric|min:1|max:' . PHP_INT_MAX,
         ];
     }
 }

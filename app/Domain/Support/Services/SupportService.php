@@ -58,7 +58,7 @@ class SupportService
   public function updateStatus(int $support_id, int $status, int $updated_by)
   {
     if(!$support = SupportTicket::find($support_id)) {
-      throw new Exception('Support not found');
+      throw new Exception('Support Ticket not found');
     }
 
     $support->status = $status;
@@ -117,14 +117,13 @@ class SupportService
   private function saveSupportTicketLog(SupportTicket $support_ticket, int $created_by)
   {
     try {
-      $support_ticket_log              = new SupportTicketLog();
-      $support_ticket_log->support_ticket_id    = $support_ticket->id;
-      $support_ticket_log->status      = $support_ticket->status;
-      $support_ticket_log->created_at  = now();
-      $support_ticket_log->created_by  = $created_by;
+      $support_ticket_log                     = new SupportTicketLog();
+      $support_ticket_log->support_ticket_id  = $support_ticket->id;
+      $support_ticket_log->status             = $support_ticket->status;
+      $support_ticket_log->created_at         = now();
+      $support_ticket_log->created_by         = $created_by;
       $support_ticket_log->save();
     } catch(Exception $ex) {
-      dd($ex);
       $this->log_service->error('Failed to save support ticket log. Error: ' . $ex->getMessage());
     }
   }

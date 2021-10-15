@@ -24,6 +24,8 @@ class CreateCourseAreaRequest extends FormRequest
             'trailer'       => ['required', 'file', 'max:10000'],
             'price'         => 'nullable|numeric|min:1',
             'discount'      => 'nullable|numeric|min:1',
+            'lessons'       => 'required|array|between:0,100',
+            'lessons.*'     => 'nullable|numeric|min:1|max:' . PHP_INT_MAX
         ];
     }
 }

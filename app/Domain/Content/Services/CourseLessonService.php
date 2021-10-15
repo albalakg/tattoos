@@ -70,20 +70,60 @@ class CourseLessonService implements IContentService
               ->orderBy('course_lessons.created_at', 'desc')
               ->get();
   }
+  
+  /**
+   * @param array $lessons_ids
+   * @param int $course_area_id
+   * @param int $course_id
+   * @return bool
+  */
+  public function assignCourseArea(array $lessons_ids, int $course_area_id, int $course_id): bool
+  {
+    $lessons_found = CourseLesson::whereIn('id', $lessons_ids)->count();
+    if($lessons_found !== count($lessons_ids)) {
+      return false;
+    }
+
+    CourseLesson::whereIn('id', $lessons_ids)->update([
+      'course_id'       => $course_id,
+      'course_area_id'  => $course_area_id
+    ]);
+    
+    return true;
+  }
+  
+  /**
+   * @param array $lessons_ids
+   * @return bool
+  */
+  public function unAssignLessons(array $lessons_ids): bool
+  {
+    $lessons_found = CourseLesson::whereIn('id', $lessons_ids)->count();
+    if($lessons_found !== count($lessons_ids)) {
+      return false;
+    }
+
+    CourseLesson::whereIn('id', $lessons_ids)->update([
+      'course_id'       => null,
+      'course_area_id'  => null
+    ]);
+    
+    return true;
+  }
     
   /**
-   * @param object $lesson_data
+   * @param array $data
    * @param int $created_by
    * @return CourseLesson|null
   */
-  public function create(object $lesson_data, int $created_by): ?CourseLesson
+  public function create(array $data, int $created_by): ?CourseLesson
   {
     $lesson                   = new CourseLesson;
-    $lesson->course_id        = $this->course_area_service->getById($lesson_data->course_area_id)->course_id;
-    $lesson->course_area_id   = $lesson_data->course_area_id;
-    $lesson->video_id         = $lesson_data->video_id;
-    $lesson->name             = $lesson_data->name;
-    $lesson->content          = $lesson_data->content;
+    $lesson->course_id        = $this->course_area_service->getById($data['course_area_id'])->course_id;
+    $lesson->course_area_id   = $data['course_area_id'];
+    $lesson->video_id         = $data['video_id'];
+    $lesson->name             = $data['name'];
+    $lesson->content          = $data['content'];
     $lesson->status           = StatusService::PENDING;
     $lesson->save();
 
@@ -93,21 +133,21 @@ class CourseLessonService implements IContentService
   }
 
   /**
-   * @param object $lesson_data
+   * @param array $data
    * @param int $updated_by
    * @return CourseLesson|null
   */
-  public function update(object $lesson_data, int $updated_by): ?CourseLesson
+  public function update(array $data, int $updated_by): ?CourseLesson
   {
-    if(!$lesson = CourseLesson::find($lesson_data->id)) {
+    if(!$lesson = CourseLesson::find($data['id'])) {
       throw new Exception('Course Lesson not found');
     };
 
-    $lesson->course_id      = $this->course_area_service->getById($lesson_data->course_area_id)->course_id;
-    $lesson->course_area_id = $lesson_data->course_area_id;
-    $lesson->name           = $lesson_data->name;
-    $lesson->content        = $lesson_data->content;
-    $lesson->status         = $lesson_data->status;
+    $lesson->course_id      = $this->course_area_service->getById($data['course_area_id'])->course_id;
+    $lesson->course_area_id = $data['course_area_id'];
+    $lesson->name           = $data['name'];
+    $lesson->content        = $data['content'];
+    $lesson->status         = $data['status'];
     
     $lesson->save();
     return $lesson;
@@ -154,9 +194,9 @@ class CourseLessonService implements IContentService
   private function baseQueryBuilder(): Builder
   {
     return CourseLesson::query()
-            ->join('course_areas', 'course_areas.id', 'course_lessons.course_area_id')
-            ->join('courses', 'courses.id', 'course_lessons.course_id')
-            ->join('course_categories', 'course_categories.id', 'courses.category_id')
+            ->leftJoin('course_areas', 'course_areas.id', 'course_lessons.course_area_id')
+            ->leftJoin('courses', 'courses.id', 'course_lessons.course_id')
+            ->leftJoin('course_categories', 'course_categories.id', 'courses.category_id')
             ->join('videos', 'videos.id', 'course_lessons.video_id')
             ->select(
               'course_lessons.id',

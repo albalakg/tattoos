@@ -81,22 +81,22 @@ class CourseService implements IContentService
   }
     
   /**
-   * @param object $course_data
+   * @param array $data
    * @param int $created_by
    * @return Course|null
   */
-  public function create(object $course_data, int $created_by): ?Course
+  public function create(array $data, int $created_by): ?Course
   {
     $course               = new Course;
-    $course->category_id  = $course_data->category_id;
-    $course->name         = $course_data->name;
-    $course->description  = $course_data->description;
-    $course->price        = $course_data->price;
-    $course->discount     = $course_data->discount;
+    $course->category_id  = $data['category_id'];
+    $course->name         = $data['name'];
+    $course->description  = $data['description'];
+    $course->price        = $data['price'];
+    $course->discount     = $data['discount'];
     $course->view_order   = 0;
     $course->status       = StatusService::PENDING;
-    $course->image        = FileService::create($course_data->image, self::FILES_PATH);
-    $course->trailer      = FileService::create($course_data->trailer, self::FILES_PATH);
+    $course->image        = FileService::create($data['image'], self::FILES_PATH);
+    $course->trailer      = FileService::create($data['trailer'], self::FILES_PATH);
     $course->created_by   = $created_by;
     $course->save();
 
@@ -104,32 +104,32 @@ class CourseService implements IContentService
   }
 
   /**
-   * @param object $course_data
+   * @param array $data
    * @param int $updated_by
    * @return Course|null
   */
-  public function update(object $course_data, int $updated_by): ?Course
+  public function update(array $data, int $updated_by): ?Course
   {
-    if(!$course = Course::find($course_data->id)) {
+    if(!$course = Course::find($data['id'])) {
       throw new Exception('Course not found');
     };
 
-    $course->category_id  = $course_data->category_id;
-    $course->name         = $course_data->name;
-    $course->description  = $course_data->description;
-    $course->price        = $course_data->price;
-    $course->discount     = $course_data->discount;
+    $course->category_id  = $data['category_id'];
+    $course->name         = $data['name'];
+    $course->description  = $data['description'];
+    $course->price        = $data['price'];
+    $course->discount     = $data['discount'];
     $course->view_order   = 0;
-    $course->status       = $course_data->status;
+    $course->status       = $data['status'];
     
-    if(!empty($course_data->image)) {
+    if(!empty($data['image'])) {
       FileService::delete($course->image);
-      $course->image      = FileService::create($course_data->image, self::FILES_PATH);
+      $course->image      = FileService::create($data['image'], self::FILES_PATH);
     }
     
-    if(!empty($course_data->trailer)) {
+    if(!empty($data['trailer'])) {
       FileService::delete($course->trailer);
-      $course->trailer    = FileService::create($course_data->trailer, self::FILES_PATH);
+      $course->trailer    = FileService::create($data['trailer'], self::FILES_PATH);
     }
     
     $course->save();

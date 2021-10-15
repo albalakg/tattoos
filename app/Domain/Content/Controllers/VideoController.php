@@ -36,7 +36,7 @@ class VideoController extends Controller
   public function create(CreateVideoRequest $request)
   {
     try {
-      $response = $this->video_service->create((object) $request->validated(), Auth::user()->id);
+      $response = $this->video_service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Video created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
@@ -46,7 +46,7 @@ class VideoController extends Controller
   public function update(UpdateVideoRequest $request)
   {
     try {
-      $response = $this->video_service->update((object) $request->validated(), Auth::user()->id);
+      $response = $this->video_service->update($request->validated(), Auth::user()->id);
       return $this->successResponse('Video updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex->getMessage());
