@@ -172,6 +172,7 @@ class CourseAreaService implements IContentService
   } 
   
   /**
+   * Soft delete the item 
    * @param int $course_area_id
    * @param int $deleted_by
    * @return void
@@ -203,7 +204,7 @@ class CourseAreaService implements IContentService
 
     if($this->isCourseAreaInUsed($course_area_id)) {
       $this->error_data = $this->course_lesson_service->getLessonsOfCourseArea($course_area_id);
-      throw new Exception('Cannot fully delete Course Area that is being used');
+      throw new Exception('Cannot force delete Course Area that is being used');
     }
 
     FileService::delete($course_area->image);

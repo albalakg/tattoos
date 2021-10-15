@@ -104,6 +104,8 @@ class CourseCategoryService implements IContentService
   } 
   
   /**
+   * Soft delete the item
+   * 
    * @param int $course_category_id
    * @param int $deleted_by
    * @return void
@@ -119,20 +121,30 @@ class CourseCategoryService implements IContentService
       throw new Exception('Cannot delete Course that is being used');
     }
 
-    // FileService::delete($course_category->image);
-
     $course_category->delete();
   }
   
   /**
-   * @param string $path
-   * @return bool
+   * @param int $course_category_id
+   * @param int $deleted_by
+   * @return void
   */
-  private function deleteCourseFile(string $path): bool
+  public function forceDelete(int $course_category_id, int $deleted_by)
   {
-    return FileService::delete($path);
+    if(!$course_category = CourseCategory::find($course_category_id)) {
+      throw new Exception('Course Category not found');
+    }
+
+    if($this->isInUsed($course_category_id)) {
+      $this->error_data = $this->course_service->getCoursesOfCategory($course_category_id);
+      throw new Exception('Cannot force delete Course that is being used');
+    }
+
+    FileService::delete($course_category->image);
+
+    $course_category->forceDelete();
   }
-   
+  
   /**
    * @param int $course_id
    * @return bool

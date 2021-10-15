@@ -168,6 +168,7 @@ class CourseLessonService implements IContentService
   } 
   
   /**
+   * Soft delete the item 
    * @param int $lesson_id
    * @param int $deleted_by
    * @return void
