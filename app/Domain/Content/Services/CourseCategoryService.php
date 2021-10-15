@@ -108,28 +108,37 @@ class CourseCategoryService implements IContentService
    * 
    * @param int $course_category_id
    * @param int $deleted_by
-   * @return void
+   * @return bool
   */
-  public function delete(int $course_category_id, int $deleted_by)
+  public function delete(int $course_category_id, int $deleted_by): bool
   {
-    if(!$course_category = CourseCategory::find($course_category_id)) {
-      throw new Exception('Course Category not found');
+    if(!$course_category = $this->canDelete($course_category_id)) {
+      return false;
     }
 
-    if($this->isInUsed($course_category_id)) {
-      $this->error_data = $this->course_service->getCoursesOfCategory($course_category_id);
-      throw new Exception('Cannot delete Course that is being used');
-    }
-
-    $course_category->delete();
+    return $course_category->delete();
   }
   
   /**
    * @param int $course_category_id
    * @param int $deleted_by
-   * @return void
+   * @return bool
   */
-  public function forceDelete(int $course_category_id, int $deleted_by)
+  public function forceDelete(int $course_category_id, int $deleted_by): bool
+  {
+    if(!$course_category = $this->canDelete($course_category_id)) {
+      return false;
+    }
+
+    FileService::delete($course_category->image);
+    return $course_category->forceDelete();
+  }
+  
+  /**
+   * @param int $course_category_id
+   * @return CourseCategory
+  */
+  private function canDelete(int $course_category_id): CourseCategory
   {
     if(!$course_category = CourseCategory::find($course_category_id)) {
       throw new Exception('Course Category not found');
@@ -137,14 +146,12 @@ class CourseCategoryService implements IContentService
 
     if($this->isInUsed($course_category_id)) {
       $this->error_data = $this->course_service->getCoursesOfCategory($course_category_id);
-      throw new Exception('Cannot force delete Course that is being used');
+      throw new Exception('Cannot force delete Course Category that is being used');
     }
 
-    FileService::delete($course_category->image);
-
-    $course_category->forceDelete();
+    return $course_category;
   }
-  
+
   /**
    * @param int $course_id
    * @return bool

@@ -104,11 +104,40 @@ class VideoService implements IContentService
   } 
   
   /**
+   * Soft delete the item
    * @param int $video_id
    * @param int $deleted_by
-   * @return void
+   * @return bool
   */
-  public function delete(int $video_id, int $deleted_by)
+  public function delete(int $video_id, int $deleted_by): bool
+  {
+    if(!$video = $this->canDelete($video_id)) {
+      return false;
+    }
+
+    return $video->delete();
+  }
+  
+  /**
+   * @param int $video_id
+   * @param int $deleted_by
+   * @return bool
+  */
+  public function forceDelete(int $video_id, int $deleted_by): bool
+  {
+    if(!$video = $this->canDelete($video_id)) {
+      return false;
+    }
+
+    FileService::delete($video->video_path);
+    return $video->forceDelete();
+  }
+  
+  /**
+   * @param int $video_id
+   * @return Video
+  */
+  private function canDelete(int $video_id): Video
   {
     if(!$video = Video::find($video_id)) {
       throw new Exception('Video not found');
@@ -116,13 +145,12 @@ class VideoService implements IContentService
 
     if($this->isVideoInUsed($video_id)) {
       $this->error_data = $this->course_lesson_service->getLessonsWithVideo($video_id);
-      throw new Exception('Cannot delete video that is being used');
+      throw new Exception('Cannot force delete video that is being used');
     }
 
-    FileService::delete($video->video_path);
-    $video->delete();
+    return $video;
   }
-  
+
   /**
    * @param int $video_id
    * @return bool

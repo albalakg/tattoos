@@ -175,28 +175,39 @@ class CourseAreaService implements IContentService
    * Soft delete the item 
    * @param int $course_area_id
    * @param int $deleted_by
-   * @return void
+   * @return bool
   */
-  public function delete(int $course_area_id, int $deleted_by)
+  public function delete(int $course_area_id, int $deleted_by): bool
   {
-    if(!$course_area = CourseArea::find($course_area_id)) {
-      throw new Exception('Course Area not found');
+    if(!$course_area = $this->canDelete($course_area_id)) {
+      return false;
     }
-
-    if($this->isCourseAreaInUsed($course_area_id)) {
-      $this->error_data = $this->course_lesson_service->getLessonsOfCourseArea($course_area_id);
-      throw new Exception('Cannot delete Course Area that is being used');
-    }
-
-    $course_area->delete();
+    
+    return $course_area->delete();
   }
   
   /**
    * @param int $course_area_id
    * @param int $deleted_by
-   * @return void
+   * @return bool
   */
-  public function forceDelete(int $course_area_id, int $deleted_by)
+  public function forceDelete(int $course_area_id, int $deleted_by): bool
+  {
+    if(!$course_area = $this->canDelete($course_area_id)) {
+      return false;
+    }
+
+    FileService::delete($course_area->image);
+    FileService::delete($course_area->trailer);
+
+    return $course_area->forceDelete();
+  }
+  
+  /**
+   * @param int $course_area_id
+   * @return CourseArea
+  */
+  private function canDelete(int $course_area_id): CourseArea
   {
     if(!$course_area = CourseArea::find($course_area_id)) {
       throw new Exception('Course Area not found');
@@ -207,10 +218,7 @@ class CourseAreaService implements IContentService
       throw new Exception('Cannot force delete Course Area that is being used');
     }
 
-    FileService::delete($course_area->image);
-    FileService::delete($course_area->trailer);
-
-    $course_area->forceDelete();
+    return $course_area;
   }
   
   /**

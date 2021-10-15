@@ -171,13 +171,40 @@ class CourseLessonService implements IContentService
    * Soft delete the item 
    * @param int $lesson_id
    * @param int $deleted_by
-   * @return void
+   * @return bool
   */
-  public function delete(int $lesson_id, int $deleted_by)
+  public function delete(int $lesson_id, int $deleted_by): bool
   {
-    CourseLesson::where('id', $lesson_id)->delete();
+    if($lesson = $this->canDelete($lesson_id)) {
+      return $lesson->delete();
+    }
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @param int $deleted_by
+   * @return bool
+  */
+  public function forceDelete(int $lesson_id, int $deleted_by): bool
+  {
+    if($lesson = $this->canDelete($lesson_id)) {
+      return $lesson->forceDelete();
+    }
   }
     
+  /**
+   * @param int $lesson_id
+   * @return CourseLesson
+  */
+  private function canDelete(int $lesson_id): CourseLesson
+  {
+    if(!$lesson = CourseLesson::find($lesson_id)) {
+      throw new Exception('Course Lesson not found');
+    }
+
+    return $lesson;
+  }
+
   /**
    * @param int $course_area_id
    * @return bool

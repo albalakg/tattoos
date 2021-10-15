@@ -155,28 +155,39 @@ class CourseService implements IContentService
    * Soft delete the item 
    * @param int $course_id
    * @param int $deleted_by
-   * @return void
+   * @return bool
   */
-  public function delete(int $course_id, int $deleted_by)
+  public function delete(int $course_id, int $deleted_by): bool
   {
-    if(!$course = Course::find($course_id)) {
-      throw new Exception('Course not found');
+    if(!$course = $this->canDelete($course_id)) {
+      return false;
     }
 
-    if($this->isCourseInUsed($course_id)) {
-      $this->error_data = $this->course_area_service->getCourseAreasOfCourse($course_id);
-      throw new Exception('Cannot delete Course that is being used');
-    }
-
-    $course->delete();
+    return $course->delete();
   }
   
   /**
    * @param int $course_id
    * @param int $deleted_by
-   * @return void
+   * @return bool
   */
-  public function forceDelete(int $course_id, int $deleted_by)
+  public function forceDelete(int $course_id, int $deleted_by): bool
+  {
+    if(!$course = $this->canDelete($course_id)) {
+      return false;
+    }
+    
+    FileService::delete($course->image);
+    FileService::delete($course->trailer);
+
+    return $course->forceDelete();
+  }
+   
+  /**
+   * @param int $course_id
+   * @return Course
+  */
+  private function canDelete(int $course_id): Course
   {
     if(!$course = Course::find($course_id)) {
       throw new Exception('Course not found');
@@ -187,12 +198,9 @@ class CourseService implements IContentService
       throw new Exception('Cannot force delete Course that is being used');
     }
 
-    FileService::delete($course->image);
-    FileService::delete($course->trailer);
-
-    $course->delete();
+    return $course;
   }
-   
+
   /**
    * @param int $course_id
    * @return bool
