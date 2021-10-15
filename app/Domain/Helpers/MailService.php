@@ -5,6 +5,7 @@ namespace App\Domain\Helpers;
 use Exception;
 use Illuminate\Mail\Mailable;
 use App\Domain\Helpers\LogService;
+use App\Domain\Tags\Services\EmailService;
 use Illuminate\Support\Facades\Mail;
 
 class MailService
@@ -27,8 +28,14 @@ class MailService
    */
   private $log_service;
 
+  /**
+   * @var EmailService
+   */
+  private $emailService;
+
   public function __construct()
   {
+    $this->emailService = new EmailService;
     $this->log_service = new LogService('mail');
   }
   
@@ -65,14 +72,23 @@ class MailService
         throw new Exception('No receivers found');
       }
 
+      $email_sent = $this->emailService->create(
+        $this->receivers,
+        $email_class,
+        $data
+      );
+
       if($this->delay) {
         Mail::to($this->receivers)->later($this->delay, new $email_class($data));
       } else {
         Mail::to($this->receivers)->send(new $email_class($data));
       }
 
+      $this->emailService->updateStatus($email_sent->id, StatusService::ACTIVE);
+      
       return true;
     } catch (Exception $ex) {
+      $this->emailService->updateStatus($email_sent->id, StatusService::INACTIVE);
       $this->log_service->error($ex->getMessage());
       return false;
     }

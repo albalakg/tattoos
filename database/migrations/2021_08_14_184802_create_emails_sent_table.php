@@ -16,6 +16,7 @@ class CreateEmailsSentTable extends Migration
         Schema::create('emails_sent', function (Blueprint $table) {
             $table->id();
             $table->integer('email_type_id')->unsigned()->index();
+            $table->text('parameters')->nullable();
             $table->integer('status')->unsigned()->index();
             $table->dateTime('created_at');
             $table->dateTime('finished_at');

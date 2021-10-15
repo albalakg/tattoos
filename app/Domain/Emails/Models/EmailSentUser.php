@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmailSentUser extends Model
 {
+    protected $guarded = [];
+    
     public function email()
     {
         return $this->hasOne(EmailsSent::class, 'id', 'email_sent_id');
