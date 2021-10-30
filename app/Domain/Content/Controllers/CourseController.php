@@ -32,7 +32,7 @@ class CourseController extends Controller
       $response = $this->course_service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Course created successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -42,7 +42,7 @@ class CourseController extends Controller
       $response = $this->course_service->update($request->validated(), Auth::user()->id);
       return $this->successResponse('Course updated successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -53,7 +53,7 @@ class CourseController extends Controller
       return $this->successResponse('Courses deleted successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse(
-        $ex->getMessage(),
+        $ex,
         $this->course_service->error_data
       );
     }
@@ -65,7 +65,7 @@ class CourseController extends Controller
       $response = $this->course_service->getAll();
       return $this->successResponse('Courses fetched successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 }

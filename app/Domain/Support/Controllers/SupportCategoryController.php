@@ -32,7 +32,7 @@ class SupportCategoryController extends Controller
       $response = $this->service->getAll();
       return $this->successResponse('Support Categories fetched successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -42,7 +42,7 @@ class SupportCategoryController extends Controller
       $response = $this->service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Support Categories created successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -52,7 +52,7 @@ class SupportCategoryController extends Controller
       $response = $this->service->multipleDelete($request->ids, Auth::user()->id);
       return $this->successResponse('Support Categories deleted successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
   
@@ -62,7 +62,7 @@ class SupportCategoryController extends Controller
       $response = $this->service->updateStatus($request->id, $request->status, Auth::user()->id);
       return $this->successResponse('Support Categories status updated successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 }

@@ -54,7 +54,7 @@ class CourseService implements IContentService
   public function getAll(): Collection
   {
     return  $this->baseQueryBuilder()
-              ->orderBy('courses.created_at', 'desc')
+              ->orderBy('courses.id', 'desc')
               ->get();
   }
   

@@ -21,7 +21,7 @@ class AuthController extends Controller
     try {
       return $this->successResponse('Logged successfully', $login_service->attempt($request->email, $request->password)->getResponse());
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -31,7 +31,7 @@ class AuthController extends Controller
       $user_service->signup($request->validated());
       return $this->successResponse('Registered successfully');
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -41,7 +41,7 @@ class AuthController extends Controller
       $user_service->resetPassword($request->email, $request->token, $request->password);
       return $this->successResponse('You have reset your password successfully');
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -51,7 +51,7 @@ class AuthController extends Controller
       $user_service->forgotPassword($request->email);
       return $this->successResponse('An email has been sent to the requested address');
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -61,7 +61,7 @@ class AuthController extends Controller
       $user_service->verifyEmail($request->email, $request->token);
       return $this->successResponse('Email verified successfully');
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage(), null, Response::HTTP_UNPROCESSABLE_ENTITY);
+      return $this->errorResponse($ex, null, Response::HTTP_UNPROCESSABLE_ENTITY);
     }
   }
 }

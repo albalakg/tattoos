@@ -26,7 +26,9 @@ class StatusRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        if(!is_numeric($value)) return false;
+        if(!is_numeric($value)) {
+            return false;
+        }
         return in_array($value, StatusService::getAll());
     }
 

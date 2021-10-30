@@ -31,7 +31,9 @@ class IDRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        if(!is_numeric($value)) return false;
+        if(!is_numeric($value)) {
+            return false;
+        }
 
         return $value > 0 && $value < PHP_INT_MAX;
     }

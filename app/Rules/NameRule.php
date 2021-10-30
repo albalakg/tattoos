@@ -31,7 +31,9 @@ class NameRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        if(!is_string($value)) return false;
+        if(!is_string($value)) {
+            return false;
+        }
 
         $value_length = strlen($value);
         return $value_length >= 2 && $value_length <= 40;

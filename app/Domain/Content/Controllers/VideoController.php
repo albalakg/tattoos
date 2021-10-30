@@ -29,7 +29,7 @@ class VideoController extends Controller
       $response = $this->video_service->getAll();
       return $this->successResponse('Videos fetched successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -39,7 +39,7 @@ class VideoController extends Controller
       $response = $this->video_service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Video created successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -49,7 +49,7 @@ class VideoController extends Controller
       $response = $this->video_service->update($request->validated(), Auth::user()->id);
       return $this->successResponse('Video updated successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -60,7 +60,7 @@ public function delete(DeleteRequest $request)
       $response = $video_service->multipleDelete($request->ids, Auth::user()->id);
       return $this->successResponse('Videos deleted successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 }

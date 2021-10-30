@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Domain\Users\Rules;
+namespace App\Domain\Content\Rules;
 
+use App\Domain\Helpers\StatusService;
 use Illuminate\Contracts\Validation\Rule;
 
-class LastNameRule implements Rule
+class CouponCodeRule implements Rule
 {
     /**
      * Create a new rule instance.
@@ -29,8 +30,9 @@ class LastNameRule implements Rule
             return false;
         }
 
-        $value_length = strlen($value);
-        return $value_length >= 2 && $value_length <= 30;
+        if(strlen($value) !== 10) {
+            return false;
+        } 
     }
 
     /**
@@ -40,6 +42,6 @@ class LastNameRule implements Rule
      */
     public function message()
     {
-        return 'First name is not valid';
+        return 'Status is not valid';
     }
 }

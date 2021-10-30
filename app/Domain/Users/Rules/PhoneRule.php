@@ -25,7 +25,9 @@ class PhoneRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        if(!is_string($value)) return false;
+        if(!is_string($value)) {
+            return false;
+        }
         return (bool) preg_match('/^[\d+\-]{7,13}$/', $value);
     }
 

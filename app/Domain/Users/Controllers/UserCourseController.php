@@ -33,7 +33,7 @@ class UserCourseController extends Controller
       $response = $this->user_course_service->getAllTests();
       return $this->successResponse('Tests fetched successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   } 
   
@@ -43,7 +43,7 @@ class UserCourseController extends Controller
       $response = $this->user_course_service->updateTestStatus($request->id, $request->status, Auth::user()->id);
       return $this->successResponse('Tests fetched successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   } 
   
@@ -53,7 +53,7 @@ class UserCourseController extends Controller
       $response = $this->user_course_service->createComment($request->user_course_submission_id, $request->comment, Auth::user()->id);
       return $this->successResponse('Tests fetched successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   } 
   
@@ -63,7 +63,7 @@ class UserCourseController extends Controller
       $response = $this->user_course_service->getAll();
       return $this->successResponse('Users Courses fetched successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   } 
   
@@ -73,7 +73,7 @@ class UserCourseController extends Controller
       $response = $this->user_course_service->getUserCourseProgress($user_course_id);
       return $this->successResponse('User Course progress fetched successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   } 
   
@@ -83,7 +83,7 @@ class UserCourseController extends Controller
       $response = $this->user_course_service->create($request, Auth::user()->id);
       return $this->successResponse('User Course created successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   } 
 }

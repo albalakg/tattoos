@@ -86,7 +86,7 @@ class CourseAreaService implements IContentService
                 'course_categories.name AS course_category_name',
               )
               ->withCount('lessons')
-              ->orderBy('course_areas.created_at', 'desc')
+              ->orderBy('course_areas.id', 'desc')
               ->get();
   }
     

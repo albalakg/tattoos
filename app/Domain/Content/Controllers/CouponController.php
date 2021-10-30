@@ -6,21 +6,22 @@ use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Content\Requests\DeleteRequest;
-use App\Domain\Content\Services\CourseAreaService;
+use App\Domain\Content\Services\CouponService;
+use App\Domain\Content\Requests\CreateCouponRequest;
 use App\Domain\Content\Services\CourseLessonService;
-use App\Domain\Content\Requests\CreateCourseAreaRequest;
-use App\Domain\Content\Requests\UpdateCourseAreasRequest;
+use App\Domain\Content\Requests\UpdateCouponsRequest;
+use App\Domain\Content\Requests\UpdateCouponStatusRequest;
 
-class CourseAreaController extends Controller
+class CouponController extends Controller
 {
   /**
-   * @var CourseAreaService
+   * @var CouponService
   */
   private $course_area_service;
   
   public function __construct()
   {
-    $this->course_area_service = new CourseAreaService(
+    $this->course_area_service = new CouponService(
       new CourseLessonService
     );
   }
@@ -29,37 +30,37 @@ class CourseAreaController extends Controller
   {
     try {
       $response = $this->course_area_service->getAll();
-      return $this->successResponse('Course Areas fetched successfully', $response);
+      return $this->successResponse('Coupons fetched successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
   }
 
-  public function create(CreateCourseAreaRequest $request)
+  public function create(CreateCouponRequest $request)
   {
     try {
       $response = $this->course_area_service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Course Area created successfully', $response);
+      return $this->successResponse('Coupon created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
   }
 
-  public function update(UpdateCourseAreasRequest $request)
+  public function updateStatus(UpdateCouponStatusRequest $request)
   {
     try {
-      $response = $this->course_area_service->update($request->validated(), Auth::user()->id);
-      return $this->successResponse('Course Area updated successfully', $response);
+      $response = $this->course_area_service->updateStatus($request->id, $request->status, Auth::user()->id);
+      return $this->successResponse('Coupon updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
   }
 
-public function delete(DeleteRequest $request)
+  public function delete(DeleteRequest $request)
   {
     try {
       $response = $this->course_area_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Course Areas deleted successfully', $response);
+      return $this->successResponse('Coupons deleted successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,

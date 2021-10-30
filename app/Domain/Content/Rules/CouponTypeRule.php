@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Domain\Users\Rules;
+namespace App\Domain\Content\Rules;
 
+use App\Domain\Content\Models\Coupon;
 use Illuminate\Contracts\Validation\Rule;
 
-class LastNameRule implements Rule
+class CouponTypeRule implements Rule
 {
     /**
      * Create a new rule instance.
@@ -25,12 +26,11 @@ class LastNameRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        if(!is_string($value)) {
+        if(!is_numeric($value)) {
             return false;
         }
-
-        $value_length = strlen($value);
-        return $value_length >= 2 && $value_length <= 30;
+        
+        return in_array($value, Coupon::LIST_OF_TYPES);
     }
 
     /**
@@ -40,6 +40,6 @@ class LastNameRule implements Rule
      */
     public function message()
     {
-        return 'First name is not valid';
+        return 'Coupon type is not valid';
     }
 }

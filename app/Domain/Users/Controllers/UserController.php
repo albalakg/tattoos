@@ -26,7 +26,7 @@ class UserController extends Controller
       $user_service->logout(Auth::user());
       return $this->successResponse('Logged out successfully');
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -36,7 +36,7 @@ class UserController extends Controller
       $user_service->changePassword(Auth::user(), $request->old_password, $request->password);
       return $this->successResponse('Logged out successfully');
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -46,7 +46,7 @@ class UserController extends Controller
       $user_service->updateUserEmail($request->validated(), Auth::user()->id);
       return $this->successResponse('User\'s email updated successfully');
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -56,7 +56,7 @@ class UserController extends Controller
       $user_service->updateUserPassword($request->validated(), Auth::user()->id);
       return $this->successResponse('User\'s password updated successfully');
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -66,7 +66,7 @@ class UserController extends Controller
       $response = $user_service->createUser($request->validated(), Auth::user()->id);
       return $this->successResponse('User created successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -76,7 +76,7 @@ class UserController extends Controller
       $response = $user_service->updateUser($request->validated(), Auth::user()->id);
       return $this->successResponse('User updated successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -86,7 +86,7 @@ class UserController extends Controller
       $response = $user_service->deleteUsers($request->ids, Auth::user()->id);
       return $this->successResponse('Users deleted successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -96,7 +96,7 @@ class UserController extends Controller
       $response = $user_service->getAll();
       return $this->successResponse('Users fetched successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 }

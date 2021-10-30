@@ -26,7 +26,9 @@ class RoleRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        if(!is_string($value)) return false;
+        if(!is_string($value)) {
+            return false;
+        }
         return in_array(strtolower($value), Role::NAMES); 
     }
 

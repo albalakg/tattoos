@@ -31,7 +31,7 @@ class CourseLessonController extends Controller
       $response = $this->lesson_service->getAll();
       return $this->successResponse('Lessons fetched successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -41,7 +41,7 @@ class CourseLessonController extends Controller
       $response = $this->lesson_service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Lesson created successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -51,7 +51,7 @@ class CourseLessonController extends Controller
       $response = $this->lesson_service->update($request->validated(), Auth::user()->id);
       return $this->successResponse('Lesson updated successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 
@@ -61,7 +61,7 @@ public function delete(DeleteRequest $request)
       $response = $this->lesson_service->multipleDelete($request->ids, Auth::user()->id);
       return $this->successResponse('Lessons deleted successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse($ex->getMessage());
+      return $this->errorResponse($ex);
     }
   }
 }
