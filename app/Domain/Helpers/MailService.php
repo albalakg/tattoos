@@ -5,8 +5,8 @@ namespace App\Domain\Helpers;
 use Exception;
 use Illuminate\Mail\Mailable;
 use App\Domain\Helpers\LogService;
-use App\Domain\Tags\Services\EmailService;
 use Illuminate\Support\Facades\Mail;
+use App\Domain\Emails\Services\EmailService;
 
 class MailService
 {

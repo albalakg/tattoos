@@ -1,11 +1,9 @@
 <?php
-namespace App\Domain\Tags\Services;
+namespace App\Domain\Emails\Services;
 
 use App\Domain\Helpers\StatusService;
-use App\Domain\Tags\Models\EmailSentUser;
-use App\Domain\Tags\Models\EmailsSent;
-use App\Domain\Tags\Models\Tag;
-use Exception;
+use App\Domain\Emails\Models\EmailSentUser;
+use App\Domain\Emails\Models\EmailsSent;
 
 class EmailService
 {  

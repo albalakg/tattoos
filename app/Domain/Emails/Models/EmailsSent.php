@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domain\Tags\Models;
+namespace App\Domain\Emails\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Domain\Tags\Models\EmailSentUser;
+use App\Domain\Emails\Models\EmailSentUser;
 
 class EmailsSent extends Model
 {

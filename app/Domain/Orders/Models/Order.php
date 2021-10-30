@@ -9,6 +9,10 @@ use App\Domain\General\Models\LuContentType;
 
 class Order extends Model
 {
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:i:s',
+    ];
+
     protected $guarded = [];
     public function logs()
     {

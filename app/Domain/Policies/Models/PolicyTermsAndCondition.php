@@ -7,7 +7,7 @@ use App\Domain\Orders\Models\OrderLog;
 use Illuminate\Database\Eloquent\Model;
 use App\Domain\General\Models\LuContentType;
 
-class PolicyTermsAndConditions extends Model
+class PolicyTermsAndCondition extends Model
 {
     protected $table = 'policies_terms_and_conditions';
 }

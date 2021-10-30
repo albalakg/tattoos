@@ -131,6 +131,13 @@ return [
             'days' => 1,
         ],
 
+        'policies' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/policies/policies.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'support' => [
             'driver' => 'daily',
             'path' => storage_path('logs/support/support.log'),

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domain\Tags\Models;
+namespace App\Domain\Emails\Models;
 
-use App\Domain\Tags\Models\EmailsSent;
+use App\Domain\Emails\Models\EmailsSent;
 use Illuminate\Database\Eloquent\Model;
 
 class LuEmailType extends Model

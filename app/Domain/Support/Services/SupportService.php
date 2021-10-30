@@ -43,10 +43,18 @@ class SupportService
   */
   public function getAll(): Collection
   {
-    return SupportTicket::query()
+    $tickets = SupportTicket::query()
                 ->with('messages')
                 ->orderBy('id', 'desc')
                 ->get();
+
+    foreach($tickets AS $ticket) {
+      foreach($ticket->messages AS  $message) {
+        $message->human_time = $message->created_at->diffForHumans();
+      }
+    }
+
+    return $tickets;
   }
     
   /**
@@ -105,6 +113,8 @@ class SupportService
       SupportTicketMessageMail::class,
       $support_ticket_message
     );
+
+    $support_ticket_message->human_time = $support_ticket_message->created_at->diffForHumans();
 
     return $support_ticket_message; 
   }

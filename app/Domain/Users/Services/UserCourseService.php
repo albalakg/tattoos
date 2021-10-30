@@ -69,8 +69,8 @@ class UserCourseService
             ->orderBy('id', 'desc')
             ->get();
 
-    foreach($tests AS $test_index => $test) {
-      foreach($test->comments AS $comment_index => $comment) {
+    foreach($tests AS $test) {
+      foreach($test->comments AS  $comment) {
         $comment->human_time = $comment->created_at->diffForHumans();
       }
     }
