@@ -3,6 +3,7 @@
 namespace App\Domain\Users\Requests;
 
 use App\Rules\IDRule;
+use App\Domain\Content\Rules\PriceRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateUserCourseRequest extends FormRequest
@@ -17,7 +18,7 @@ class CreateUserCourseRequest extends FormRequest
         return [
             'user_id'   => ['required', 'bail', new IDRule, 'exists:users,id'],
             'course_id' => ['required', 'bail', new IDRule, 'exists:courses,id'],
-            'price'     => 'required|numeric|min:1',
+            'price'     => ['required', new PriceRule],
             'end_at'    => 'required|date',
         ];
     }
