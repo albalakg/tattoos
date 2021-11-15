@@ -25,7 +25,14 @@ class UserCourse extends Model
 
   public function course()
   {
-    return $this->hasOne(Course::class, 'id', 'course_id');
+    return $this->hasOne(Course::class, 'id', 'course_id')
+                ->select('id', 'name', 'description', 'view_order');
+  }
+
+  public function lessonsProgress()
+  {
+    return $this->hasMany(UserCourseLesson::class, 'user_course_id', 'id')
+                ->select('id', 'user_course_id', 'course_lesson_id', 'progress', 'status');
   }
 
   public function finishedLessons()

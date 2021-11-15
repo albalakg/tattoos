@@ -2,6 +2,8 @@
 
 namespace App\Domain\Users\Controllers;
 
+use App\Domain\Content\Services\CourseService;
+use App\Domain\Helpers\StatusService;
 use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -15,11 +17,6 @@ use App\Domain\Users\Requests\UpdateUserPasswordRequest;
 
 class UserController extends Controller
 {
-  public function __construct()
-  {
-    $this->service = new UserService;
-  }
-  
   public function logout(UserService $user_service)
   {
     try {
@@ -95,6 +92,34 @@ class UserController extends Controller
     try {
       $response = $user_service->getAll();
       return $this->successResponse('Users fetched successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function getUserActiveCourses()
+  {
+    try {
+      $user_service = new UserService(
+        new CourseService
+      );
+      
+      $response = $user_service->getUserCourses(Auth::user(), StatusService::ACTIVE);
+      return $this->successResponse('User active courses successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function getUserProgress()
+  {
+    try {
+      $user_service = new UserService(
+        new CourseService
+      );
+
+      $response = $user_service->getUserProgress(Auth::user(), StatusService::ACTIVE);
+      return $this->successResponse('User progress successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

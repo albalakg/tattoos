@@ -30,6 +30,12 @@ class Course extends Model
         return config('app.url') . '/' . 'files/' . $this->trailer;  
     }
 
+    public function category()
+    {
+        return $this->hasOne(CourseCategory::class, 'id', 'category_id')
+                    ->select('id', 'name', 'image', 'description');
+    }
+
     public function areas()
     {
         return $this->hasMany(CourseArea::class, 'course_id', 'id');
@@ -56,6 +62,11 @@ class Course extends Model
         return $this->hasMany(CourseView::class, 'course_id', 'id');
     }
 
+    public function details()
+    {
+        return $this->hasOne(CourseDetail::class, 'course_id', 'id');
+    }
+
     public function activeAreas()
     {
         return $this->hasMany(CourseArea::class, 'course_id', 'id')
@@ -80,11 +91,12 @@ class Course extends Model
                     ->with('lessons');
     }
 
-    public function activeAreasWithLessons()
+    public function activeAreasWithActiveLessons()
     {
         return $this->hasMany(CourseArea::class, 'course_id', 'id')
                     ->where('status', StatusService::ACTIVE)
-                    ->with('lessons');
+                    ->with('activeLessons')
+                    ->select('id', 'name', 'course_id', 'description', 'view_order');
     }
 
     public function activeLessons()

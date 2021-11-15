@@ -68,6 +68,18 @@ class CourseService implements IContentService
   }
   
   /**
+   * @param array $courses_ids
+   * @return Collection
+  */
+  public function getCoursesFullContent(array $courses_ids): Collection
+  {
+    return Course::whereIn('id', $courses_ids)
+                 ->with('activeAreasWithActiveLessons', 'category', 'details')
+                 ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order')
+                 ->get();
+  }
+  
+  /**
    * Get courses by category id
    *
    * @param int $category_id

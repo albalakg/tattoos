@@ -175,7 +175,6 @@ class CourseCategoryService implements IContentService
             'image',
             'status',
             'created_at',
-          )
-          ->withCount('courses');
+          );
   }
 }

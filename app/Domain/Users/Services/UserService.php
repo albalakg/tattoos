@@ -8,26 +8,36 @@ use Illuminate\Support\Str;
 use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
+use Illuminate\Support\Facades\DB;
 use App\Domain\Helpers\MailService;
 use Illuminate\Support\Facades\Hash;
 use App\Domain\Helpers\StatusService;
 use App\Events\Users\UserCreatedEvent;
 use App\Events\Users\UserDeletedEvent;
+use App\Domain\Users\Models\UserCourse;
 use App\Domain\Users\Models\UserDetail;
 use App\Mail\User\UpdateEmailRequestMail;
 use App\Events\Users\UserResetPasswordEvent;
+use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Content\Services\CourseService;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Users\Models\UserEmailVerification;
 
 class UserService
 {  
   /**
+   * @var CourseService
+  */
+  private $course_service;
+  
+  /**
    * @var LogService
   */
   private $log_service;
   
-  public function __construct()
+  public function __construct(CourseService $course_service = null)
   {
+    $this->course_service = $course_service;
     $this->log_service = new LogService('users');
   }
   
@@ -89,7 +99,38 @@ class UserService
   */
   public function getFullName(Object $user): string
   {
-    return  $user->first_name . ' ' . $user->last_name;
+    return $user->first_name . ' ' . $user->last_name;
+  }
+  
+  /**
+   * @param Object $user
+   * @param int $status
+   * @return Collection
+  */
+  public function getUserCourses(Object $user, int $status = null): Collection
+  {
+    $user_courses = UserCourse::where('user_id', $user->id);
+    
+    if(!is_null($status)) {
+      $user_courses = $user_courses->where('status', $status);
+    }
+
+    $user_courses = $user_courses->select('id', 'course_id', 'price', 'progress')->get();
+    $courses      = $this->course_service->getCoursesFullContent($user_courses->pluck('id')->toArray());
+
+    return $courses;
+  }
+  
+  /**
+   * @param Object $user
+   * @return Collection
+  */
+  public function getUserProgress(Object $user): Collection
+  {
+    return UserCourse::where('user_id', $user->id)
+                    ->with('lessonsProgress')
+                    ->select('id', 'course_id', 'price', 'progress')
+                    ->get();
   }
 
   /**
@@ -102,16 +143,16 @@ class UserService
   }
   
   /**
-   * @param object $data
+   * @param array $data
    * @return User|null
   */
-  public function signup(object $data): ?User
+  public function signup(array $data): ?User
   {
     try {
-      $data->role_id  = Role::NORMAL;
+      $data['role_id']  = Role::NORMAL;
       $user           = $this->saveUser($data);
       dd($user);
-      $data->user_id  = $user->id;
+      $data['user_id']  = $user->id;
       $this->saveUserDetails($data);
       $user->email_verification = $this->saveEmailVerification($user->id, $user->email);
       event(new UserCreatedEvent($user));
@@ -127,20 +168,20 @@ class UserService
   /**
    * Create user by an admin
    *
-   * @param object $data
+   * @param array $data
    * @param int|null $created_by
    * @return User|null
   */
-  public function createUser(object $data, ?int $created_by): ?User
+  public function createUser(array $data, ?int $created_by): ?User
   {
     try {
-      $data->created_by = $created_by;
-      $data->role_id    = Role::ROLES_LIST[strtolower($data->role)];
+      $data['created_by'] = $created_by;
+      $data['role_id']    = Role::ROLES_LIST[strtolower($data['role'])];
       if(!$user = $this->saveUser($data)) {
         throw new Exception('Failed to create a user');
       }
 
-      $data->user_id    = $user->id;
+      $data['user_id']    = $user->id;
       $this->saveUserDetails($data);
       return $user;
     } catch(Exception $ex) {
@@ -154,20 +195,20 @@ class UserService
   /**
    * Update user by an admin
    *
-   * @param object $data
+   * @param array $data
    * @param int|null $created_by
    * @return User|null
   */
-  public function updateUser(object $data, ?int $updated_by)
+  public function updateUser(array $data, ?int $updated_by)
   {
     try {
-      $data->updated_by = $updated_by;
-      $data->role_id    = Role::ROLES_LIST[strtolower($data->role)];
+      $data['updated_by'] = $updated_by;
+      $data['role_id']    = Role::ROLES_LIST[strtolower($data['role'])];
       if(!$user = $this->saveUser($data)) {
         throw new Exception('Failed to update a user');
       }
 
-      $data->user_id    = $user->id;
+      $data['user_id']    = $user->id;
       $this->saveUserDetails($data);
       return $data;
     } catch(Exception $ex) {
@@ -179,32 +220,32 @@ class UserService
   }
   
   /**
-   * @param object $data
+   * @param array $data
    * @return User|null 
   */
-  public function saveUser(object $data): ?User
+  public function saveUser(array $data): ?User
   {
-    if(isset($data->id)) {
-      if(!$user = User::find($data->id)) {
+    if(isset($data['id'])) {
+      if(!$user = User::find($data['id'])) {
         throw new Exception('Failed to find user');
       }
     } else {
       $user = new User();
     }
 
-    $user->role_id      = $data->role_id;
+    $user->role_id      = $data['role_id'];
     $user->status       = StatusService::PENDING;
 
-    if(isset($data->email)) {
-      $user->email        = $data->email;
+    if(isset($data['email'])) {
+      $user->email        = $data['email'];
     }
 
-    if(isset($data->password)) {
-      $user->password     = bcrypt($data->password);
+    if(isset($data['password'])) {
+      $user->password     = bcrypt($data['password']);
     }
 
-    if(isset($data->created_by)) {
-      $user->created_by   = $data->created_by;
+    if(isset($data['created_by'])) {
+      $user->created_by   = $data['created_by'];
     }
 
     $user->save();
@@ -243,10 +284,10 @@ class UserService
   /**
    * Create a record for the user's details
    *
-   * @param object $data
+   * @param array $data
    * @return UserDetail|null
    */
-  public function updateUserDetails(object $data): ?UserDetail
+  public function updateUserDetails(array $data): ?UserDetail
   {
     return $this->saveUserDetails($data);
   }
@@ -322,23 +363,23 @@ class UserService
   }
   
   /**
-   * @param object $data
+   * @param array $data
    * @param int $updated_by
    * @return bool
   */
-  public function updateUserEmail(object $data, int $updated_by): bool
+  public function updateUserEmail(array $data, int $updated_by): bool
   {
-    return User::where('id', $data->id)->update(['email' => $data->email]);
+    return User::where('id', $data['id'])->update(['email' => $data['email']]);
   } 
   
   /**
-   * @param object $data
+   * @param array $data
    * @param int $updated_by
    * @return bool
   */
-  public function updateUserPassword(object $data, int $updated_by): bool
+  public function updateUserPassword(array $data, int $updated_by): bool
   {
-    return $this->savePassword($data->id, $data->password);
+    return $this->savePassword($data['id'], $data['password']);
   } 
    
   /**
@@ -443,33 +484,33 @@ class UserService
   /**
    * Save the user details
    *
-   * @param object $data
+   * @param array $data
    * @return UserDetail|null
   */
-  private function saveUserDetails(object $data): ?UserDetail
+  private function saveUserDetails(array $data): ?UserDetail
   {
-    if(isset($data->id)) {
-      if(!$user_data = UserDetail::where('user_id', $data->id)->first()) {
+    if(isset($data['id'])) {
+      if(!$user_data = UserDetail::where('user_id', $data['id'])->first()) {
         throw new Exception('Failed to find user');
       }
     } else {
       $user_data = new UserDetail();
     }
 
-    $user_data->user_id     = $data->user_id;
-    $user_data->first_name  = $data->first_name;
-    $user_data->last_name   = $data->last_name;
+    $user_data->user_id     = $data['user_id'];
+    $user_data->first_name  = $data['first_name'];
+    $user_data->last_name   = $data['last_name'];
 
-    if(isset($data->phone)) {
-      $user_data->phone  = $data->phone;
+    if(isset($data['phone'])) {
+      $user_data->phone  = $data['phone'];
     }
 
-    if(isset($data->gender)) {
-      $user_data->gender  = $data->gender;
+    if(isset($data['gender'])) {
+      $user_data->gender  = $data['gender'];
     }
 
-    if(isset($data->birth_date)) {
-      $user_data->birth_date  = $data->birth_date;
+    if(isset($data['birth_date'])) {
+      $user_data->birth_date  = $data['birth_date'];
     }
 
     $user_data->save();

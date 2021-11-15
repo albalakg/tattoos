@@ -21,6 +21,12 @@ class CourseLesson extends Model
     {
         return $this->hasOne(CourseArea::class, 'id', 'course_area_id');
     }
+    
+    public function video()
+    {
+        return $this->hasOne(Video::class, 'id', 'video_id')
+                    ->select('id', 'video_path');
+    }
 
     public function ranks()
     {
