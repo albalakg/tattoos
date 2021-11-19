@@ -89,7 +89,7 @@ class MailService
       return true;
     } catch (Exception $ex) {
       $this->emailService->updateStatus($email_sent->id, StatusService::INACTIVE);
-      $this->log_service->error($ex->getMessage());
+      $this->log_service->error($ex);
       return false;
     }
   }

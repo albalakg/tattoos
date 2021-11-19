@@ -19,7 +19,7 @@ use App\Domain\Users\Models\UserDetail;
 use App\Mail\User\UpdateEmailRequestMail;
 use App\Events\Users\UserResetPasswordEvent;
 use Illuminate\Database\Eloquent\Collection;
-use App\Domain\Content\Services\CourseService;
+use App\Domain\Content\Services\ContentService;
 use App\Domain\Orders\Services\OrderService;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Support\Services\SupportService;
@@ -28,9 +28,9 @@ use App\Domain\Users\Models\UserEmailVerification;
 class UserService
 {  
   /**
-   * @var CourseService
+   * @var ContentService
   */
-  private $course_service;
+  private $content_service;
   
   /**
    * @var SupportService
@@ -48,14 +48,14 @@ class UserService
   private $log_service;
     
   /**
-   * @param CourseService $course_service
+   * @param ContentService $content_service
    * @param SupportService $support_service
    * @param OrderService $order_service
    * @return void
   */
-  public function __construct(CourseService $course_service = null, SupportService $support_service = null, OrderService $order_service = null)
+  public function __construct(ContentService $content_service = null, SupportService $support_service = null, OrderService $order_service = null)
   {
-    $this->course_service   = $course_service;
+    $this->content_service   = $content_service;
     $this->support_service  = $support_service;
     $this->order_service    = $order_service;
     $this->log_service      = new LogService('users');
@@ -136,7 +136,7 @@ class UserService
     }
 
     $user_courses = $user_courses->select('id', 'course_id', 'price', 'progress')->get();
-    $courses      = $this->course_service->getCoursesFullContent($user_courses->pluck('id')->toArray());
+    $courses      = $this->content_service->getCoursesFullContent($user_courses->pluck('id')->toArray());
 
     return $courses;
   }
@@ -160,6 +160,15 @@ class UserService
                     ->with('lessonsProgress')
                     ->select('id', 'course_id', 'price', 'progress')
                     ->get();
+  }
+  
+  /**
+   * @param Object $user
+   * @return Collection
+  */
+  public function getUserFavoriteContent(Object $user): Collection
+  {
+    //
   }
   
   /**

@@ -160,4 +160,21 @@ class UserController extends Controller
       return $this->errorResponse($ex);
     }
   }
+
+  public function getUserFavoriteContent()
+  {
+    try {
+      $user_service = new UserService(
+        null,
+        new SupportService(
+          new SupportCategoryService
+        )
+      );
+
+      $response = $user_service->getUserFavoriteContent(Auth::user(), StatusService::ACTIVE);
+      return $this->successResponse('Fetched user support tickets successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
 }

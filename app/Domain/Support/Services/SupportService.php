@@ -158,7 +158,7 @@ class SupportService
       $support_ticket_log->created_by         = $created_by;
       $support_ticket_log->save();
     } catch(Exception $ex) {
-      $this->log_service->error('Failed to save support ticket log. Error: ' . $ex->getMessage());
+      $this->log_service->error($ex);
     }
   }
   

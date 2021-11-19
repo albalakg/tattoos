@@ -95,7 +95,7 @@ class OrderService
       $order_log->created_by  = $created_by;
       $order_log->save();
     } catch(Exception $ex) {
-      $this->log_service->error('Failed to save order log. Error: ' . $ex->getMessage());
+      $this->log_service->error($ex);
     }
   }
 }
