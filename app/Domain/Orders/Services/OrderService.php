@@ -36,6 +36,24 @@ class OrderService
     return Order::orderBy('created_at', 'desc')
                 ->get();
   }
+  
+  /**
+   * @param array|int $users_ids
+   * @return Collection
+  */
+  public function getOrdersByUsers($users_ids): Collection
+  {
+    if(is_numeric($users_ids)) {
+      $users_ids = [$users_ids];
+    } else if(!is_array($users_ids)) {
+      throw new Exception('users_ids must be int or array');
+    }
+
+    return Order::orderBy('created_at', 'desc')
+                ->whereIn('user_id', $users_ids)
+                ->select('order_number', 'content_id', 'status', 'price', 'created_at')
+                ->get();
+  }
     
   /**
    * @param int $order_id

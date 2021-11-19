@@ -4,6 +4,9 @@ namespace App\Domain\Users\Controllers;
 
 use App\Domain\Content\Services\CourseService;
 use App\Domain\Helpers\StatusService;
+use App\Domain\Orders\Services\OrderService;
+use App\Domain\Support\Services\SupportCategoryService;
+use App\Domain\Support\Services\SupportService;
 use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -105,7 +108,7 @@ class UserController extends Controller
       );
       
       $response = $user_service->getUserCourses(Auth::user(), StatusService::ACTIVE);
-      return $this->successResponse('User active courses successfully', $response);
+      return $this->successResponse('Fetched user active courses successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -119,7 +122,40 @@ class UserController extends Controller
       );
 
       $response = $user_service->getUserProgress(Auth::user(), StatusService::ACTIVE);
-      return $this->successResponse('User progress successfully', $response);
+      return $this->successResponse('Fetched user progress successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function getUserOrders()
+  {
+    try {
+      $user_service = new UserService(
+        null,
+        null,
+        new OrderService
+      );
+
+      $response = $user_service->getUserOrders(Auth::user());
+      return $this->successResponse('Fetched user orders successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function getUserSupportTickets()
+  {
+    try {
+      $user_service = new UserService(
+        null,
+        new SupportService(
+          new SupportCategoryService
+        )
+      );
+
+      $response = $user_service->getUserSupportTickets(Auth::user(), StatusService::ACTIVE);
+      return $this->successResponse('Fetched user support tickets successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

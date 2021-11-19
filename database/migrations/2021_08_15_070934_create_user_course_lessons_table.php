@@ -17,8 +17,7 @@ class CreateUserCourseLessonsTable extends Migration
             $table->id();
             $table->integer('user_course_id')->unsigned()->index();
             $table->integer('course_lesson_id')->unsigned()->index();
-            $table->integer('progress')->unsigned();
-            $table->integer('status')->unsigned()->index();
+            $table->integer('progress')->unsigned()->comment('the user progress in the lesson video, in percentages');
             $table->dateTime('created_at');
             $table->dateTime('finished_at')->nullable();
         });

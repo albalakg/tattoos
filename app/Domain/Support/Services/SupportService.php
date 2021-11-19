@@ -48,8 +48,32 @@ class SupportService
                 ->orderBy('id', 'desc')
                 ->get();
 
+    return $this->convertToHumanTime($tickets);
+  }
+  
+  /**
+   * @param array|int $users_ids
+   * @return Collection
+  */
+  public function getTicketsByUsers($users_ids): Collection
+  {
+    if(is_numeric($users_ids)) {
+      $users_ids = [$users_ids];
+    } else if(!is_array($users_ids)) {
+      throw new Exception('users_ids must be int or array');
+    }
+
+    $tickets = SupportTicket::query()
+                ->whereIn('user_id', $users_ids)
+                ->with('messages', 'category')
+                ->orderBy('id', 'desc')
+                ->select('id', 'support_category_id', 'support_number', 'title', 'description', 'status', 'file_path', 'created_at', 'finished_at')
+                ->get();
+
     foreach($tickets AS $ticket) {
-      foreach($ticket->messages AS  $message) {
+      $ticket->human_time = $ticket->created_at->diffForHumans();
+      
+      foreach($ticket->messages AS $message) {
         $message->human_time = $message->created_at->diffForHumans();
       }
     }
@@ -137,4 +161,20 @@ class SupportService
       $this->log_service->error('Failed to save support ticket log. Error: ' . $ex->getMessage());
     }
   }
+  
+  /**
+   * @param Collection $tickets
+   * @return Collection
+  */
+  private function convertToHumanTime($tickets): Collection
+  {
+    foreach($tickets AS $ticket) {
+      foreach($ticket->messages AS  $message) {
+        $message->human_time = $message->created_at->diffForHumans();
+      }
+    }
+
+    return $tickets;
+  }
+
 }

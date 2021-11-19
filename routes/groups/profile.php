@@ -10,6 +10,8 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::get('courses', [UserController::class, 'getUserActiveCourses']);
     Route::get('progress', [UserController::class, 'getUserProgress']);
+    Route::get('orders', [UserController::class, 'getUserOrders']);
+    Route::get('support-tickets', [UserController::class, 'getUserSupportTickets']);
     
     Route::post('logout', [UserController::class, 'logout']);
     Route::post('change-password', [UserController::class, 'changePassword']);

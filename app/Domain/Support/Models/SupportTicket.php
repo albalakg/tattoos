@@ -28,7 +28,8 @@ class SupportTicket extends Model
     
     public function category()
     {
-        return $this->hasOne(OrderLog::class, 'id', 'support_category_id');
+        return $this->hasOne(SupportCategory::class, 'id', 'support_category_id')
+                    ->select('id', 'name', 'description');
     }
 
     public function user()

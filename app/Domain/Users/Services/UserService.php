@@ -20,7 +20,9 @@ use App\Mail\User\UpdateEmailRequestMail;
 use App\Events\Users\UserResetPasswordEvent;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Services\CourseService;
+use App\Domain\Orders\Services\OrderService;
 use App\Domain\Users\Models\UserResetPassword;
+use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Models\UserEmailVerification;
 
 class UserService
@@ -31,14 +33,32 @@ class UserService
   private $course_service;
   
   /**
+   * @var SupportService
+  */
+  private $support_service;
+  
+  /**
+   * @var OrderService
+  */
+  private $order_service;
+  
+  /**
    * @var LogService
   */
   private $log_service;
-  
-  public function __construct(CourseService $course_service = null)
+    
+  /**
+   * @param CourseService $course_service
+   * @param SupportService $support_service
+   * @param OrderService $order_service
+   * @return void
+  */
+  public function __construct(CourseService $course_service = null, SupportService $support_service = null, OrderService $order_service = null)
   {
-    $this->course_service = $course_service;
-    $this->log_service = new LogService('users');
+    $this->course_service   = $course_service;
+    $this->support_service  = $support_service;
+    $this->order_service    = $order_service;
+    $this->log_service      = new LogService('users');
   }
   
   /**
@@ -125,12 +145,30 @@ class UserService
    * @param Object $user
    * @return Collection
   */
+  public function getUserSupportTickets(Object $user): Collection
+  {
+    return $this->support_service->getTicketsByUsers($user->id);
+  }
+  
+  /**
+   * @param Object $user
+   * @return Collection
+  */
   public function getUserProgress(Object $user): Collection
   {
     return UserCourse::where('user_id', $user->id)
                     ->with('lessonsProgress')
                     ->select('id', 'course_id', 'price', 'progress')
                     ->get();
+  }
+  
+  /**
+   * @param Object $user
+   * @return Collection
+  */
+  public function getUserOrders(Object $user): Collection
+  {
+    return $this->order_service->getOrdersByUsers($user->id);
   }
 
   /**
