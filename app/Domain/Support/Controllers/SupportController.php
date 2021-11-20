@@ -30,7 +30,7 @@ class SupportController extends Controller
   {
     try {
       $response = $this->service->getAll();
-      return $this->successResponse('Support fetched successfully', $response);
+      return $this->successResponse('Support fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -40,7 +40,7 @@ class SupportController extends Controller
   {
     try {
       $response = $this->service->updateStatus($request->id, $request->status, Auth::user()->id);
-      return $this->successResponse('Support\'s status updated successfully', $response);
+      return $this->successResponse('Support\'s status updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -50,7 +50,7 @@ class SupportController extends Controller
   {
     try {
       $response = $this->service->createSupportTicketMessage($request->validated(), Auth::user()->id);
-      return $this->successResponse('Message created successfully', $response);
+      return $this->successResponse('Message created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

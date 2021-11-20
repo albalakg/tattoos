@@ -2,7 +2,7 @@
 
 namespace App\Domain\Users\Controllers;
 
-use App\Domain\Content\Services\CourseService;
+use App\Domain\Content\Services\ContentService;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Orders\Services\OrderService;
 use App\Domain\Support\Services\SupportCategoryService;
@@ -24,7 +24,7 @@ class UserController extends Controller
   {
     try {
       $user_service->logout(Auth::user());
-      return $this->successResponse('Logged out successfully');
+      return $this->successResponse('Logged out');
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -34,7 +34,7 @@ class UserController extends Controller
   {
     try {
       $user_service->changePassword(Auth::user(), $request->old_password, $request->password);
-      return $this->successResponse('Logged out successfully');
+      return $this->successResponse('Logged out');
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -44,7 +44,7 @@ class UserController extends Controller
   {
     try {
       $user_service->updateUserEmail($request->validated(), Auth::user()->id);
-      return $this->successResponse('User\'s email updated successfully');
+      return $this->successResponse('User\'s email updated');
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -54,7 +54,7 @@ class UserController extends Controller
   {
     try {
       $user_service->updateUserPassword($request->validated(), Auth::user()->id);
-      return $this->successResponse('User\'s password updated successfully');
+      return $this->successResponse('User\'s password updated');
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -64,7 +64,7 @@ class UserController extends Controller
   {
     try {
       $response = $user_service->createUser($request->validated(), Auth::user()->id);
-      return $this->successResponse('User created successfully', $response);
+      return $this->successResponse('User created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -74,7 +74,7 @@ class UserController extends Controller
   {
     try {
       $response = $user_service->updateUser($request->validated(), Auth::user()->id);
-      return $this->successResponse('User updated successfully', $response);
+      return $this->successResponse('User updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -84,7 +84,7 @@ class UserController extends Controller
   {
     try {
       $response = $user_service->deleteUsers($request->ids, Auth::user()->id);
-      return $this->successResponse('Users deleted successfully', $response);
+      return $this->successResponse('Users deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -94,7 +94,7 @@ class UserController extends Controller
   {
     try {
       $response = $user_service->getAll();
-      return $this->successResponse('Users fetched successfully', $response);
+      return $this->successResponse('Users fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -104,11 +104,11 @@ class UserController extends Controller
   {
     try {
       $user_service = new UserService(
-        new CourseService
+        new ContentService
       );
       
       $response = $user_service->getUserCourses(Auth::user(), StatusService::ACTIVE);
-      return $this->successResponse('Fetched user active courses successfully', $response);
+      return $this->successResponse('Fetched user active courses', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -117,12 +117,9 @@ class UserController extends Controller
   public function getUserProgress()
   {
     try {
-      $user_service = new UserService(
-        new CourseService
-      );
-
+      $user_service = new UserService();
       $response = $user_service->getUserProgress(Auth::user(), StatusService::ACTIVE);
-      return $this->successResponse('Fetched user progress successfully', $response);
+      return $this->successResponse('Fetched user progress', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -138,7 +135,7 @@ class UserController extends Controller
       );
 
       $response = $user_service->getUserOrders(Auth::user());
-      return $this->successResponse('Fetched user orders successfully', $response);
+      return $this->successResponse('Fetched user orders', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -155,7 +152,7 @@ class UserController extends Controller
       );
 
       $response = $user_service->getUserSupportTickets(Auth::user(), StatusService::ACTIVE);
-      return $this->successResponse('Fetched user support tickets successfully', $response);
+      return $this->successResponse('Fetched user support tickets', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -165,14 +162,11 @@ class UserController extends Controller
   {
     try {
       $user_service = new UserService(
-        null,
-        new SupportService(
-          new SupportCategoryService
-        )
+        new ContentService
       );
 
       $response = $user_service->getUserFavoriteContent(Auth::user(), StatusService::ACTIVE);
-      return $this->successResponse('Fetched user support tickets successfully', $response);
+      return $this->successResponse('Fetched user favorite content', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

@@ -30,7 +30,7 @@ class CourseCategoryController extends Controller
   {
     try {
       $response = $this->course_category_service->getAll();
-      return $this->successResponse('Course Categories fetched successfully', $response);
+      return $this->successResponse('Course Categories fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -40,7 +40,7 @@ class CourseCategoryController extends Controller
   {
     try {
       $response = $this->course_category_service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Course Category created successfully', $response);
+      return $this->successResponse('Course Category created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -50,7 +50,7 @@ class CourseCategoryController extends Controller
   {
     try {
       $response = $this->course_category_service->update($request->validated(), Auth::user()->id);
-      return $this->successResponse('Course Category updated successfully', $response);
+      return $this->successResponse('Course Category updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -60,7 +60,7 @@ public function delete(DeleteRequest $request)
   {
     try {
       $response = $this->course_category_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Course Categories deleted successfully', $response);
+      return $this->successResponse('Course Categories deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,

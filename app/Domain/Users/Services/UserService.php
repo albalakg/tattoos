@@ -24,6 +24,7 @@ use App\Domain\Orders\Services\OrderService;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Models\UserEmailVerification;
+use App\Domain\Users\Models\UserFavorite;
 
 class UserService
 {  
@@ -168,7 +169,8 @@ class UserService
   */
   public function getUserFavoriteContent(Object $user): Collection
   {
-    //
+    $favorite_content_ids = UserFavorite::where('user_id', $user->id)->pluck('content_id')->toArray();
+    return $this->content_service->getLessonsByIds($favorite_content_ids);
   }
   
   /**

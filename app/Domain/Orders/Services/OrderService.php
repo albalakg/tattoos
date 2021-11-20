@@ -9,6 +9,7 @@ use App\Domain\Orders\Models\OrderLog;
 use App\Mail\Tests\OrderStatusUpdateMail;
 use App\Domain\Users\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Helpers\DataManipulationService;
 
 class OrderService
 {
@@ -43,11 +44,7 @@ class OrderService
   */
   public function getOrdersByUsers($users_ids): Collection
   {
-    if(is_numeric($users_ids)) {
-      $users_ids = [$users_ids];
-    } else if(!is_array($users_ids)) {
-      throw new Exception('users_ids must be int or array');
-    }
+    $users_ids = DataManipulationService::intOrArray($users_ids);
 
     return Order::orderBy('created_at', 'desc')
                 ->whereIn('user_id', $users_ids)

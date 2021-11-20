@@ -30,7 +30,7 @@ class CourseController extends Controller
   {
     try {
       $response = $this->course_service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Course created successfully', $response);
+      return $this->successResponse('Course created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -40,7 +40,7 @@ class CourseController extends Controller
   {
     try {
       $response = $this->course_service->update($request->validated(), Auth::user()->id);
-      return $this->successResponse('Course updated successfully', $response);
+      return $this->successResponse('Course updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -50,7 +50,7 @@ class CourseController extends Controller
   {
     try {
       $response = $this->course_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Courses deleted successfully', $response);
+      return $this->successResponse('Courses deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,
@@ -63,7 +63,7 @@ class CourseController extends Controller
   {
     try {
       $response = $this->course_service->getAll();
-      return $this->successResponse('Courses fetched successfully', $response);
+      return $this->successResponse('Courses fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

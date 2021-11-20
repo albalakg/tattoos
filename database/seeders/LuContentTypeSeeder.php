@@ -16,7 +16,9 @@ class LuContentTypeSeeder extends Seeder
     {
         LuContentType::truncate();
         $data = [
-            ['name' => 'Course', 'created_at' => now()],
+            ['name' => 'Course',        'created_at' => now()],
+            ['name' => 'Course Area',   'created_at' => now()],
+            ['name' => 'Lesson',        'created_at' => now()],
         ];
         LuContentType::insert($data);
         

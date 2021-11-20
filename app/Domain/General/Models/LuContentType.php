@@ -6,5 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class LuContentType extends Model
 {
+    const   COURSE      = 1,
+            COURSE_AREA = 2,
+            LESSON      = 3;
 
+    const ALL_CONTENT_TYPES = [
+        self::COURSE,
+        self::COURSE_AREA,
+        self::LESSON
+    ];
 }

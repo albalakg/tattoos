@@ -29,7 +29,7 @@ class CourseAreaController extends Controller
   {
     try {
       $response = $this->course_area_service->getAll();
-      return $this->successResponse('Course Areas fetched successfully', $response);
+      return $this->successResponse('Course Areas fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -39,7 +39,7 @@ class CourseAreaController extends Controller
   {
     try {
       $response = $this->course_area_service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Course Area created successfully', $response);
+      return $this->successResponse('Course Area created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -49,7 +49,7 @@ class CourseAreaController extends Controller
   {
     try {
       $response = $this->course_area_service->update($request->validated(), Auth::user()->id);
-      return $this->successResponse('Course Area updated successfully', $response);
+      return $this->successResponse('Course Area updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -59,7 +59,7 @@ public function delete(DeleteRequest $request)
   {
     try {
       $response = $this->course_area_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Course Areas deleted successfully', $response);
+      return $this->successResponse('Course Areas deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,

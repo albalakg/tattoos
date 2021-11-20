@@ -26,7 +26,7 @@ class TermsAndConditionsController extends Controller
   {
     try {
       $response = $this->service->getTermsAndConditions();
-      return $this->successResponse('Terms and Conditions fetched successfully', $response);
+      return $this->successResponse('Terms and Conditions fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -36,7 +36,7 @@ class TermsAndConditionsController extends Controller
   {
     try {
       $response = $this->service->updateStatus($request->id, $request->status, Auth::user()->id);
-      return $this->successResponse('Order\'s status updated successfully', $response);
+      return $this->successResponse('Order\'s status updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

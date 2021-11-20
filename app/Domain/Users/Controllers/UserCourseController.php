@@ -31,7 +31,7 @@ class UserCourseController extends Controller
   {
     try {
       $response = $this->user_course_service->getAllTests();
-      return $this->successResponse('Tests fetched successfully', $response);
+      return $this->successResponse('Tests fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -41,7 +41,7 @@ class UserCourseController extends Controller
   {
     try {
       $response = $this->user_course_service->updateTestStatus($request->id, $request->status, Auth::user()->id);
-      return $this->successResponse('Tests fetched successfully', $response);
+      return $this->successResponse('Tests fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -51,7 +51,7 @@ class UserCourseController extends Controller
   {
     try {
       $response = $this->user_course_service->createComment($request->user_course_submission_id, $request->comment, Auth::user()->id);
-      return $this->successResponse('Tests fetched successfully', $response);
+      return $this->successResponse('Tests fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -61,7 +61,7 @@ class UserCourseController extends Controller
   {
     try {
       $response = $this->user_course_service->getAll();
-      return $this->successResponse('Users Courses fetched successfully', $response);
+      return $this->successResponse('Users Courses fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -71,7 +71,7 @@ class UserCourseController extends Controller
   {
     try {
       $response = $this->user_course_service->getUserCourseProgress($user_course_id);
-      return $this->successResponse('User Course progress fetched successfully', $response);
+      return $this->successResponse('User Course progress fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -81,7 +81,7 @@ class UserCourseController extends Controller
   {
     try {
       $response = $this->user_course_service->create($request, Auth::user()->id);
-      return $this->successResponse('User Course created successfully', $response);
+      return $this->successResponse('User Course created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

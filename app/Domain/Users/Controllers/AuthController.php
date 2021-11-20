@@ -19,7 +19,7 @@ class AuthController extends Controller
   public function login(LoginRequest $request, LoginService $login_service)
   {
     try {
-      return $this->successResponse('Logged successfully', $login_service->attempt($request->email, $request->password)->getResponse());
+      return $this->successResponse('Logged', $login_service->attempt($request->email, $request->password)->getResponse());
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -29,7 +29,7 @@ class AuthController extends Controller
   {
     try {
       $user_service->signup($request->validated());
-      return $this->successResponse('Registered successfully');
+      return $this->successResponse('Registered');
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -39,7 +39,7 @@ class AuthController extends Controller
   {
     try {
       $user_service->resetPassword($request->email, $request->token, $request->password);
-      return $this->successResponse('You have reset your password successfully');
+      return $this->successResponse('You have reset your password');
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -59,7 +59,7 @@ class AuthController extends Controller
   {
     try {
       $user_service->verifyEmail($request->email, $request->token);
-      return $this->successResponse('Email verified successfully');
+      return $this->successResponse('Email verified');
     } catch (Exception $ex) {
       return $this->errorResponse($ex, null, Response::HTTP_UNPROCESSABLE_ENTITY);
     }

@@ -39,7 +39,7 @@ class TagService extends BaseService
 
 
       LogService::info("Created $tag_name successfully by $created_by", $this->log_file);
-      return $this->success('Created tag successfully', $tag);
+      return $this->success('Created tag', $tag);
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
       return $this->error("Tag $tag failed to be created by user $created_by");
@@ -83,7 +83,7 @@ class TagService extends BaseService
           ]);
 
       LogService::info("Tag $tag_name status updated successfully to $status by $created_by", $this->log_file);
-      return $this->success('Updated tag status successfully');
+      return $this->success('Updated tag status');
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
       return $this->error("Tag $tag, failed to be updated to status $status");
@@ -107,7 +107,7 @@ class TagService extends BaseService
       $tag->delete();
 
       LogService::info("Tag $tag->name deleted by $created_by", $this->log_file);
-      return $this->success('Deleted the tag successfully');
+      return $this->success('Deleted the tag');
     } catch(Exception $ex) {
       LogService::error($ex->getMessage(), $this->log_file);
       return $this->error("Tag $tag->name, failed to be deleted");

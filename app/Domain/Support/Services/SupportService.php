@@ -9,6 +9,7 @@ use App\Domain\Users\Services\UserService;
 use App\Domain\Support\Models\SupportTicket;
 use App\Mail\Tests\SupportTicketMessageMail;
 use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Helpers\DataManipulationService;
 use App\Domain\Support\Models\SupportTicketLog;
 use App\Domain\Support\Models\SupportTicketMessage;
 
@@ -57,11 +58,7 @@ class SupportService
   */
   public function getTicketsByUsers($users_ids): Collection
   {
-    if(is_numeric($users_ids)) {
-      $users_ids = [$users_ids];
-    } else if(!is_array($users_ids)) {
-      throw new Exception('users_ids must be int or array');
-    }
+    $users_ids = DataManipulationService::intOrArray($users_ids);
 
     $tickets = SupportTicket::query()
                 ->whereIn('user_id', $users_ids)

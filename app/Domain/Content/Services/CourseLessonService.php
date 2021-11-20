@@ -8,6 +8,7 @@ use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
 use App\Domain\Content\Models\CourseLesson;
+use App\Domain\Helpers\DataManipulationService;
 use Illuminate\Database\Eloquent\Collection;
 
 class CourseLessonService implements IContentService
@@ -49,6 +50,19 @@ class CourseLessonService implements IContentService
   {
     return CourseLesson::where('course_area_id', $course_area_id)
                       ->select('id', 'name', 'status')
+                      ->get();
+  }
+  
+  /**
+   * @param array|int $lessons_ids
+   * @return Collection|null
+  */
+  public function getLessonsByIds($lessons_ids): ?Collection
+  {
+    $lessons_ids = DataManipulationService::intOrArray($lessons_ids);
+
+    return CourseLesson::whereIn('id', $lessons_ids)
+                      ->select('id', 'course_id', 'course_area_id', 'name', 'status')
                       ->get();
   }
 

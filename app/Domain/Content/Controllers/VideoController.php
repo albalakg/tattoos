@@ -27,7 +27,7 @@ class VideoController extends Controller
   {
     try {
       $response = $this->video_service->getAll();
-      return $this->successResponse('Videos fetched successfully', $response);
+      return $this->successResponse('Videos fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -37,7 +37,7 @@ class VideoController extends Controller
   {
     try {
       $response = $this->video_service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Video created successfully', $response);
+      return $this->successResponse('Video created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -47,7 +47,7 @@ class VideoController extends Controller
   {
     try {
       $response = $this->video_service->update($request->validated(), Auth::user()->id);
-      return $this->successResponse('Video updated successfully', $response);
+      return $this->successResponse('Video updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -58,7 +58,7 @@ public function delete(DeleteRequest $request)
     try {
       $video_service = new VideoService(new CourseLessonService);
       $response = $video_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Videos deleted successfully', $response);
+      return $this->successResponse('Videos deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

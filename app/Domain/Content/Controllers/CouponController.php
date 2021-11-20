@@ -30,7 +30,7 @@ class CouponController extends Controller
   {
     try {
       $response = $this->course_area_service->getAll();
-      return $this->successResponse('Coupons fetched successfully', $response);
+      return $this->successResponse('Coupons fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -40,7 +40,7 @@ class CouponController extends Controller
   {
     try {
       $response = $this->course_area_service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Coupon created successfully', $response);
+      return $this->successResponse('Coupon created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -50,7 +50,7 @@ class CouponController extends Controller
   {
     try {
       $response = $this->course_area_service->updateStatus($request->id, $request->status, Auth::user()->id);
-      return $this->successResponse('Coupon updated successfully', $response);
+      return $this->successResponse('Coupon updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -60,7 +60,7 @@ class CouponController extends Controller
   {
     try {
       $response = $this->course_area_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Coupons deleted successfully', $response);
+      return $this->successResponse('Coupons deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,

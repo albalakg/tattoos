@@ -29,7 +29,7 @@ class CourseLessonController extends Controller
   {
     try {
       $response = $this->lesson_service->getAll();
-      return $this->successResponse('Lessons fetched successfully', $response);
+      return $this->successResponse('Lessons fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -39,7 +39,7 @@ class CourseLessonController extends Controller
   {
     try {
       $response = $this->lesson_service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Lesson created successfully', $response);
+      return $this->successResponse('Lesson created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -49,7 +49,7 @@ class CourseLessonController extends Controller
   {
     try {
       $response = $this->lesson_service->update($request->validated(), Auth::user()->id);
-      return $this->successResponse('Lesson updated successfully', $response);
+      return $this->successResponse('Lesson updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -59,7 +59,7 @@ public function delete(DeleteRequest $request)
   {
     try {
       $response = $this->lesson_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Lessons deleted successfully', $response);
+      return $this->successResponse('Lessons deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
