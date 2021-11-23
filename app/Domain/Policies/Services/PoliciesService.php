@@ -30,7 +30,7 @@ class PoliciesService
   */
   public function getTermsAndConditions(): Collection
   {
-    return PolicyTermsAndCondition::orderBy('created_at', 'desc')
+    return PolicyTermsAndCondition::orderBy('id', 'desc')
                 ->get();
   }
   
@@ -39,7 +39,7 @@ class PoliciesService
   */
   public function getUsersVerifications(): Collection
   {
-    return PolicyTermsAndCondition::orderBy('created_at', 'desc')
+    return PolicyTermsAndCondition::orderBy('id', 'desc')
                 ->get();
   }
 }

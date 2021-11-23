@@ -116,4 +116,17 @@ class FileService
       return '';
     }
   }
+  
+  /**
+   * Extract the file extension from the uploaded file
+   *
+   * @param object $file
+   * @return string
+  */
+  static public function getUploadedFileExtension(object $file): string
+  {
+    $file_name          = $file->getClientOriginalName();
+    $file_name_array    = explode('.', $file_name);
+    return $file_name_array[count($file_name_array) - 1];
+  }
 }

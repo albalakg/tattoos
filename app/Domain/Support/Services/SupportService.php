@@ -10,6 +10,7 @@ use App\Domain\Support\Models\SupportTicket;
 use App\Mail\Tests\SupportTicketMessageMail;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Helpers\DataManipulationService;
+use App\Domain\Helpers\StatusService;
 use App\Domain\Support\Models\SupportTicketLog;
 use App\Domain\Support\Models\SupportTicketMessage;
 
@@ -103,6 +104,25 @@ class SupportService
 
     $this->saveSupportTicketLog($support, $updated_by);
   }
+  
+  /**
+   * @param array $data
+   * @param int $user_id
+   * @return SupportTicket
+  */
+  public function createSupportTicket(array $data, int $user_id): SupportTicket
+  {
+    $support_ticket                       = new SupportTicket;
+    $support_ticket->user_id              = $user_id;
+    $support_ticket->support_number       = $this->generateSupportTicketNumber();
+    $support_ticket->support_category_id  = $data['support_category_id'];
+    $support_ticket->title                = $data['title'];
+    $support_ticket->description          = $data['description'];
+    $support_ticket->status               = StatusService::ACTIVE;
+    $support_ticket->save();
+
+    return $support_ticket;
+  }
     
   /**
    * @param array $data
@@ -173,5 +193,16 @@ class SupportService
 
     return $tickets;
   }
-
+  
+  /**
+   * Generating a unique support number
+   *
+   * @return string
+  */
+  private function generateSupportTicketNumber(): string
+  {
+    $support_ticket_number = 'SN' . random_int(0000000, 9999999);
+    dd($support_ticket_number);
+    return $support_ticket_number;
+  }
 }

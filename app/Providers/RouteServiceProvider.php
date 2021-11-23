@@ -44,16 +44,21 @@ class RouteServiceProvider extends ServiceProvider
             Route::prefix('api/auth')
                 ->namespace($this->getNamespace('Users'))
                 ->middleware('throttle:100,10', 'guest')
-                ->group(base_path("routes/groups/auth.php"));
+                ->group(base_path("routes/groups/app/auth.php"));
 
             Route::prefix('api/profile')
                 ->namespace($this->namespace)
-                ->group(base_path("routes/groups/profile.php"));
+                ->group(base_path("routes/groups/app/profile.php"));
 
             Route::prefix('api/users')
                 ->middleware('auth:api')
                 ->namespace($this->getNamespace('Users'))
-                ->group(base_path("routes/groups/users.php"));
+                ->group(base_path("routes/groups/app/users.php"));
+
+            Route::prefix('api/support')
+                ->middleware('guestAndAuth')
+                ->namespace($this->getNamespace('Users'))
+                ->group(base_path("routes/groups/app/support.php"));
 
             Route::prefix('api/cms/tags')
                 ->namespace($this->namespace)

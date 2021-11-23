@@ -24,7 +24,19 @@ class SupportCategoryService
   */
   public function getAll(): Collection
   {
-    return SupportCategory::orderBy('created_at', 'desc')
+    return SupportCategory::orderBy('id', 'desc')
+                ->get();
+  }
+  
+  /**
+   * @param int $status
+   * @return Collection
+  */
+  public function getByStatus(int $status): Collection
+  {
+    return SupportCategory::orderBy('id', 'desc')
+                ->where('status', $status)
+                ->select('id', 'name', 'description')
                 ->get();
   }
   

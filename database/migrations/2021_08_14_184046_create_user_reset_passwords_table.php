@@ -17,7 +17,7 @@ class CreateUserResetPasswordsTable extends Migration
             $table->id();
             $table->string('email', 120)->index();
             $table->string('token', 50);
-            $table->int('status')->index()->unsigned();
+            $table->integer('status')->index()->unsigned();
             $table->dateTime('created_at');
             $table->dateTime('verified_at')->nullable();
         });

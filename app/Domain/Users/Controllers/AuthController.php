@@ -25,19 +25,21 @@ class AuthController extends Controller
     }
   }
 
-  public function signup(SignupRequest $request, UserService $user_service)
+  public function signup(SignupRequest $request)
   {
     try {
-      $user_service->signup($request->validated());
-      return $this->successResponse('Registered');
+      $user_service = new UserService;
+      $created_user = $user_service->signup($request->validated());
+      return $this->successResponse('You have Signed Up Successfully', $created_user);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
   }
 
-  public function resetPassword(ResetPasswordRequest $request, UserService $user_service)
+  public function resetPassword(ResetPasswordRequest $request)
   {
     try {
+      $user_service = new UserService;
       $user_service->resetPassword($request->email, $request->token, $request->password);
       return $this->successResponse('You have reset your password');
     } catch (Exception $ex) {
@@ -45,9 +47,10 @@ class AuthController extends Controller
     }
   }
 
-  public function forgotPassword(ForgotPasswordRequest $request, UserService $user_service)
+  public function forgotPassword(ForgotPasswordRequest $request)
   {
     try {
+      $user_service = new UserService;
       $user_service->forgotPassword($request->email);
       return $this->successResponse('An email has been sent to the requested address');
     } catch (Exception $ex) {
@@ -55,11 +58,12 @@ class AuthController extends Controller
     }
   }
 
-  public function verifyEmail(VerifyEmailRequest $request, UserService $user_service)
+  public function verifyEmail(VerifyEmailRequest $request)
   {
     try {
+      $user_service = new UserService;
       $user_service->verifyEmail($request->email, $request->token);
-      return $this->successResponse('Email verified');
+      return $this->successResponse('You have verified your email successfully');
     } catch (Exception $ex) {
       return $this->errorResponse($ex, null, Response::HTTP_UNPROCESSABLE_ENTITY);
     }

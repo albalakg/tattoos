@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Support\Services\SupportService;
+use App\Domain\Support\Requests\CreateSupportTicketRequest;
 use App\Domain\Support\Services\SupportCategoryService;
 use App\Domain\Support\Requests\UpdateSupportTicketStatusRequest;
 use App\Domain\Support\Requests\CreateSupportTicketMessageRequest;
@@ -30,6 +31,17 @@ class SupportController extends Controller
   {
     try {
       $response = $this->service->getAll();
+      return $this->successResponse('Support fetched', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function create(CreateSupportTicketRequest $request)
+  {
+    try {
+      dd('con', Auth::user());
+      $response = $this->service->createSupportTicket($request->validated(), Auth::user()->id);
       return $this->successResponse('Support fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

@@ -22,7 +22,7 @@ class SignupRequest extends FormRequest
             'password'      => ['required', new PasswordRule],
             'first_name'    => ['required', new FirstNameRule],
             'last_name'     => ['required', new LastNameRule],
-            'phone'         => ['required', 'bail', new PhoneRule, 'unique:user_details,phone'],
+            'phone'         => ['nullable', 'bail', new PhoneRule, 'unique:user_details,phone'],
         ];
     }
 }

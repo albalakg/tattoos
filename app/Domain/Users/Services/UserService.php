@@ -56,7 +56,7 @@ class UserService
   */
   public function __construct(ContentService $content_service = null, SupportService $support_service = null, OrderService $order_service = null)
   {
-    $this->content_service   = $content_service;
+    $this->content_service  = $content_service;
     $this->support_service  = $support_service;
     $this->order_service    = $order_service;
     $this->log_service      = new LogService('users');
@@ -199,12 +199,13 @@ class UserService
   {
     try {
       $data['role_id']  = Role::NORMAL;
-      $user           = $this->saveUser($data);
-      dd($user);
+      $user             = $this->saveUser($data);
       $data['user_id']  = $user->id;
       $this->saveUserDetails($data);
       $user->email_verification = $this->saveEmailVerification($user->id, $user->email);
       event(new UserCreatedEvent($user));
+
+      unset($user->email_verification);
       return $user;
     } catch(Exception $ex) {
       if(isset($user) && $user) {

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Content\Requests\DeleteRequest;
+use App\Domain\Helpers\StatusService;
 use App\Domain\Support\Services\SupportService;
 use App\Domain\Support\Services\SupportCategoryService;
 use App\Domain\Users\Requests\UpdateOrderStatusRequest;
@@ -30,6 +31,16 @@ class SupportCategoryController extends Controller
   {
     try {
       $response = $this->service->getAll();
+      return $this->successResponse('Support Categories fetched', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function getActive()
+  {
+    try {
+      $response = $this->service->getByStatus(StatusService::ACTIVE);
       return $this->successResponse('Support Categories fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

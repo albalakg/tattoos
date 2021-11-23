@@ -16,7 +16,7 @@ class CreateSupportTicketsTable extends Migration
         Schema::create('support_tickets', function (Blueprint $table) {
             $table->id();
             $table->integer('support_category_id')->unsigned()->index();
-            $table->integer('user_id')->unsigned()->index();
+            $table->integer('user_id')->unsigned()->index()->nullable();
             $table->string('support_number', 10);
             $table->string('title', 100);
             $table->text('description');

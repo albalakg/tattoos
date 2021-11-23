@@ -48,10 +48,15 @@ class Controller extends BaseController
         $logger = new LogService;
         $logger->error('Message: ' . $exception->getMessage() . ' | File: ' . $exception->getFile() . ' | Line: ' . $exception->getLine() . ' | ');
 
+        $debug_error = [
+            'ErrorMessage' => $exception->getMessage(),
+            'File' => $exception->getFile(),
+            'Line' => $exception->getLine(),
+        ];
 
         return response()->json(
             [
-                'message' => EnvService::isProd() ?  self::DEFAULT_ERROR : $exception->getMessage(),
+                'message' => EnvService::isProd() ?  self::DEFAULT_ERROR : $debug_error,
                 'status' => false,
                 'data' => $data
             ],

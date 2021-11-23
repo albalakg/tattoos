@@ -34,7 +34,7 @@ class OrderService
   */
   public function getAll(): Collection
   {
-    return Order::orderBy('created_at', 'desc')
+    return Order::orderBy('id', 'desc')
                 ->get();
   }
   
@@ -46,7 +46,7 @@ class OrderService
   {
     $users_ids = DataManipulationService::intOrArray($users_ids);
 
-    return Order::orderBy('created_at', 'desc')
+    return Order::orderBy('id', 'desc')
                 ->whereIn('user_id', $users_ids)
                 ->select('order_number', 'content_id', 'status', 'price', 'created_at')
                 ->get();
