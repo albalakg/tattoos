@@ -35,8 +35,10 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $optional_middleware = request()->header('authorization') ? 'auth:api' : 'guest';
+
         $this->configureRateLimiting();
-        $this->routes(function () {
+        $this->routes(function () use($optional_middleware){
             Route::middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
@@ -56,7 +58,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path("routes/groups/app/users.php"));
 
             Route::prefix('api/support')
-                ->middleware('guestAndAuth')
+                ->middleware($optional_middleware)
                 ->namespace($this->getNamespace('Users'))
                 ->group(base_path("routes/groups/app/support.php"));
 

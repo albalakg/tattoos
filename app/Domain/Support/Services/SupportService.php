@@ -2,15 +2,16 @@
 namespace App\Domain\Support\Services;
 
 use Exception;
+use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
 use App\Domain\Helpers\MailService;
+use App\Domain\Helpers\StatusService;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Support\Models\SupportTicket;
 use App\Mail\Tests\SupportTicketMessageMail;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Helpers\DataManipulationService;
-use App\Domain\Helpers\StatusService;
 use App\Domain\Support\Models\SupportTicketLog;
 use App\Domain\Support\Models\SupportTicketMessage;
 
@@ -107,13 +108,13 @@ class SupportService
   
   /**
    * @param array $data
-   * @param int $user_id
+   * @param User|null $user_id
    * @return SupportTicket
   */
-  public function createSupportTicket(array $data, int $user_id): SupportTicket
+  public function createSupportTicket(array $data, ?User $user): SupportTicket
   {
     $support_ticket                       = new SupportTicket;
-    $support_ticket->user_id              = $user_id;
+    $support_ticket->user_id              = $user ? $user->id : null;
     $support_ticket->support_number       = $this->generateSupportTicketNumber();
     $support_ticket->support_category_id  = $data['support_category_id'];
     $support_ticket->title                = $data['title'];
@@ -202,7 +203,6 @@ class SupportService
   private function generateSupportTicketNumber(): string
   {
     $support_ticket_number = 'SN' . random_int(0000000, 9999999);
-    dd($support_ticket_number);
     return $support_ticket_number;
   }
 }
