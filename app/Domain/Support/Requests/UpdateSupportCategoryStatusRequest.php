@@ -16,7 +16,7 @@ class UpdateSupportCategoryStatusRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'        => ['required', 'bail', new IDRule, 'exists:support_categories,id'],
+            'id'        => ['required', 'bail', new IDRule],
             'status'    => ['required', new StatusRule]
         ];
     }

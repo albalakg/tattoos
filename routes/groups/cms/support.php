@@ -15,6 +15,7 @@ Route::group(['prefix' => 'tickets'], function () {
 
 Route::group(['prefix' => 'categories'], function () {
     Route::get('', [SupportCategoryController::class, 'getAll']);
+    Route::post('status/update', [SupportCategoryController::class, 'updateStatus']);
     Route::post('create', [SupportCategoryController::class, 'create']);
     Route::post('delete', [SupportCategoryController::class, 'multipleDelete']);
 });

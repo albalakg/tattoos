@@ -9,9 +9,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class SupportCategory extends Model
 {
     use SoftDeletes;
+
+    protected $guarded = [];
         
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
     ];
     
     public function tickets()

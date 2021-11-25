@@ -4,6 +4,7 @@ namespace App\Domain\Helpers;
 
 use Exception;
 use Illuminate\Http\UploadedFile;
+use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Storage;
 
 class FileService
@@ -19,15 +20,31 @@ class FileService
    * @param string $name
    * @return string
   */
-  static public function create(UploadedFile $file, string $path, string $disk = self::DEFAULT_DISK, string $name = '') :string
+  static public function create(UploadedFile $file, string $path, string $disk = self::DEFAULT_DISK) :string
   {
     try {
-      if($name) {
-        return Storage::disk($disk)->putFileAs($path, $file, $name);
-      } else {
-        return Storage::disk($disk)->putFile($path, $file);
-      }
+      return Storage::disk($disk)->putFile($path, $file);
     } catch(Exception $ex) {
+      self::writeErrorLog($ex);
+      return '';
+    }
+  }
+
+  /**
+   * Create a file
+   *
+   * @param UploadedFile $file
+   * @param string $path
+   * @param string $disk
+   * @param string $name
+   * @return string
+  */
+  static public function createWithName(UploadedFile $file, string $path, string $name, string $disk = self::DEFAULT_DISK) :string
+  {
+    try {
+      return Storage::disk($disk)->putFileAs($path, $file, $name);
+    } catch(Exception $ex) {
+      self::writeErrorLog($ex);
       return '';
     }
   }
@@ -49,6 +66,7 @@ class FileService
       Storage::disk($disk)->delete($path);
       return true;
     } catch(Exception $ex) {
+      self::writeErrorLog($ex);
       return false;
     }
   }
@@ -71,6 +89,7 @@ class FileService
       Storage::disk($disk)->move($path_from, $path_to);
       return true;
     } catch(Exception $ex) {
+      self::writeErrorLog($ex);
       return false;
     }
   }
@@ -93,6 +112,7 @@ class FileService
       Storage::disk($disk)->copy($path_from, $path_to);
       return true;
     } catch(Exception $ex) {
+      self::writeErrorLog($ex);
       return false;
     }
   }
@@ -113,6 +133,7 @@ class FileService
 
       return Storage::disk($disk)->get($path);
     } catch(Exception $ex) {
+      self::writeErrorLog($ex);
       return '';
     }
   }
@@ -128,5 +149,11 @@ class FileService
     $file_name          = $file->getClientOriginalName();
     $file_name_array    = explode('.', $file_name);
     return $file_name_array[count($file_name_array) - 1];
+  }
+
+  static private function writeErrorLog(Exception $ex)
+  {
+    $logger_service = new LogService('files');
+    $logger_service->critical($ex);
   }
 }

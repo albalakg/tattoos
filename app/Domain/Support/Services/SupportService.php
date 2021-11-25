@@ -118,6 +118,7 @@ class SupportService
     $support_ticket->support_number       = $this->generateSupportTicketNumber();
     $support_ticket->support_category_id  = $data['support_category_id'];
     $support_ticket->title                = $data['title'];
+    $support_ticket->file_path            = !empty($data['file']) ? FileService::create($data['file'], self::SUPPORT_TICKET_MESSAGES_FILES_PATH) : null;
     $support_ticket->description          = $data['description'];
     $support_ticket->status               = StatusService::ACTIVE;
     $support_ticket->save();

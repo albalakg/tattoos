@@ -19,7 +19,7 @@ class CreateSupportTicketRequest extends FormRequest
             'support_category_id'   => ['required', 'bail', new IDRule],
             'title'                 => 'required|string|between:2,100',
             'description'           => 'required|string|between:2,2000',
-            'file'                  => ['required', 'file', 'max:5000', 'mimes:jpg,bmp,png,jpeg', new SupportFileRule],
+            'file'                  => ['nullable', 'file', 'max:5000', 'mimes:jpg,bmp,png,jpeg', new SupportFileRule],
         ];
     }
 }

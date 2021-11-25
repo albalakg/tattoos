@@ -93,7 +93,11 @@ class SupportCategoryService
   */
   public function updateStatus(int $support_category_id, int $status, int $updated_by): SupportCategory
   {
-    if(!$support_category = SupportCategory::find($support_category_id)) {
+    $support_category = SupportCategory::where('id', $support_category_id)
+                                       ->select('id', 'name', 'description', 'status', 'updated_at')
+                                       ->first();
+
+    if(!$support_category) {
       throw new Exception('Support Category not found');
     }
 

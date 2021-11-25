@@ -51,7 +51,7 @@ class SupportCategoryController extends Controller
   {
     try {
       $response = $this->service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Support Categories created', $response);
+      return $this->successResponse('Support Category created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
