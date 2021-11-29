@@ -45,18 +45,18 @@ class Controller extends BaseController
     */
     protected function errorResponse(Exception $exception, $data = null, $status = Response::HTTP_BAD_REQUEST) : JsonResponse
     {
-        $logger = new LogService;
-        $logger->error('Message: ' . $exception->getMessage() . ' | File: ' . $exception->getFile() . ' | Line: ' . $exception->getLine() . ' | ');
+        $logger = new LogService($exception->service ?? LogService::DEFAULT_CHANNEL);
+        $logger->error($exception);
 
         $debug_error = [
-            'ErrorMessage' => $exception->getMessage(),
-            'File' => $exception->getFile(),
-            'Line' => $exception->getLine(),
+            'ErrorMessage'  => $exception->getMessage(),
+            'File'          => $exception->getFile(),
+            'Line'          => $exception->getLine(),
         ];
-
+        
         return response()->json(
             [
-                'message' => EnvService::isProd() ?  self::DEFAULT_ERROR : $debug_error,
+                'message' => EnvService::isProd() ? self::DEFAULT_ERROR : $debug_error,
                 'status' => false,
                 'data' => $data
             ],

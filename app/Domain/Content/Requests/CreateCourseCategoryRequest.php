@@ -16,7 +16,7 @@ class CreateCourseCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'          => ['required', new NameRule],
+            'name'          => ['required', 'bail', new NameRule, 'unique:course_categories,name'],
             'description'   => ['nullable', new DescriptionRule],
             'image'         => ['required', 'file', 'max:5000'],
         ];

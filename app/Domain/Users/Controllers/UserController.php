@@ -2,20 +2,21 @@
 
 namespace App\Domain\Users\Controllers;
 
-use App\Domain\Content\Services\ContentService;
-use App\Domain\Helpers\StatusService;
-use App\Domain\Orders\Services\OrderService;
-use App\Domain\Support\Services\SupportCategoryService;
-use App\Domain\Support\Services\SupportService;
 use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Domain\Helpers\StatusService;
 use App\Domain\Users\Services\UserService;
+use App\Domain\Orders\Services\OrderService;
+use App\Domain\Content\Services\ContentService;
+use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Requests\CreateUserRequest;
 use App\Domain\Users\Requests\UpdateUserRequest;
 use App\Domain\Users\Requests\DeleteUsersRequest;
+use App\Domain\Users\Requests\UpdateProfileRequest;
 use App\Domain\Users\Requests\ChangePasswordRequest;
 use App\Domain\Users\Requests\UpdateUserEmailRequest;
+use App\Domain\Support\Services\SupportCategoryService;
 use App\Domain\Users\Requests\UpdateUserPasswordRequest;
 
 class UserController extends Controller
@@ -70,11 +71,21 @@ class UserController extends Controller
     }
   }
 
-  public function update(UpdateUserRequest $request, UserService $user_service)
+  public function updateUser(UpdateUserRequest $request, UserService $user_service)
   {
     try {
       $response = $user_service->updateUser($request->validated(), Auth::user()->id);
       return $this->successResponse('User updated', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function updateProfile(UpdateProfileRequest $request, UserService $user_service)
+  {
+    try {
+      $updated_user = $user_service->updateProfile($request->validated(), Auth::user()->id);
+      return $this->successResponse('User updated', $updated_user);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

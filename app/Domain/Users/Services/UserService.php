@@ -246,59 +246,36 @@ class UserService
    * Update user by an admin
    *
    * @param array $data
-   * @param int|null $created_by
+   * @param int|null $updated_by
    * @return User|null
   */
   public function updateUser(array $data, ?int $updated_by)
   {
-    try {
-      $data['updated_by'] = $updated_by;
-      $data['role_id']    = Role::ROLES_LIST[strtolower($data['role'])];
-      if(!$user = $this->saveUser($data)) {
-        throw new Exception('Failed to update a user');
-      }
+    $data['updated_by'] = $updated_by;
+    $data['role_id']    = Role::ROLES_LIST[strtolower($data['role'])];
 
-      $data['user_id']    = $user->id;
-      $this->saveUserDetails($data);
-      return $data;
-    } catch(Exception $ex) {
-      if(isset($user) && $user) {
-        $this->deleteUser($user->id);
-      }
-      throw $ex;
-    }
+    $this->saveUser($data);
+    $this->saveUserDetails($data);
+
+    return $data;
   }
-  
+    
   /**
    * @param array $data
-   * @return User|null 
+   * @param int|null $updated_by
+   * @return User|null
   */
-  public function saveUser(array $data): ?User
+  public function updateProfile(array $data, ?int $updated_by)
   {
-    if(isset($data['id'])) {
-      if(!$user = User::find($data['id'])) {
-        throw new Exception('Failed to find user');
-      }
-    } else {
-      $user = new User();
-    }
-
-    $user->role_id      = $data['role_id'];
-    $user->status       = StatusService::PENDING;
-
-    if(isset($data['email'])) {
-      $user->email        = $data['email'];
-    }
-
-    if(isset($data['password'])) {
-      $user->password     = bcrypt($data['password']);
-    }
-
-    if(isset($data['created_by'])) {
-      $user->created_by   = $data['created_by'];
-    }
-
+    $user = UserDetail::where('user_id', $data['id'])->first();
+    $user->first_name = $data['first_name'];
+    $user->last_name  = $data['last_name'];
+    $user->phone      = $data['phone'];
+    $user->gender     = $data['gender'];
+    $user->birth_date = $data['birth_date'];
+    $user->updated_by = $updated_by;
     $user->save();
+
     return $user;
   }
   
@@ -531,6 +508,39 @@ class UserService
                             ->count() < 3;
   }
   
+  /**
+   * @param array $data
+   * @return User|null 
+  */
+  private function saveUser(array $data): ?User
+  {
+    if(isset($data['id'])) {
+      if(!$user = User::find($data['id'])) {
+        throw new Exception('Failed to find user');
+      }
+    } else {
+      $user = new User();
+    }
+
+    $user->role_id      = $data['role_id'];
+    $user->status       = StatusService::PENDING;
+
+    if(isset($data['email'])) {
+      $user->email        = $data['email'];
+    }
+
+    if(isset($data['password'])) {
+      $user->password     = bcrypt($data['password']);
+    }
+
+    if(isset($data['created_by'])) {
+      $user->created_by   = $data['created_by'];
+    }
+
+    $user->save();
+    return $user;
+  }
+
   /**
    * Save the user details
    *

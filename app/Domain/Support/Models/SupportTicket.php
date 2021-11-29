@@ -14,6 +14,13 @@ class SupportTicket extends Model
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
     
+    protected $appends = ['imageSrc'];
+
+    public function getImageSrcAttribute()
+    {
+        return config('app.url') . '/' . 'files/' . $this->file_path;  
+    }
+
     public function messages()
     {
         return $this->hasMany(SupportTicketMessage::class, 'support_ticket_id', 'id')

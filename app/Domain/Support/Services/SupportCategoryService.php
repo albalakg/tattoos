@@ -100,8 +100,13 @@ class SupportCategoryService
     if(!$support_category) {
       throw new Exception('Support Category not found');
     }
+    
+    if($support_category->status === $status) {
+      throw new Exception('Attempted to update the same status to the Support Category');
+    }
 
     $support_category->update(['status' => $status]);
+    $this->log_service->info('Support Category status updated: ' . json_encode($support_category));
     return $support_category;
   }
 }
