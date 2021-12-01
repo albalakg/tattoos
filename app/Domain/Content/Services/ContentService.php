@@ -4,6 +4,7 @@ namespace App\Domain\Content\Services;
 
 use Exception;
 use App\Domain\Helpers\LogService;
+use App\Domain\Content\Models\Course;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Services\CourseLessonService;
 
@@ -47,6 +48,21 @@ class ContentService
     try {
       $lesson_service = new CourseLessonService;
       return $lesson_service->getLessonsByIds($content_ids);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return null;
+    }
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @return int|null
+  */
+  public function getLessonCourseId(int $lesson_id): ?int
+  {
+    try {
+      $lesson_service = new CourseLessonService;
+      return $lesson_service->getLessonCourseId($lesson_id);
     } catch(Exception $ex) {
       $this->log_service->error($ex);
       return null;

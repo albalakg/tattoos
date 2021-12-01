@@ -23,6 +23,7 @@ use App\Domain\Content\Services\ContentService;
 use App\Domain\Orders\Services\OrderService;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Support\Services\SupportService;
+use App\Domain\Users\Models\UserCourseLesson;
 use App\Domain\Users\Models\UserEmailVerification;
 use App\Domain\Users\Models\UserFavorite;
 
@@ -149,6 +150,58 @@ class UserService
   public function getUserSupportTickets(Object $user): Collection
   {
     return $this->support_service->getTicketsByUsers($user->id);
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @param int $user_id
+   * @param int $progress
+   * @return Collection
+  */
+  public function updateLessonProgress(int $lesson_id, int $user_id, int $progress)
+  {
+    if(!$this->hasAccessToLesson($user_id, $lesson_id)) {
+      throw new Exception('User doesn\'t have access to the lesson: ' . $lesson_id);
+    }
+
+    $user_lesson = $this->getUserLesson($user_id, $lesson_id);
+
+    $status = $progress === 100 ? 1 : 0;
+
+    if($user_lesson) {
+      
+      if($user_lesson->status) {
+        return $user_lesson;
+      }
+
+      $user_lesson->update([
+        'progress' => $progress,
+        'status'   => $status
+      ]);
+
+      return $user_lesson;
+    }
+
+    $user_lesson = new UserCourseLesson;
+    $user_lesson->lesson_id = $lesson_id;
+    $user_lesson->user_id = $user_id;
+    $user_lesson->progress = $progress;
+    $user_lesson->status = $status;
+    $user_lesson->save();  
+
+    return $user_lesson;
+  }
+  
+  /**
+   * @param int $user_id
+   * @param int $lesson_id
+   * @return UserCourseLesson
+  */
+  public function getUserLesson(int $user_id, int $lesson_id): UserCourseLesson
+  {
+    return UserCourseLesson::where('lesson_id', $lesson_id)
+                          ->where('user_id', $user_id)
+                          ->first();
   }
   
   /**
@@ -575,5 +628,20 @@ class UserService
 
     $user_data->save();
     return $user_data;
+  }
+  
+  /**
+   * @param int $user_id
+   * @param int $lesson_id
+   * @return bool
+  */
+  private function hasAccessToLesson(int $user_id, int $lesson_id): bool
+  {
+    $course_ID = $this->content_service->getLessonCourseId($lesson_id);
+    
+    return UserCourse::where('user_id', $user_id)
+                     ->where('course_id', $course_ID)
+                     ->where('status', StatusService::ACTIVE)
+                     ->exists();
   }
 }

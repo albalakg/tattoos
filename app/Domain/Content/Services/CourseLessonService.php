@@ -67,6 +67,15 @@ class CourseLessonService implements IContentService
   }
 
   /**
+   * @param int $lesson_id
+   * @return bool
+  */
+  public function getLessonCourseId(int $lesson_id): bool
+  {
+    return CourseLesson::where('lesson_id', $lesson_id)->value('course_id');
+  }
+
+  /**
    * @param int $video_id
    * @return bool
   */

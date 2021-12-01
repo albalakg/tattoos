@@ -17,6 +17,7 @@ use App\Domain\Users\Requests\UpdateProfileRequest;
 use App\Domain\Users\Requests\ChangePasswordRequest;
 use App\Domain\Users\Requests\UpdateUserEmailRequest;
 use App\Domain\Support\Services\SupportCategoryService;
+use App\Domain\Users\Requests\UserLessonProgressRequest;
 use App\Domain\Users\Requests\UpdateUserPasswordRequest;
 
 class UserController extends Controller
@@ -177,6 +178,16 @@ class UserController extends Controller
       );
 
       $response = $user_service->getUserFavoriteContent(Auth::user(), StatusService::ACTIVE);
+      return $this->successResponse('Fetched user favorite content', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function updateLessonProgress(UserLessonProgressRequest $request, UserService $user_service)
+  {
+    try {
+      $response = $user_service->updateLessonProgress($request->lesson_id, $request->progress, Auth::user()->id);
       return $this->successResponse('Fetched user favorite content', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
