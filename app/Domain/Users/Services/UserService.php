@@ -158,46 +158,25 @@ class UserService
    * @param int $progress
    * @return Collection
   */
-  public function updateLessonProgress(int $lesson_id, int $user_id, int $progress)
+  public function setLessonProgress(int $lesson_id, int $user_id, int $progress)
   {
     if(!$this->hasAccessToLesson($user_id, $lesson_id)) {
       throw new Exception('User doesn\'t have access to the lesson: ' . $lesson_id);
     }
 
-    $user_lesson = $this->getUserLesson($user_id, $lesson_id);
-
-    $status = $progress === 100 ? 1 : 0;
-
-    if($user_lesson) {
-      
-      if($user_lesson->status) {
-        return $user_lesson;
-      }
-
-      $user_lesson->update([
-        'progress' => $progress,
-        'status'   => $status
-      ]);
-
-      return $user_lesson;
+    if($user_lesson = $this->getUserLesson($user_id, $lesson_id)) {
+      return $this->updateLessonProgress($user_lesson, $progress);
     }
 
-    $user_lesson = new UserCourseLesson;
-    $user_lesson->lesson_id = $lesson_id;
-    $user_lesson->user_id = $user_id;
-    $user_lesson->progress = $progress;
-    $user_lesson->status = $status;
-    $user_lesson->save();  
-
-    return $user_lesson;
+    return $this->createLessonProgress($lesson_id, $user_id, $progress);
   }
   
   /**
    * @param int $user_id
    * @param int $lesson_id
-   * @return UserCourseLesson
+   * @return UserCourseLesson|null
   */
-  public function getUserLesson(int $user_id, int $lesson_id): UserCourseLesson
+  public function getUserLesson(int $user_id, int $lesson_id): ?UserCourseLesson
   {
     return UserCourseLesson::where('lesson_id', $lesson_id)
                           ->where('user_id', $user_id)
@@ -643,5 +622,51 @@ class UserService
                      ->where('course_id', $course_ID)
                      ->where('status', StatusService::ACTIVE)
                      ->exists();
+  }
+  
+  /**
+   * @param UserCourseLesson $user_lesson
+   * @param int $progress
+   * @return UserCourseLesson
+  */
+  private function updateLessonProgress(UserCourseLesson $user_lesson, int $progress): UserCourseLesson
+  {
+    if($user_lesson->status) {
+      return $user_lesson;
+    }
+
+    $user_lesson->update([
+      'progress' => $progress,
+      'status'   => $this->getStatusFromProgress($progress)
+    ]);
+
+    return $user_lesson;
+  }
+
+  /**
+   * @param int $lesson_id
+   * @param int $user_id
+   * @param int $progress
+   * @return UserCourseLesson
+  */
+  public function createLessonProgress(int $lesson_id, int $user_id, int $progress): UserCourseLesson
+  {
+    $user_lesson            = new UserCourseLesson;
+    $user_lesson->lesson_id = $lesson_id;
+    $user_lesson->user_id   = $user_id;
+    $user_lesson->progress  = $progress;
+    $user_lesson->status    = $this->getStatusFromProgress($progress);
+    $user_lesson->save();  
+
+    return $user_lesson;
+  }
+  
+  /**
+   * @param int $progress
+   * @return int
+  */
+  private function getStatusFromProgress(int $progress): int
+  {
+    return $progress === 100 ? 1 : 0;
   }
 }

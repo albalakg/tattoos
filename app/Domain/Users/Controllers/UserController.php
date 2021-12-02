@@ -184,10 +184,10 @@ class UserController extends Controller
     }
   }
 
-  public function updateLessonProgress(UserLessonProgressRequest $request, UserService $user_service)
+  public function setLessonProgress(UserLessonProgressRequest $request, UserService $user_service)
   {
     try {
-      $response = $user_service->updateLessonProgress($request->lesson_id, $request->progress, Auth::user()->id);
+      $response = $user_service->setLessonProgress($request->lesson_id, $request->progress, Auth::user()->id);
       return $this->successResponse('Fetched user favorite content', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
