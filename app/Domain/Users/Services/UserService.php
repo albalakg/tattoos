@@ -254,18 +254,29 @@ class UserService
    * @param int|null $created_by
    * @return User|null
   */
-  public function createUser(array $data, ?int $created_by): ?User
+  public function createUserByAdmin(array $data, ?int $created_by): ?User
   {
     try {
-      $data['created_by'] = $created_by;
-      $data['role_id']    = Role::ROLES_LIST[strtolower($data['role'])];
-      if(!$user = $this->saveUser($data)) {
-        throw new Exception('Failed to create a user');
-      }
+      $user             = new User();
+      $user->role_id    = $data['role_id'];
+      $user->status     = StatusService::PENDING;
+      $user->email      = $data['email'];
+      $user->password   = $data['password'];
+      $user->created_by = $data['created_by'];
+      $user->save();
 
-      $data['user_id']    = $user->id;
-      $this->saveUserDetails($data);
+        
       return $user;
+
+      // $data['created_by'] = $created_by;
+      // $data['role_id']    = Role::ROLES_LIST[strtolower($data['role'])];
+      // if(!$user = $this->saveUser($data)) {
+      //   throw new Exception('Failed to create a user');
+      // }
+
+      // $data['user_id']    = $user->id;
+      // $this->saveUserDetails($data);
+      // return $user;
     } catch(Exception $ex) {
       if(isset($user) && $user) {
         $this->deleteUser($user->id);

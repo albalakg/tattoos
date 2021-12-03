@@ -46,7 +46,7 @@ class LogService
     }
     
     /**
-     * Create a info log
+     * Create an info log
      *
      * @param string $content
      * @return string|null
@@ -57,7 +57,7 @@ class LogService
     }
     
     /**
-     * Create a error log
+     * Create an error log
      *
      * @param Exception|String $ex
      * @return string|null
@@ -109,8 +109,6 @@ class LogService
     }
     
     /**
-     * Write the log
-     * 
      * @param string $content
      * @param string $action
      * @return string|null
@@ -129,13 +127,12 @@ class LogService
     }
     
     /**
-     *
      * @param Exception $ex
      * @return string
     */ 
     private function getErrorContent(Exception $ex): string
     {
-        $content = '';
+        $content  = '';
         $content .= 'Message: ' . $ex->getMessage() . self::SEPARATOR;
         $content .= 'File: '    . $ex->getFile()    . self::SEPARATOR;
         $content .= 'Line: '    . $ex->getLine()    . self::SEPARATOR;

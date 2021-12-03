@@ -60,7 +60,7 @@ class SupportService
   */
   public function getTicketsByUsers($users_ids): Collection
   {
-    $users_ids = DataManipulationService::intOrArray($users_ids);
+    $users_ids = DataManipulationService::intToArray($users_ids);
 
     $tickets = SupportTicket::query()
                 ->whereIn('user_id', $users_ids)

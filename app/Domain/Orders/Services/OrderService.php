@@ -44,7 +44,7 @@ class OrderService
   */
   public function getOrdersByUsers($users_ids): Collection
   {
-    $users_ids = DataManipulationService::intOrArray($users_ids);
+    $users_ids = DataManipulationService::intToArray($users_ids);
 
     return Order::orderBy('id', 'desc')
                 ->whereIn('user_id', $users_ids)

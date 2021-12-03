@@ -13,7 +13,7 @@ class DataManipulationService
    * @param int|array $data
    * @return array
   */
-  static public function intOrArray($data): array
+  static public function intToArray($data): array
   {
     if(is_numeric($data)) {
       return [$data];

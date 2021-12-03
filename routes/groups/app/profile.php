@@ -8,6 +8,7 @@ Route::post('delete-response', [UserController::class, 'deleteResponse']);
 
 Route::group(['middleware' => 'auth:api'], function () {
 
+    Route::get('', [UserController::class, 'getProfile']);
     Route::get('courses', [UserController::class, 'getUserActiveCourses']);
     Route::get('favorites', [UserController::class, 'getUserFavoriteContent']);
     Route::get('progress', [UserController::class, 'getUserProgress']);

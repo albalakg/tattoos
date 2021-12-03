@@ -59,7 +59,7 @@ class CourseLessonService implements IContentService
   */
   public function getLessonsByIds($lessons_ids): ?Collection
   {
-    $lessons_ids = DataManipulationService::intOrArray($lessons_ids);
+    $lessons_ids = DataManipulationService::intToArray($lessons_ids);
 
     return CourseLesson::whereIn('id', $lessons_ids)
                       ->select('id', 'course_id', 'course_area_id', 'name', 'status')

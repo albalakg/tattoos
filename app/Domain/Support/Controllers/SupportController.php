@@ -14,6 +14,8 @@ use App\Domain\Support\Requests\CreateSupportTicketMessageRequest;
 
 class SupportController extends Controller
 {  
+  const LOG_FILE = 'support';
+  
   /**
    * @var SupportService
   */
@@ -33,6 +35,7 @@ class SupportController extends Controller
       $response = $this->service->getAll();
       return $this->successResponse('Support fetched', $response);
     } catch (Exception $ex) {
+      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -43,6 +46,7 @@ class SupportController extends Controller
       $created_support_ticket = $this->service->createSupportTicket($request->validated(), Auth::user());
       return $this->successResponse('Support fetched', $created_support_ticket);
     } catch (Exception $ex) {
+      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -53,6 +57,7 @@ class SupportController extends Controller
       $response = $this->service->updateStatus($request->id, $request->status, Auth::user()->id);
       return $this->successResponse('Support\'s status updated', $response);
     } catch (Exception $ex) {
+      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -63,6 +68,7 @@ class SupportController extends Controller
       $response = $this->service->createSupportTicketMessage($request->validated(), Auth::user()->id);
       return $this->successResponse('Message created', $response);
     } catch (Exception $ex) {
+      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
