@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Orders\Services\OrderService;
+use App\Domain\Orders\Requests\CreateOrderRequest;
 use App\Domain\Orders\Requests\UpdateOrderStatusRequest;
 
 class OrderController extends Controller
@@ -37,6 +38,16 @@ class OrderController extends Controller
   {
     try {
       $response = $this->service->updateStatus($request->id, $request->status, Auth::user()->id);
+      return $this->successResponse('Order\'s status updated', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function create(CreateOrderRequest $request)
+  {
+    try {
+      $response = $this->service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Order\'s status updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

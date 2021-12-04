@@ -80,7 +80,7 @@ class UserCourseController extends Controller
   public function create(CreateUserCourseRequest $request)
   {
     try {
-      $response = $this->user_course_service->create($request, Auth::user()->id);
+      $response = $this->user_course_service->createByAdmin($request, Auth::user()->id);
       return $this->successResponse('User Course created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

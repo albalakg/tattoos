@@ -6,6 +6,7 @@ use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Payment\Models\Payment;
 use App\Domain\Payment\Interfaces\IPaymentSupplier;
+use Exception;
 
 class PaymentService
 {
@@ -31,11 +32,12 @@ class PaymentService
     */
     public function __construct(int $order_id , IPaymentSupplier $payment_supplier)
     {
-        $this->log_service = new LogService('payment');
+        $this->log_service      = new LogService('payment');
         $this->payment_supplier = $payment_supplier;
-        $this->startPayment($order_id);
 
-        $this->log_service->info('Payment ID: ' . $this->payment->id . ' | Set Supplier: ' . $payment_supplier);
+        $this->startPayment($order_id);
+        
+        $this->info('Set Supplier: ' . $payment_supplier);
     }
     
     /**
@@ -53,7 +55,7 @@ class PaymentService
     public function setPrice(int $price): self
     {
         $this->payment_supplier->setPrice($price);
-        $this->log_service->info('Payment ID: ' . $this->payment->id . ' | Set Price: ' . $price);
+        $this->info('Set Price: ' . $price);
 
         return $this;
     }
@@ -65,7 +67,8 @@ class PaymentService
     public function setQuantity(int $quantity = 1): self
     {
         $this->payment_supplier->setQuantity($quantity);
-        $this->log_service->info('Payment ID: ' . $this->payment->id . ' | Set Quantity: ' . $quantity);
+        $this->info('Set Quantity: ' . $quantity);
+
 
         return $this;
     }
@@ -77,7 +80,7 @@ class PaymentService
     public function setCurrency(string $currency = 'NIS'): self
     {
         $this->payment_supplier->setCurrency($currency);
-        $this->log_service->info('Payment ID: ' . $this->payment->id . ' | Set Currency: ' . $currency);
+        $this->info('Set Currency: ' . $currency);
 
         return $this;
     }
@@ -88,7 +91,7 @@ class PaymentService
     public function pay()
     {
         $this->payment_supplier->pay();
-        $this->log_service->info('Payment ID: ' . $this->payment->id . ' | Pay');
+        $this->info('Set Pay');
     }
     
     /**
@@ -102,7 +105,7 @@ class PaymentService
             'status' => $status
         ]);
 
-        $this->log_service->info('Payment ID: ' . $this->payment->id . ' | Validation: ' . $status);
+        $this->info('Set Validation: ' . $status);
 
         return !!$status;
     }
@@ -113,12 +116,21 @@ class PaymentService
     */
     private function startPayment(int $order_id)
     {
-        $payment = new Payment;
-        $payment->order_id = $order_id;
-        $payment->supplier_id = $this->payment_supplier->getSupplierID();
-        $payment->status = StatusService::IN_PROGRESS;
+        $payment                = new Payment;
+        $payment->order_id      = $order_id;
+        $payment->supplier_id   = $this->payment_supplier->getSupplierID();
+        $payment->status        = StatusService::IN_PROGRESS;
         $payment->save();
 
         $this->payment = $payment;
+    }
+    
+    /**
+     * @param string $log
+     * @return void
+    */
+    private function info(string $log)
+    {
+        $this->log_service->info('Payment ID: ' . $this->payment->id . $log . ' | ');
     }
 }

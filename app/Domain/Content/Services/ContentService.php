@@ -4,6 +4,7 @@ namespace App\Domain\Content\Services;
 
 use Exception;
 use App\Domain\Helpers\LogService;
+use App\Domain\Content\Models\Coupon;
 use App\Domain\Content\Models\Course;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Services\CourseLessonService;
@@ -66,6 +67,36 @@ class ContentService
     } catch(Exception $ex) {
       $this->log_service->error($ex);
       return null;
+    }
+  }
+  
+  /**
+   * @param int $course_id
+   * @return Course|null
+  */
+  public function getCourse(int $course_id): ?Course
+  {
+    try {
+      $course_service = new CourseService;
+      return $course_service->getCourse($course_id);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return false;
+    }
+  }
+  
+  /**
+   * @param string $coupon_code
+   * @return Coupon|null
+  */
+  public function getCoupon(string $coupon_code): ?Coupon
+  {
+    try {
+      $coupon_service = new CouponService;
+      return $coupon_service->getByCode($coupon_code);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return false;
     }
   }
 }

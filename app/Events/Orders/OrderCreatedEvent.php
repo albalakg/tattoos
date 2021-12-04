@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Users;
+namespace App\Events\Orders;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -10,7 +10,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class UserCourseCreatedEvent
+class OrderCreatedEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -34,6 +34,6 @@ class UserCourseCreatedEvent
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('user-course-created');
+        return new PrivateChannel('order-created');
     }
 }

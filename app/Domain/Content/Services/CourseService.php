@@ -41,13 +41,13 @@ class CourseService implements IContentService
   
   /**
    * @param int $course_id
-   * @return Course
+   * @return Course|null
   */
   public function getCourse(int $course_id): ?Course
   {
     return Course::find($course_id);
   } 
-
+  
   /**
    * @return Collection
   */

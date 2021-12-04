@@ -5,11 +5,16 @@ use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\MailService;
 use App\Domain\Orders\Models\Order;
+use App\Events\Orders\OrderCreatedEvent;
+use App\Domain\Helpers\StatusService;
 use App\Domain\Orders\Models\OrderLog;
 use App\Mail\Tests\OrderStatusUpdateMail;
 use App\Domain\Users\Services\UserService;
+use App\Domain\General\Models\LuContentType;
 use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Content\Services\ContentService;
 use App\Domain\Helpers\DataManipulationService;
+use App\Domain\Payment\Services\PaymentService;
 
 class OrderService
 {
@@ -23,10 +28,22 @@ class OrderService
   */
   private $user_service;
 
-  public function __construct(UserService $user_service = null)
+  /**
+   * @var PaymentService|null
+  */
+  private $payment_service;
+
+  /**
+   * @var ContentService|null
+  */
+  private $content_service;
+
+  public function __construct(UserService $user_service = null, PaymentService $payment_service = null, ContentService $content_service = null)
   {
-    $this->user_service = $user_service;
-    $this->log_service = new LogService('orders');
+    $this->user_service     = $user_service;
+    $this->payment_service  = $payment_service;
+    $this->content_service  = $content_service;
+    $this->log_service      = new LogService('orders');
   }
   
   /**
@@ -76,6 +93,49 @@ class OrderService
       $order
     );
   }
+    
+  /**
+   * @param array $data
+   * @param int $created_by
+   * @return void
+  */
+  public function create(array $data, int $created_by)
+  {
+    $course = null;
+    $coupon = null;
+
+    if(!$course = $this->content_service->getCourse($data['content_id'])) {
+      throw new Exception('The requested content does not exists');
+    }
+
+    if(isset($data['coupon_code']) && !$coupon = $this->content_service->getCoupon($data['coupon_code'])) {
+      throw new Exception('The requested coupon does not exists');
+    }
+
+    $order                  = new Order();
+    $order->user_id         = $created_by;
+    $order->content_type_id = LuContentType::COURSE;
+    $order->content_id      = $data['content_id'];
+    $order->coupon_id       = $coupon->id ?? null;
+    $order->price           = $this->getOrderPrice($course, $coupon);
+    $order->status          = StatusService::IN_PROGRESS;
+    $order->order_number    = $this->generateOrderTicketNumber();
+    $order->save();
+
+    $is_payment_valid = $this->payForTheOrder($order);
+    
+    $order->update([
+      'status' => $is_payment_valid ? StatusService::ACTIVE : StatusService::INACTIVE
+    ]);
+
+    if($is_payment_valid) {
+      $this->user_service->assignCourseToUser($order);
+    }
+
+    event(new OrderCreatedEvent($order));
+    
+    return $order;
+  }
   
   /**
    * @param Order $order
@@ -94,5 +154,60 @@ class OrderService
     } catch(Exception $ex) {
       $this->log_service->error($ex);
     }
+  }
+  
+  /**
+   * @param Order $order
+   * @return bool
+  */
+  private function payForTheOrder(Order $order): bool
+  {
+    $this->payment_service->setPrice($order->price)
+                          ->pay();
+
+    return $this->payment_service->isValid();
+  }
+  
+  /**
+   * Generating a unique order number
+   *
+   * @return string
+  */
+  private function generateOrderTicketNumber(): string
+  {
+    $order_number = 'ON' . random_int(0000000, 9999999);
+    return $order_number;
+  }
+  
+  /**
+   * Calculate the price of the order
+   * The price is built by the content price and discount
+   * and also by the coupon that was inserted
+   *
+   * returns the total order price
+   * the value is decimal
+   * 
+   * @param object $course
+   * @param object|null $coupon
+   * @return void
+  */
+  private function getOrderPrice(object $course, object $coupon = null)
+  {
+    $total_price      = $course->price;
+    $course_discount  = 0;
+    $coupon_discount  = 0;
+    $percentage_type  = 1;
+
+    if($course->discount) {
+      $course_discount = ($course->discount / 100) * $course->price;
+    }
+
+    if($coupon) {
+      $coupon_discount =  $coupon->type === $percentage_type      ? 
+                          ($coupon->value / 100) * $course->price : 
+                          $coupon->value;
+    }
+    
+    return $total_price - $course_discount - $coupon_discount;
   }
 }

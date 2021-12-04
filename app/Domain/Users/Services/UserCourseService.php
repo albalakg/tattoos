@@ -10,7 +10,6 @@ use App\Domain\Helpers\StatusService;
 use App\Mail\User\AddCourseToUserMail;
 use App\Domain\Users\Models\UserCourse;
 use App\Mail\Tests\TestStatusUpdateMail;
-use App\Events\Users\UserCourseCreatedEvent;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Users\Models\UserCourseLesson;
 use App\Events\Users\UserCourseDisabledEvent;
@@ -34,6 +33,8 @@ class UserCourseService
    * @var UserService|null
   */
   private $user_service;
+
+  const DEFAULT_USER_COURSE_PERIOD = 12; // in months
   
   /**
    * Contain the error data
@@ -132,11 +133,11 @@ class UserCourseService
   */
   public function createComment(int $user_course_submission_id, string $comment, int $created_by): UserCourseSubmissionComment
   {
-    $new_comment = new UserCourseSubmissionComment;
+    $new_comment                            = new UserCourseSubmissionComment;
     $new_comment->user_course_submission_id = $user_course_submission_id;
-    $new_comment->comment = $comment;
-    $new_comment->created_at = now();
-    $new_comment->created_by = $created_by;
+    $new_comment->comment                   = $comment;
+    $new_comment->created_at                = now();
+    $new_comment->created_by                = $created_by;
     $new_comment->save();
 
     $new_comment->load('user');
@@ -171,7 +172,7 @@ class UserCourseService
    * @param int $created_by
    * @return UserCourse
   */
-  public function create(object $data, int $created_by): ?UserCourse
+  public function createByAdmin(object $data, int $created_by): ?UserCourse
   {
     if($this->isUserCourseActive($data->user_id, $data->course_id)) {
       throw new Exception('The course is already available for this user');
@@ -180,7 +181,6 @@ class UserCourseService
     $user_course              = new UserCourse;
     $user_course->course_id   = $data->course_id;
     $user_course->user_id     = $data->user_id;
-    $user_course->price       = $data->price;
     $user_course->progress    = 0;
     $user_course->end_at      = $data->end_at;
     $user_course->status      = StatusService::ACTIVE;
@@ -202,8 +202,30 @@ class UserCourseService
       ]
     );
 
-    event(new UserCourseCreatedEvent($user_course));
     return $user_course;
+  }
+
+  /**
+   * @param object $data
+   * @return UserCourse|null
+  */
+  public function assignCourseToUser(object $data): ?UserCourse
+  {
+    try {
+      $user_course              = new UserCourse;
+      $user_course->user_id     = $data->user_id;
+      $user_course->course_id   = $data->content_id;
+      $user_course->progress    = 0;
+      $user_course->end_at      = Carbon::now()->addMonths(self::DEFAULT_USER_COURSE_PERIOD);
+      $user_course->status      = StatusService::ACTIVE;
+      $user_course->created_by  = $data->user_id;
+      $user_course->save();
+
+      return $user_course;
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return null;
+    }
   }
     
   /**
@@ -272,11 +294,26 @@ class UserCourseService
                      ->exists();
   }
   
+  public function disableExpiredCourses()
+  {
+    UserCourse::where('status', StatusService::ACTIVE)->chunk(200, function ($user_courses) {
+      foreach ($user_courses as $user_course) {
+        try {
+          if($this->isCourseExpired($user_course)) {
+            $this->disableCourse($user_course->id);
+          }
+        } catch (Exception $ex) {
+          $this->log_service->error($ex);
+        }
+      }
+    });
+  }
+   
   /**
    * @param int $user_course_id
    * @return void
   */
-  public function disableCourse(int $user_course_id)
+  private function disableCourse(int $user_course_id)
   {
     if(!$user_course = UserCourse::find($user_course_id)) {
       throw new Exception('User Course not found');
@@ -287,18 +324,7 @@ class UserCourseService
     $user_course->status = StatusService::INACTIVE;
     $user_course->save();
   }
-  
-  public function disableExpiredCourses()
-  {
-    UserCourse::where('status', StatusService::ACTIVE)->chunk(200, function ($user_courses) {
-      foreach ($user_courses as $user_course) {
-        if($this->isCourseExpired($user_course)) {
-          $this->disableCourse($user_course->id);
-        }
-      }
-    });
-  }
-  
+
   /**
    * @param UserCourse $user_course
    * @return bool

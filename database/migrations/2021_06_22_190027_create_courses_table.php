@@ -22,7 +22,7 @@ class CreateCoursesTable extends Migration
             $table->string('trailer', 255)->nullable();
             $table->decimal('price')->nullable();
             $table->text('description')->nullable();
-            $table->integer('discount')->unsigned()->nullable();
+            $table->integer('discount')->unsigned()->nullable()->comment('discount in percentage %');
             $table->integer('view_order')->unsigned();
             $table->integer('created_by')->unsigned();
             $table->timestamps();

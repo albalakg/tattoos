@@ -33,6 +33,8 @@ class CouponCodeRule implements Rule
         if(strlen($value) !== 10) {
             return false;
         } 
+
+        return true;
     }
 
     /**

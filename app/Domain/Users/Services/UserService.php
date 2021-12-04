@@ -8,7 +8,6 @@ use Illuminate\Support\Str;
 use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
-use Illuminate\Support\Facades\DB;
 use App\Domain\Helpers\MailService;
 use Illuminate\Support\Facades\Hash;
 use App\Domain\Helpers\StatusService;
@@ -141,6 +140,21 @@ class UserService
     $courses      = $this->content_service->getCoursesFullContent($user_courses->pluck('id')->toArray());
 
     return $courses;
+  }
+  
+  /**
+   * @param object $order
+   * @return UserCourse|null
+  */
+  public function assignCourseToUser(object $order): ?UserCourse
+  {
+    try {
+      $user_course_service = new UserCourseService();
+      return $user_course_service->assignCourseToUser($order);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return false;
+    }
   }
   
   /**

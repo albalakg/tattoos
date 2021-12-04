@@ -17,7 +17,6 @@ class CreateUserCoursesTable extends Migration
             $table->id();
             $table->integer('course_id')->unsigned()->index();
             $table->integer('user_id')->unsigned()->index();
-            $table->decimal('price')->unsigned()->index();
             $table->integer('progress')->unsigned()->index();
             $table->integer('status')->unsigned()->index();
             $table->dateTime('end_at');

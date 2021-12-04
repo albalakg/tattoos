@@ -17,6 +17,17 @@ class CouponService
   {
     return Coupon::find($coupon_id);
   }
+
+  /**
+   * @param string $code
+   * @return Coupon|null
+  */
+  public function getByCode(string $code): ?Coupon
+  {
+    return Coupon::where('code', $code)
+                 ->where('status', StatusService::ACTIVE)
+                 ->first();
+  }
   
   /**
    * @return Collection
