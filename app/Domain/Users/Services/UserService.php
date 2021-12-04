@@ -230,8 +230,14 @@ class UserService
   public function signup(array $data): ?User
   {
     try {
-      $data['role_id']  = Role::NORMAL;
-      $user             = $this->saveUser($data);
+      $user             = new User();
+      $user->role_id    = Role::NORMAL;
+      $user->status     = StatusService::PENDING;
+      $user->email      = $data['email'];
+      $user->password   = bcrypt($data['password']);
+      $user->created_by = $data['created_by'];
+      $user->save();
+
       $data['user_id']  = $user->id;
       $this->saveUserDetails($data);
       $user->email_verification = $this->saveEmailVerification($user->id, $user->email);
@@ -261,26 +267,19 @@ class UserService
       $user->role_id    = $data['role_id'];
       $user->status     = StatusService::PENDING;
       $user->email      = $data['email'];
-      $user->password   = $data['password'];
+      $user->password   = bcrypt($data['password']);
       $user->created_by = $data['created_by'];
       $user->save();
 
-        
+      $data['user_id']    = $user->id;
+      $this->saveUserDetails($data);
+      
       return $user;
-
-      // $data['created_by'] = $created_by;
-      // $data['role_id']    = Role::ROLES_LIST[strtolower($data['role'])];
-      // if(!$user = $this->saveUser($data)) {
-      //   throw new Exception('Failed to create a user');
-      // }
-
-      // $data['user_id']    = $user->id;
-      // $this->saveUserDetails($data);
-      // return $user;
     } catch(Exception $ex) {
       if(isset($user) && $user) {
         $this->deleteUser($user->id);
       }
+
       throw $ex;
     }
   }
@@ -294,10 +293,14 @@ class UserService
   */
   public function updateUser(array $data, ?int $updated_by)
   {
-    $data['updated_by'] = $updated_by;
-    $data['role_id']    = Role::ROLES_LIST[strtolower($data['role'])];
+    $user             = User::find($data['id']);
+    $user->role_id    = Role::ROLES_LIST[strtolower($data['role'])];
+    $user->status     = StatusService::PENDING;
+    $user->email      = $data['email'];
+    $user->password   = bcrypt($data['password']);
+    $user->updated_by = $data['updated_by'];
+    $user->save();
 
-    $this->saveUser($data);
     $this->saveUserDetails($data);
 
     return $data;
@@ -389,6 +392,8 @@ class UserService
       'verified_at' => now()
     ]);
 
+    $this->log_service->info('User has reset his password');
+
     $this->savePassword($user->email, $password);
   }
     
@@ -402,10 +407,7 @@ class UserService
       throw new Exception('Sorry, you have reached maximum reset attempts for today');
     }
 
-    UserResetPassword::where('email', $email)
-                     ->where('status', StatusService::PENDING)
-                     ->update(['status' => StatusService::INACTIVE]);
-
+    $this->deactivateUsersResetPasswords($email);
 
     $forgot_password_request = UserResetPassword::create([
       'token' => Str::random(50),
@@ -414,7 +416,23 @@ class UserService
       'created_at' => now()
     ]);
 
+    $this->log_service->info('Submitted a forgot password form');
+
     event(new UserResetPasswordEvent($forgot_password_request));
+  }
+  
+  /**
+   * @param string $email
+   * @return int
+  */
+  public function deactivateUsersResetPasswords(string $email): int
+  {
+    $records_updated =  UserResetPassword::where('email', $email)
+                                         ->where('status', StatusService::PENDING)
+                                         ->update(['status' => StatusService::INACTIVE]);
+
+    $this->log_service->info("Deactivate $records_updated reset passwords");
+    return $records_updated;
   }
   
   /**
@@ -430,6 +448,7 @@ class UserService
     }
 
     $this->savePassword($user->id, $new_password);
+    $this->log_service->info('Password has been changed successfully');
   }
   
   /**
@@ -439,6 +458,7 @@ class UserService
   */
   public function updateUserEmail(array $data, int $updated_by): bool
   {
+    $this->log_service->info("User $updated_by updated the email of user " . $data['id']);
     return User::where('id', $data['id'])->update(['email' => $data['email']]);
   } 
   
@@ -449,6 +469,7 @@ class UserService
   */
   public function updateUserPassword(array $data, int $updated_by): bool
   {
+    $this->log_service->info("User $updated_by updated the password of user " . $data['id']);
     return $this->savePassword($data['id'], $data['password']);
   } 
    
@@ -464,6 +485,7 @@ class UserService
       throw new Exception('Password does is incorrect');
     }
 
+    $this->log_service->info('Sent verification mail for changing the email');
     $user->email_verification = $this->saveEmailVerification($user->id, $email);
     $mailService = new MailService;
     $mailService->delay()->send($email, UpdateEmailRequestMail::class, $user);
@@ -480,10 +502,12 @@ class UserService
                                         ->where('token', $token)
                                         ->first();
     if(!$verification) {
+      $this->log_service->info("Failed to verify the email: $email, with the token: $token");
       throw new Exception('Failed to verify email');
     }
 
     if(!$verification->verified_at) {
+      $this->log_service->info("Email $email is verified");
       $verification->update(['verified_at' => now()]);
     }
 
@@ -550,39 +574,6 @@ class UserService
                             ->where('created_at', '>', Carbon::now()->subMinutes(1440))
                             ->count() < 3;
   }
-  
-  /**
-   * @param array $data
-   * @return User|null 
-  */
-  private function saveUser(array $data): ?User
-  {
-    if(isset($data['id'])) {
-      if(!$user = User::find($data['id'])) {
-        throw new Exception('Failed to find user');
-      }
-    } else {
-      $user = new User();
-    }
-
-    $user->role_id      = $data['role_id'];
-    $user->status       = StatusService::PENDING;
-
-    if(isset($data['email'])) {
-      $user->email        = $data['email'];
-    }
-
-    if(isset($data['password'])) {
-      $user->password     = bcrypt($data['password']);
-    }
-
-    if(isset($data['created_by'])) {
-      $user->created_by   = $data['created_by'];
-    }
-
-    $user->save();
-    return $user;
-  }
 
   /**
    * Save the user details
@@ -592,31 +583,34 @@ class UserService
   */
   private function saveUserDetails(array $data): ?UserDetail
   {
-    if(isset($data['id'])) {
-      if(!$user_data = UserDetail::where('user_id', $data['id'])->first()) {
+    if(isset($data['user_id'])) {
+      if(!$user_data = UserDetail::where('user_id', $data['user_id'])->first()) {
         throw new Exception('Failed to find user');
       }
     } else {
-      $user_data = new UserDetail();
+      $user_data          = new UserDetail();
+      $user_data->user_id = $data['user_id'];
     }
 
-    $user_data->user_id     = $data['user_id'];
     $user_data->first_name  = $data['first_name'];
     $user_data->last_name   = $data['last_name'];
 
     if(isset($data['phone'])) {
-      $user_data->phone  = $data['phone'];
+      $user_data->phone = $data['phone'];
     }
 
     if(isset($data['gender'])) {
-      $user_data->gender  = $data['gender'];
+      $user_data->gender = $data['gender'];
     }
 
     if(isset($data['birth_date'])) {
-      $user_data->birth_date  = $data['birth_date'];
+      $user_data->birth_date = $data['birth_date'];
     }
 
     $user_data->save();
+
+    $this->log_service->info('User details were updated');
+
     return $user_data;
   }
   

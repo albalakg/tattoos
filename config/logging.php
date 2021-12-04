@@ -138,6 +138,13 @@ return [
             'days' => 1,
         ],
 
+        'payment' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/payment/payment.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'support' => [
             'driver' => 'daily',
             'path' => storage_path('logs/support/support.log'),
