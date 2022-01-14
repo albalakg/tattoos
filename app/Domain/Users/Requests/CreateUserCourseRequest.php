@@ -18,7 +18,6 @@ class CreateUserCourseRequest extends FormRequest
         return [
             'user_id'   => ['required', 'bail', new IDRule, 'exists:users,id'],
             'course_id' => ['required', 'bail', new IDRule, 'exists:courses,id'],
-            'price'     => ['required', new PriceRule],
             'end_at'    => 'required|date',
         ];
     }

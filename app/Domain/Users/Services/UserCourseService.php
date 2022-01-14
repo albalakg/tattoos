@@ -89,7 +89,6 @@ class UserCourseService
                 'id',
                 'course_id',
                 'user_id',
-                'price',
                 'progress',
                 'status',
                 'end_at',
@@ -197,7 +196,6 @@ class UserCourseService
       [
         'user_name'   => $user->fullName,
         'course'      => $course->name,
-        'price'       => $user_course->price,
         'end_at'      => $course->end_at,
       ]
     );
@@ -241,7 +239,6 @@ class UserCourseService
 
     $user_course->course_id   = $user_course->course_id;
     $user_course->user_id     = $user_course->user_id;
-    $user_course->price       = $user_course->price;
     $user_course->progress    = $user_course->progress;
     $user_course->end_at      = $user_course->end_at;
     $user_course->status      = StatusService::ACTIVE;
