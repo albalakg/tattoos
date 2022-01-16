@@ -101,6 +101,19 @@ class UserCourseService
   }
   
   /**
+   * @param int $user_id
+   * @return Collection
+  */
+  public function getActiveCourseByUserID(int $user_id): Collection
+  {
+    return UserCourse::where('user_id', $user_id)
+                     ->where('status', StatusService::ACTIVE)
+                     ->with('course')
+                     ->select('course_id', 'progress')
+                     ->get();
+  }
+  
+  /**
    * @param int $id
    * @param int $status
    * @param int $updated_by

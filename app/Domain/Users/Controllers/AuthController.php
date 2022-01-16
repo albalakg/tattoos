@@ -10,6 +10,7 @@ use App\Domain\Users\Services\UserService;
 use App\Domain\Users\Requests\LoginRequest;
 use App\Domain\Users\Services\LoginService;
 use App\Domain\Users\Requests\SignupRequest;
+use App\Domain\Users\Services\UserCourseService;
 use App\Domain\Users\Requests\VerifyEmailRequest;
 use App\Domain\Users\Requests\ResetPasswordRequest;
 use App\Domain\Users\Requests\ForgotPasswordRequest;
@@ -19,7 +20,9 @@ class AuthController extends Controller
   public function login(LoginRequest $request, LoginService $login_service)
   {
     try {
-      return $this->successResponse('Logged', $login_service->attempt($request->email, $request->password)->getResponse());
+      $userData = $login_service->attempt($request->email, $request->password)->getResponse();
+      $userData->courses = $this->getUserCourses($userData->id);
+      return $this->successResponse('Logged', $userData);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -67,5 +70,15 @@ class AuthController extends Controller
     } catch (Exception $ex) {
       return $this->errorResponse($ex, null, Response::HTTP_UNPROCESSABLE_ENTITY);
     }
+  }
+  
+  /**
+   * @param int $user_id
+   * @return void
+  */
+  private function getUserCourses(int $user_id)
+  {
+    $UserCourseService = new UserCourseService;
+    return $UserCourseService->getActiveCourseByUserID($user_id);
   }
 }

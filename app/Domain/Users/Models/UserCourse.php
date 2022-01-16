@@ -26,6 +26,13 @@ class UserCourse extends Model
   public function course()
   {
     return $this->hasOne(Course::class, 'id', 'course_id')
+                ->select('id', 'name', 'description', 'view_order', 'image', 'trailer');
+  }
+
+  public function fullCourse()
+  {
+    return $this->hasOne(Course::class, 'id', 'course_id')
+                ->with('activeAreasWithActiveLessons')
                 ->select('id', 'name', 'description', 'view_order');
   }
 
