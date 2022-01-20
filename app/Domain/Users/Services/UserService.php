@@ -96,9 +96,9 @@ class UserService
   
   /**
    * @param string $email
-   * @return User
+   * @return null|User
   */
-  public function getUserByEmail(string $email): User
+  public function getUserByEmail(string $email): ?User
   {
     return User::where('email', $email)->first();
   } 
@@ -417,20 +417,27 @@ class UserService
   */
   public function forgotPassword(string $email) 
   {
+    if(!$user = $this->getUserByEmail($email)) {
+      $this->log_service->error('Email does not exists');
+      return;
+    }
+    
     if(!$this->canResetPassword($email)) {
-      throw new Exception('Sorry, you have reached maximum reset attempts for today');
+      $this->log_service->error("Email $email have reached maximum forgot reset attempts");
+      return;
     }
 
     $this->deactivateUsersResetPasswords($email);
 
     $forgot_password_request = UserResetPassword::create([
-      'token' => Str::random(50),
-      'email' => $email,
-      'status' => StatusService::PENDING,
+      'token'     => Str::random(50),
+      'email'     => $email,
+      'status'    => StatusService::PENDING,
       'created_at' => now()
     ]);
-
-    $this->log_service->info('Submitted a forgot password form');
+    
+    $forgot_password_request->user_name = $user->details->first_name;
+    $this->log_service->info("Submitted a forgot password request for user $user->id");
 
     event(new UserResetPasswordEvent($forgot_password_request));
   }

@@ -25,8 +25,27 @@ class Controller extends BaseController
      */
     public $service;
 
-    protected function successResponse(string $message, $data = null, $status = Response::HTTP_OK) : JsonResponse
+    /**
+     * Log file
+     *
+     * @var string
+     */
+    public $log_file;
+    
+    /**
+     * @param string $message
+     * @param mixed $data
+     * @param int $status
+     * @param string $log_message
+     * @return JsonResponse
+    */
+    protected function successResponse(string $message, $data = null, int $status = Response::HTTP_OK, string $log_message = '') : JsonResponse
     {
+        if($log_message) {
+            $logger = new LogService($this->log_file ?? LogService::DEFAULT_CHANNEL);
+            $logger->info($log_message);
+        }
+
         return response()->json(
             [
                 'message' => $message,
