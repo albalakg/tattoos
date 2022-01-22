@@ -199,7 +199,7 @@ class UserCourseService
     $user_course->created_by  = $created_by;
     $user_course->save();
 
-    $user = $this->user_service->getUser($data->user_id);
+    $user = $this->user_service->getUserByID($data->user_id);
     $course = $this->course_service->getCourse($data->course_id);
 
     $mail_service = new MailService;

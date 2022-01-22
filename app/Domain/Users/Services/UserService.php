@@ -89,7 +89,7 @@ class UserService
    * @param int $user_id
    * @return User|null
   */
-  public function getUser(int $user_id): ?User
+  public function getUserByID(int $user_id): ?User
   {
     return User::find($user_id);
   }
@@ -249,17 +249,17 @@ class UserService
       $user->status     = StatusService::PENDING;
       $user->email      = $data['email'];
       $user->password   = bcrypt($data['password']);
-      $user->created_by = $data['created_by'];
       $user->save();
-
-      $data['user_id']  = $user->id;
-      $this->saveUserDetails($data);
+      
+      $data['user_id'] = $user->id;
+      $this->createUserDetails($data);
       $user->email_verification = $this->saveEmailVerification($user->id, $user->email);
       event(new UserCreatedEvent($user));
 
       unset($user->email_verification);
       return $user;
     } catch(Exception $ex) {
+      dd($ex);
       if(isset($user) && $user) {
         $this->deleteUser($user->id);
       }
@@ -286,7 +286,7 @@ class UserService
       $user->save();
 
       $data['user_id']    = $user->id;
-      $this->saveUserDetails($data);
+      $this->updateUserDetails($data);
       
       return $user;
     } catch(Exception $ex) {
@@ -315,7 +315,7 @@ class UserService
     $user->updated_by = $data['updated_by'];
     $user->save();
 
-    $this->saveUserDetails($data);
+    $this->updateUserDetails($data);
 
     return $data;
   }
@@ -376,7 +376,14 @@ class UserService
    */
   public function updateUserDetails(array $data): ?UserDetail
   {
-    return $this->saveUserDetails($data);
+    if(!$user_details = UserDetail::where('user_id', $data['user_id'])->first()) {
+      throw new Exception('Failed to find user');
+    }
+
+    $this->saveUserDetails($user_details, $data);
+    $this->log_service->info('User ' . $data['user_id'] . ', details were updated');
+    
+    return $user_details;
   }
     
   /**
@@ -390,25 +397,25 @@ class UserService
     $reset_password_request = UserResetPassword::where('email', $email)
                                      ->where('token', $token)
                                      ->where('status', StatusService::PENDING)
+                                     ->where('created_at', '>=', Carbon::now()->subDay()->toDateTimeString())
                                      ->first();
   
     if(!$reset_password_request) {
-      throw new Exception('Failed to reset password, request not found');
+      throw new Exception('Reset Password request not found');
     }
     
     $user = $this->getUserByEmail($email);
     if(!$user) {
-      throw new Exception('Failed to reset password, user not found');
+      throw new Exception('User not found');
     }
-
+    
+    $this->savePassword($user, $password);
+    
+    $this->log_service->info('User has reset his password successfully');
     $reset_password_request->update([
       'status' => StatusService::ACTIVE,
       'verified_at' => now()
     ]);
-
-    $this->log_service->info('User has reset his password');
-
-    $this->savePassword($user->email, $password);
   }
     
   /**
@@ -468,7 +475,7 @@ class UserService
       throw new Exception('Old password is incorrect');
     }
 
-    $this->savePassword($user->id, $new_password);
+    $this->savePassword($user, $new_password);
     $this->log_service->info('Password has been changed successfully');
   }
   
@@ -491,7 +498,7 @@ class UserService
   public function updateUserPassword(array $data, int $updated_by): bool
   {
     $this->log_service->info("User $updated_by updated the password of user " . $data['id']);
-    return $this->savePassword($data['id'], $data['password']);
+    return $this->savePassword($this->getUserById($data['id']), $data['password']);
   } 
    
   /**
@@ -573,13 +580,27 @@ class UserService
   }
   
   /**
-   * @param int $user_id
+   * @param User $user
    * @param string $password
    * @return bool
   */
-  private function savePassword(int $user_id, string $password): bool
+  private function savePassword(User $user, string $password): bool
   {
-    return User::where('id', $user_id)->update(['password' => bcrypt($password)]);
+    if($this->isNewPasswordMatchesOldPassword($user->password, $password)) {
+      throw new Exception('Can\'t update new password that matches the old password');
+    }
+    
+    return User::where('id', $user->id)->update(['password' => bcrypt($password)]);
+  }
+  
+  /**
+   * @param string $current_password
+   * @param string $new_password
+   * @return bool
+  */
+  private function isNewPasswordMatchesOldPassword(string $current_password, string $new_password): bool
+  {
+    return Hash::check($new_password, $current_password);
   }
   
   /**
@@ -595,44 +616,36 @@ class UserService
                             ->where('created_at', '>', Carbon::now()->subMinutes(1440))
                             ->count() < 3;
   }
-
+  
   /**
-   * Save the user details
-   *
    * @param array $data
-   * @return UserDetail|null
+   * @return UserDetail
   */
-  private function saveUserDetails(array $data): ?UserDetail
+  private function createUserDetails(array $data): UserDetail
   {
-    if(isset($data['user_id'])) {
-      if(!$user_data = UserDetail::where('user_id', $data['user_id'])->first()) {
-        throw new Exception('Failed to find user');
-      }
-    } else {
-      $user_data          = new UserDetail();
-      $user_data->user_id = $data['user_id'];
-    }
+    $user_details             = new UserDetail();
+    $user_details->user_id    = $data['user_id'];
+    $this->saveUserDetails($user_details, $data);
+    $this->log_service->info('User ' . $data['user_id'] . ', details were created');
+    
+    return $user_details;
+  }
+  
+  /**
+   * @param UserDetail $user_details
+   * @param array $data
+   * @return UserDetail
+  */
+  private function saveUserDetails(UserDetail $user_details, array $data): UserDetail
+  {
+    $user_details->first_name  = $data['first_name'];
+    $user_details->last_name   = $data['last_name'];
+    $user_details->phone       = $data['phone'] ?? null;
+    $user_details->gender      = $data['gender'] ?? null;
+    $user_details->birth_date  = $data['birth_date'] ?? null;
+    $user_details->save();
 
-    $user_data->first_name  = $data['first_name'];
-    $user_data->last_name   = $data['last_name'];
-
-    if(isset($data['phone'])) {
-      $user_data->phone = $data['phone'];
-    }
-
-    if(isset($data['gender'])) {
-      $user_data->gender = $data['gender'];
-    }
-
-    if(isset($data['birth_date'])) {
-      $user_data->birth_date = $data['birth_date'];
-    }
-
-    $user_data->save();
-
-    $this->log_service->info('User details were updated');
-
-    return $user_data;
+    return $user_details;
   }
   
   /**
