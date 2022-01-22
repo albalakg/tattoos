@@ -73,12 +73,18 @@ class Controller extends BaseController
             'Line'          => $exception->getLine(),
         ];
         
+        $error_data = [
+            'message' => $debug_error['ErrorMessage'],
+            'status' => false,
+            'data' => $data
+        ];
+
+        if(EnvService::isNotProd()) {
+            $error_data['debug_info'] = $debug_error;
+        }
+
         return response()->json(
-            [
-                'message' => EnvService::isProd() ? self::DEFAULT_ERROR : $debug_error,
-                'status' => false,
-                'data' => $data
-            ],
+            $error_data,
             $status
         );
     }
