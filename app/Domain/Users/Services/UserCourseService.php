@@ -108,7 +108,7 @@ class UserCourseService
   {
     return UserCourse::where('user_id', $user_id)
                      ->where('status', StatusService::ACTIVE)
-                     ->with('course')
+                     ->with('fullCourse')
                      ->select('course_id', 'progress')
                      ->get();
   }
