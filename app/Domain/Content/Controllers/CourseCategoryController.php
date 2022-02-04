@@ -36,6 +36,16 @@ class CourseCategoryController extends Controller
     }
   }
   
+  public function getActive()
+  {
+    try {
+      $response = $this->course_category_service->getActive();
+      return $this->successResponse('Course Categories fetched', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
   public function create(CreateCourseCategoryRequest $request)
   {
     try {

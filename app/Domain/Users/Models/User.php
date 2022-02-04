@@ -72,6 +72,13 @@ class User extends Authenticatable
                 ->where('progress', UserCourse::DONE);
   }
   
+  public function lastActiveLesson()
+  {
+    return $this->hasOne(UserCourseLessonUpdate::class, 'user_id', 'id')
+                ->with('userCourse')
+                ->orderBy('id', 'desc');
+  }
+  
   public function logAttempts()
   {
     return $this->hasOne(UserLogAttempt::class, 'email', 'email');

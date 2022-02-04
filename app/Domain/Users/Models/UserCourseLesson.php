@@ -21,4 +21,15 @@ class UserCourseLesson extends Model
   {
     return $this->hasOne(CourseLesson::class, 'id', 'course_lesson_id');
   }
+
+  public function updates()
+  {
+    return $this->hasMany(UserCourseLessonUpdate::class, 'user_course_lesson_id', 'id');
+  }
+
+  public function lastUpdate()
+  {
+    return $this->hasOne(UserCourseLessonUpdate::class, 'user_course_lesson_id', 'id')
+                ->orderBy('id', 'desc');
+  }
 }

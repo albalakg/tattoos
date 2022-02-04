@@ -23,6 +23,7 @@ use App\Domain\Orders\Services\OrderService;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Models\UserCourseLesson;
+use App\Domain\Users\Models\UserCourseLessonUpdate;
 use App\Domain\Users\Models\UserEmailVerification;
 use App\Domain\Users\Models\UserFavorite;
 
@@ -179,7 +180,7 @@ class UserService
     }
 
     if($user_lesson = $this->getUserLesson($user_id, $lesson_id)) {
-      return $this->updateLessonProgress($user_lesson, $progress);
+      return $this->updateLessonProgress($user_lesson, $progress, $user_id);
     }
 
     return $this->createLessonProgress($lesson_id, $user_id, $progress);
@@ -199,14 +200,19 @@ class UserService
   
   /**
    * @param Object $user
-   * @return Collection
+   * @return Array
   */
-  public function getUserProgress(Object $user): Collection
+  public function getUserProgress(Object $user): array
   {
-    return UserCourse::where('user_id', $user->id)
+    $user_progress = [];
+    $user_progress['courses'] = UserCourse::where('user_id', $user->id)
                     ->with('lessonsProgress')
-                    ->select('id', 'course_id', 'price', 'progress')
+                    ->select('id', 'course_id', 'progress')
                     ->get();
+
+    $user_progress['last_active_lesson'] = $user->load('lastActiveLesson')->lastActiveLesson;
+
+    return $user_progress;
   }
   
   /**
@@ -666,13 +672,21 @@ class UserService
   /**
    * @param UserCourseLesson $user_lesson
    * @param int $progress
+   * @param int $user_id
    * @return UserCourseLesson
   */
-  private function updateLessonProgress(UserCourseLesson $user_lesson, int $progress): UserCourseLesson
+  private function updateLessonProgress(UserCourseLesson $user_lesson, int $progress, int $user_id): UserCourseLesson
   {
     if($user_lesson->status) {
       return $user_lesson;
     }
+
+    UserCourseLessonUpdate::create([
+      'user_course_lesson_id' => $user_lesson->id,
+      'user_id'               => $user_id,
+      'progress'              => $progress,
+      'created_at'            => now()
+    ]);
 
     $user_lesson->update([
       'progress' => $progress,

@@ -17,11 +17,11 @@ class CouponController extends Controller
   /**
    * @var CouponService
   */
-  private $course_area_service;
+  private $coupon_service;
   
   public function __construct()
   {
-    $this->course_area_service = new CouponService(
+    $this->coupon_service = new CouponService(
       new CourseLessonService
     );
   }
@@ -29,7 +29,7 @@ class CouponController extends Controller
   public function getAll()
   {
     try {
-      $response = $this->course_area_service->getAll();
+      $response = $this->coupon_service->getAll();
       return $this->successResponse('Coupons fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
@@ -39,7 +39,7 @@ class CouponController extends Controller
   public function create(CreateCouponRequest $request)
   {
     try {
-      $response = $this->course_area_service->create($request->validated(), Auth::user()->id);
+      $response = $this->coupon_service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Coupon created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
@@ -49,7 +49,7 @@ class CouponController extends Controller
   public function updateStatus(UpdateCouponStatusRequest $request)
   {
     try {
-      $response = $this->course_area_service->updateStatus($request->id, $request->status, Auth::user()->id);
+      $response = $this->coupon_service->updateStatus($request->id, $request->status, Auth::user()->id);
       return $this->successResponse('Coupon updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
@@ -59,12 +59,12 @@ class CouponController extends Controller
   public function delete(DeleteRequest $request)
   {
     try {
-      $response = $this->course_area_service->multipleDelete($request->ids, Auth::user()->id);
+      $response = $this->coupon_service->multipleDelete($request->ids, Auth::user()->id);
       return $this->successResponse('Coupons deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,
-        $this->course_area_service->error_data
+        $this->coupon_service->error_data
       );
     }
   }

@@ -57,7 +57,7 @@ class CourseService implements IContentService
               ->orderBy('courses.id', 'desc')
               ->get();
   }
-  
+
   /**
    * @param int $category_id
    * @return bool

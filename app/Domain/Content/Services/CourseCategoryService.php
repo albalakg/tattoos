@@ -47,6 +47,26 @@ class CourseCategoryService implements IContentService
               ->orderBy('id', 'desc')
               ->get();
   }
+  
+  /**
+   * @return Collection
+  */
+  public function getActive(): Collection
+  {
+    return $this->getByStatus(StatusService::ACTIVE);
+  }
+  
+  /**
+   * @param int $status
+   * @return Collection
+  */
+  public function getByStatus(int $status): Collection
+  {
+    return $this->baseQueryBuilder()
+              ->where('status', $status)
+              ->orderBy('id', 'desc')
+              ->get();
+  }
     
   /**
    * @param array $data
