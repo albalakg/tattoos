@@ -24,9 +24,10 @@ class UserController extends Controller
 {
   const LOG_FILE = 'users';
   
-  public function logout(UserService $user_service)
+  public function logout()
   {
     try {
+      $user_service = new UserService;
       $user_service->logout(Auth::user());
       return $this->successResponse('Logged out');
     } catch (Exception $ex) {
@@ -112,9 +113,10 @@ class UserController extends Controller
     }
   }
 
-  public function getAll(UserService $user_service)
+  public function getAll()
   {
     try {
+      $user_service = new UserService;
       $response = $user_service->getAll();
       return $this->successResponse('Users fetched', $response);
     } catch (Exception $ex) {
@@ -126,7 +128,8 @@ class UserController extends Controller
   public function getProfile()
   {
     try {
-      return $this->successResponse('Users profile fetched', Auth::user());
+      $user_service = new UserService;
+      return $this->successResponse('Users profile fetched', $user_service->getProfile(Auth::user()));
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);

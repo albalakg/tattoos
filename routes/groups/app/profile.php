@@ -3,7 +3,6 @@
 use App\Domain\Users\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::post('delete-response', [UserController::class, 'deleteResponse']);
 
 Route::group(['middleware' => 'auth:api'], function () {

@@ -21,7 +21,6 @@ class AuthController extends Controller
   {
     try {
       $userData = $login_service->attempt($request->email, $request->password)->getResponse();
-      $userData->courses = $this->getUserCourses($userData->id);
       return $this->successResponse('Logged', $userData);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
@@ -70,15 +69,5 @@ class AuthController extends Controller
     } catch (Exception $ex) {
       return $this->errorResponse($ex, null, Response::HTTP_UNPROCESSABLE_ENTITY);
     }
-  }
-  
-  /**
-   * @param int $user_id
-   * @return void
-  */
-  private function getUserCourses(int $user_id)
-  {
-    $UserCourseService = new UserCourseService;
-    return $UserCourseService->getActiveCourseByUserID($user_id);
   }
 }

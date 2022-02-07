@@ -18,6 +18,8 @@ class UserDetail extends Model
     return $this->hasOne(User::class, 'id', 'user_id');
   }
   
+  protected $appends = ['fullName'];
+
   public function getFullNameAttribute()
   {
     return $this->first_name . ' ' . $this->last_name;

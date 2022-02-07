@@ -137,10 +137,27 @@ class UserService
       $user_courses = $user_courses->where('status', $status);
     }
 
-    $user_courses = $user_courses->select('id', 'course_id', 'price', 'progress')->get();
-    $courses      = $this->content_service->getCoursesFullContent($user_courses->pluck('id')->toArray());
+    $user_courses = $user_courses->select('id', 'course_id', 'progress')->pluck('id');
+    $courses      = $this->content_service->getCoursesFullContent($user_courses->toArray());
 
     return $courses;
+  }
+  
+  /**
+   * @param Object $user
+   * @return User
+  */
+  public function getProfile(Object $user): User
+  {
+    $user = $user->load('details');
+
+    unset($user->status);
+    unset($user->updated_at);
+    unset($user->created_at);
+    unset($user->created_by);
+    unset($user->deleted_at);
+
+    return $user;
   }
   
   /**
