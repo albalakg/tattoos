@@ -44,6 +44,21 @@ class ContentService
    * @param array $content_ids
    * @return Collection|null
   */
+  public function getCoursesByIds(array $content_ids): ?Collection
+  {
+    try {
+      $course_service = new CourseService;
+      return $course_service->getCoursesByIds($content_ids);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return null;
+    }
+  }
+
+  /**
+   * @param array $content_ids
+   * @return Collection|null
+  */
   public function getLessonsByIds(array $content_ids): ?Collection
   {
     try {

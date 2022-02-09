@@ -57,6 +57,21 @@ class CourseService implements IContentService
               ->orderBy('courses.id', 'desc')
               ->get();
   }
+  
+  /**
+   * @return Collection
+  */
+  public function getCoursesByIds(): Collection
+  {
+    return  Course::select(
+                    'courses.id',
+                    'courses.name',
+                    'courses.image',
+                    'courses.description',
+                  )
+                  ->orderBy('courses.id', 'desc')
+                  ->get();
+  }
 
   /**
    * @param int $category_id
