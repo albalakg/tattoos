@@ -226,12 +226,10 @@ class UserService
                     ->with('lessonsProgress')
                     ->select('id', 'course_id', 'progress')
                     ->get();
-
     $user_progress['last_active_lesson'] = $user->load('lastActiveLesson')->lastActiveLesson;
 
     return $user_progress;
   }
-  
   /**
    * @param Object $user
    * @return Collection

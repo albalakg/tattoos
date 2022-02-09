@@ -19,6 +19,7 @@ class CreateCourseLessonsTable extends Migration
             $table->integer('course_id')->nullable()->unsigned()->index();
             $table->integer('course_area_id')->nullable()->unsigned()->index();
             $table->integer('video_id')->unsigned();
+            $table->string('image', 255)->nullable();
             $table->integer('status')->unsigned()->index();
             $table->string('name', 100);
             $table->text('content')->nullable();

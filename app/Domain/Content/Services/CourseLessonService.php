@@ -62,7 +62,7 @@ class CourseLessonService implements IContentService
     $lessons_ids = DataManipulationService::intToArray($lessons_ids);
 
     return CourseLesson::whereIn('id', $lessons_ids)
-                      ->select('id', 'course_id', 'course_area_id', 'name', 'status')
+                      ->select('id', 'course_id', 'course_area_id', 'name', 'status', 'image')
                       ->get();
   }
 

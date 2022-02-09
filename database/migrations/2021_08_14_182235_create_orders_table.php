@@ -21,7 +21,7 @@ class CreateOrdersTable extends Migration
             $table->string('order_number', 10);
             $table->integer('status')->unsigned()->index();
             $table->decimal('price');
-            $table->integer('coupon_id')->unsigned()->index();
+            $table->integer('coupon_id')->unsigned()->index()->nullable();
             $table->timestamps();
         });
     }
