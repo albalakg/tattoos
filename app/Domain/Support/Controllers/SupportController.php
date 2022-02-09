@@ -44,7 +44,7 @@ class SupportController extends Controller
   {
     try {
       $created_support_ticket = $this->service->createSupportTicket($request->validated(), Auth::user());
-      return $this->successResponse('Support fetched', $created_support_ticket);
+      return $this->successResponse('Support created successfully', $created_support_ticket);
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);

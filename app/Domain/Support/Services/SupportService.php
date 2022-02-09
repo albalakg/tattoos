@@ -109,9 +109,9 @@ class SupportService
   /**
    * @param array $data
    * @param User|null $user_id
-   * @return SupportTicket
+   * @return Array
   */
-  public function createSupportTicket(array $data, ?User $user): SupportTicket
+  public function createSupportTicket(array $data, ?User $user): Array
   {
     $support_ticket                       = new SupportTicket;
     $support_ticket->user_id              = $user ? $user->id : null;
@@ -123,7 +123,11 @@ class SupportService
     $support_ticket->status               = StatusService::ACTIVE;
     $support_ticket->save();
 
-    return $support_ticket;
+    return [
+      'support_number' => $support_ticket->support_number,
+      'title' => $support_ticket->title,
+      'created_at' => $support_ticket->created_at,
+    ];
   }
     
   /**
