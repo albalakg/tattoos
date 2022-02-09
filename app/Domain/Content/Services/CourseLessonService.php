@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class CourseLessonService implements IContentService
 {
-  const FILES_PATH = 'content/course-lessons';
+  const FILES_PATH = 'content/lessons';
 
   /**
    * @var LogService

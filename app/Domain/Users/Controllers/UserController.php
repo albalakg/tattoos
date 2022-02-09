@@ -167,7 +167,7 @@ class UserController extends Controller
   {
     try {
       $user_service = new UserService(
-        null,
+        new ContentService(),
         null,
         new OrderService
       );

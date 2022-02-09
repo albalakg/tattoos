@@ -246,7 +246,15 @@ class UserService
   */
   public function getUserOrders(Object $user): Collection
   {
-    return $this->order_service->getOrdersByUsers($user->id);
+    $orders = $this->order_service->getOrdersByUsers($user->id);
+    $lessons = $this->content_service->getLessonsByIds($orders->pluck('content_id')->toArray());
+    
+    foreach($orders AS $order)
+    {
+      $order->lesson = $lessons->where('id', $order->content_id);
+    }
+
+    return $orders;
   }
 
   /**

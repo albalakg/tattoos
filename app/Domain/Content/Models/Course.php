@@ -22,12 +22,12 @@ class Course extends Model
 
     public function getImageSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/' . $this->image;  
+        return config('app.url') . '/' . 'files/content/courses/' . $this->image;  
     }
 
     public function getTrailerSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/' . $this->trailer;  
+        return config('app.url') . '/' . 'files/content/courses/' . $this->trailer;  
     }
 
     public function category()

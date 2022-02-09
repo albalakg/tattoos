@@ -19,7 +19,7 @@ class Video extends Model
 
     public function getVideoAttribute()
     {
-        return config('app.url') . '/' . 'files/' . $this->video_path;  
+        return config('app.url') . '/' . 'files/videos/' . $this->video_path;  
     }
 
     public function lessons()

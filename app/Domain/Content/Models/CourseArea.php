@@ -19,12 +19,12 @@ class CourseArea extends Model
 
     public function getImageSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/' . $this->image;  
+        return config('app.url') . '/' . 'files/content/courses-areas/' . $this->image;  
     }
 
     public function getTrailerSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/' . $this->trailer;  
+        return config('app.url') . '/' . 'files/content/courses-areas/' . $this->trailer;  
     }
 
     public function course()

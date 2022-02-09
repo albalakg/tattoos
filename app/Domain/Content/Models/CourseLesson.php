@@ -17,6 +17,13 @@ class CourseLesson extends Model
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
     
+    protected $appends = ['imageSrc'];
+
+    public function getImageSrcAttribute()
+    {
+        return config('app.url') . '/' . 'files/content/lessons/' . $this->image;  
+    }
+    
     public function area()
     {
         return $this->hasOne(CourseArea::class, 'id', 'course_area_id');
