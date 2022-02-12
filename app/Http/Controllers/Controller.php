@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use App\Domain\Helpers\EnvService;
 use App\Domain\Helpers\LogService;
-use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -42,7 +43,7 @@ class Controller extends BaseController
     protected function successResponse(string $message, $data = null, int $status = Response::HTTP_OK, string $log_message = '') : JsonResponse
     {
         if($log_message) {
-            $logger = new LogService($this->log_file ?? LogService::DEFAULT_CHANNEL);
+            $logger = new LogService($this->log_file ?? LogService::DEFAULT_CHANNEL, Auth::user());
             $logger->info($log_message);
         }
 
@@ -64,7 +65,7 @@ class Controller extends BaseController
     */
     protected function errorResponse(Exception $exception, $data = null, $status = Response::HTTP_BAD_REQUEST) : JsonResponse
     {
-        $logger = new LogService($exception->service ?? LogService::DEFAULT_CHANNEL);
+        $logger = new LogService($exception->service ?? LogService::DEFAULT_CHANNEL, Auth::user());
         $logger->error($exception);
 
         $debug_error = [

@@ -282,13 +282,9 @@ class UserService
       
       $data['user_id'] = $user->id;
       $this->createUserDetails($data);
-      $user->email_verification = $this->saveEmailVerification($user->id, $user->email);
-      event(new UserCreatedEvent($user));
-
-      unset($user->email_verification);
+      $this->saveEmailVerification($user, $user->email);
       return $user;
     } catch(Exception $ex) {
-      dd($ex);
       if(isset($user) && $user) {
         $this->deleteUser($user->id);
       }
@@ -533,27 +529,29 @@ class UserService
   /**
    * @param User $user
    * @param string $email
-   * @param string $password
    * @return void
   */
-  public function changeEmail(User $user, string $email, string $password)
+  public function changeEmail(User $user, string $email)
   {
-    if (!Hash::check($password, $user->password)) {
-      throw new Exception('Password does is incorrect');
+    if($user->email === $email) {
+      $this->log_service->info('User failed to change email, attempted his same current email');
+      return;
+    }
+    
+    if(User::where('email', $email)->exists()) {
+      $this->log_service->info('User failed to change email, attempted an existing email');
+      return;
     }
 
-    $this->log_service->info('Sent verification mail for changing the email');
-    $user->email_verification = $this->saveEmailVerification($user->id, $email);
-    $mailService = new MailService;
-    $mailService->delay()->send($email, UpdateEmailRequestMail::class, $user);
+    $this->saveEmailVerification($user, $email);
   }
     
   /**
    * @param string $email
    * @param string $token
-   * @return bool
+   * @return Void
   */
-  public function verifyEmail(string $email, string $token): bool
+  public function verifyEmail(string $email, string $token)
   {
     $verification = UserEmailVerification::where('email', $email)
                                         ->where('token', $token)
@@ -563,29 +561,37 @@ class UserService
       throw new Exception('Failed to verify email');
     }
 
-    if(!$verification->verified_at) {
-      $this->log_service->info("Email $email is verified");
-      $verification->update(['verified_at' => now()]);
+    if($verification->verified_at) {
+      return;
     }
-
+    
+    $this->log_service->info("Email $email is verified");
+    $verification->update(['verified_at' => now()]);
+    $this->updateUserEmail([
+      'id'    => $verification->user_id,
+      'email' => $email 
+    ], $verification->user_id);
     $this->saveStatus($verification->user_id, StatusService::ACTIVE);
-
-    return true;
   }
   
   /**
-   * @param int $user_id
+   * @param User $user
    * @param string $email
    * @return UserEmailVerification
   */
-  private function saveEmailVerification(int $user_id, string $email): UserEmailVerification
+  private function saveEmailVerification(User $user, string $email): UserEmailVerification
   {
-    return UserEmailVerification::create([
-      'user_id' => $user_id,
+    $email_verification = UserEmailVerification::create([
+      'user_id' => $user->id,
       'email' => $email,
       'token' => Str::random(50),
       'created_at' => now()
     ]);
+
+    $this->log_service->info('Sent verification mail for changing the email');
+
+    event(new UserCreatedEvent($user));
+    return $email_verification;
   }
 
   /**

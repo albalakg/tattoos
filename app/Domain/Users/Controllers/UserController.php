@@ -13,12 +13,13 @@ use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Requests\CreateUserRequest;
 use App\Domain\Users\Requests\UpdateUserRequest;
 use App\Domain\Users\Requests\DeleteUsersRequest;
+use App\Domain\Users\Requests\UpdateEmailRequest;
 use App\Domain\Users\Requests\UpdateProfileRequest;
 use App\Domain\Users\Requests\ChangePasswordRequest;
 use App\Domain\Users\Requests\UpdateUserEmailRequest;
 use App\Domain\Support\Services\SupportCategoryService;
-use App\Domain\Users\Requests\UserLessonProgressRequest;
 use App\Domain\Users\Requests\UpdateUserPasswordRequest;
+use App\Domain\Users\Requests\UserLessonProgressRequest;
 
 class UserController extends Controller
 {
@@ -36,9 +37,10 @@ class UserController extends Controller
     }
   }
 
-  public function changePassword(ChangePasswordRequest $request, UserService $user_service)
+  public function changePassword(ChangePasswordRequest $request)
   {
     try {
+      $user_service = new UserService;
       $user_service->changePassword(Auth::user(), $request->old_password, $request->password);
       return $this->successResponse('User\'s password has updated');
     } catch (Exception $ex) {
@@ -218,6 +220,18 @@ class UserController extends Controller
     try {
       $response = $user_service->setLessonProgress($request->lesson_id, $request->progress, Auth::user()->id);
       return $this->successResponse('Set the user\'s lesson progress', $response);
+    } catch (Exception $ex) {
+      $ex->service = self::LOG_FILE;
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function updateEmail(UpdateEmailRequest $request)
+  {
+    try {
+      $user_service = new UserService;
+      $user_service->changeEmail(Auth::user(), $request->email);
+      return $this->successResponse('An email as been sent for verification');
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);

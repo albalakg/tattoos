@@ -15,7 +15,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('support-tickets', [UserController::class, 'getUserSupportTickets']);
     
     Route::post('logout', [UserController::class, 'logout']);
-    Route::post('change-password', [UserController::class, 'changePassword']);
-    Route::post('update/email', [UserController::class, 'updateEmail']);
+    Route::post('change-password', [UserController::class, 'changePassword'])->middleware('throttle:3,10');
+    Route::post('email', [UserController::class, 'updateEmail']);
     
 });
