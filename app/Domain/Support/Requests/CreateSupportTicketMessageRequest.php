@@ -17,7 +17,7 @@ class CreateSupportTicketMessageRequest extends FormRequest
     {
         return [
             'support_ticket_id' => ['required', 'bail', new IDRule, 'exists:support_tickets,id'],
-            'message'           => ['nullable', new DescriptionRule('Message')],
+            'message'           => ['required', 'string', 'between:1, 1000'],
         ];
     }
 }

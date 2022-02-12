@@ -18,7 +18,7 @@ class SupportTicket extends Model
 
     public function getImageSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/' . $this->file_path;  
+        return $this->file_path ? config('app.url') . '/' . 'files/' . $this->file_path : '';  
     }
 
     public function messages()
