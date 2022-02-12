@@ -4,6 +4,8 @@ namespace App\Domain\Emails\Services;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Emails\Models\EmailSentUser;
 use App\Domain\Emails\Models\EmailsSent;
+use App\Domain\Helpers\LogService;
+use Exception;
 
 class EmailService
 {  
@@ -11,21 +13,27 @@ class EmailService
    * @param array $receivers
    * @param string $email_type
    * @param $data
-   * @return EmailsSent
+   * @return EmailsSent|null
   */
-  public function create(array $receivers, string $email_type, $data): EmailsSent
+  public function create(array $receivers, string $email_type, $data): ?EmailsSent
   {
-    dd($receivers, $email_type, $data);
-    $email_sent = new EmailsSent;
-    $email_sent->email_type_id = $email_type;
-    $email_sent->parameters = json_encode($data);
-    $email_sent->status = StatusService::PENDING;
-    $email_sent->created_at = now();
-    $email_sent->save();
+    try {
+      $email_sent = new EmailsSent;
+      $email_sent->email_type_id = $email_type::getTypeId();
+      $email_sent->parameters = json_encode($data);
+      $email_sent->status = StatusService::PENDING;
+      $email_sent->created_at = now();
+      $email_sent->save();
 
-    $this->addEmailReceivers($email_sent->id, $receivers);
+      $this->addEmailReceivers($email_sent->id, $receivers);
 
-    return $email_sent;
+      return $email_sent;
+    } catch(Exception $ex) {
+      $logger = new LogService('mail');
+      $logger->critical($ex);
+    }
+
+    return null;
   } 
 
   /**

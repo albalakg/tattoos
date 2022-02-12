@@ -56,7 +56,7 @@ return [
 
         'login' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/login.log'),
+            'path' => storage_path('logs/login/login.log'),
             'level' => 'debug',
             'days' => 14,
         ],

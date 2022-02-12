@@ -7,6 +7,9 @@ use App\Domain\Emails\Models\EmailSentUser;
 
 class EmailsSent extends Model
 {
+    protected $table = 'emails_sent';
+    public $timestamps = false;
+
     public function type()
     {
         return $this->hasOne(LuEmailType::class, 'id', 'email_type_id');

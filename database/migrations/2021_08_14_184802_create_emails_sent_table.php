@@ -19,7 +19,7 @@ class CreateEmailsSentTable extends Migration
             $table->text('parameters')->nullable();
             $table->integer('status')->unsigned()->index();
             $table->dateTime('created_at');
-            $table->dateTime('finished_at');
+            $table->dateTime('finished_at')->nullable();
         });
     }
 

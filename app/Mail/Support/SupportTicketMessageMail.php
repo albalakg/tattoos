@@ -3,11 +3,13 @@
 namespace App\Mail\Tests;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use App\Domain\Interfaces\IMails;
 use Illuminate\Queue\SerializesModels;
+use App\Domain\Emails\Models\LuEmailType;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SupportTicketMessageMail extends Mailable
+class SupportTicketMessageMail extends Mailable implements IMails
 {
     use Queueable, SerializesModels;
 
@@ -31,5 +33,13 @@ class SupportTicketMessageMail extends Mailable
     public function build()
     {
         return $this->subject('Support Ticket Message')->view('mails.support.newSupportTicketMessage');
+    }
+    
+    /**
+     * @return int
+    */
+    static public function getTypeId(): int
+    {
+        return LuEmailType::SUPPORT_TICKET_MESSAGE_EMAIL;
     }
 }

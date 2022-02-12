@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class LuEmailType extends Model
 {
+    const SUPPORT_TICKET_MESSAGE_EMAIL = 1;
+    const SUPPORT_TICKET_EMAIL = 2;
+
     public function emails()
     {
         return $this->hasMany(EmailsSent::class, 'email_type_id', 'id');

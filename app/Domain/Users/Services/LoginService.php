@@ -40,7 +40,7 @@ class LoginService
     */
     public function __construct()
     {
-        $this->log_service = new LogService('login');
+        $this->log_service = new LogService('auth');
         $this->is_maintenance = MaintenanceService::isActive();
     }
     

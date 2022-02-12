@@ -17,7 +17,6 @@ class CreateSupportTicketMessagesTable extends Migration
             $table->id();
             $table->integer('support_ticket_id')->unsigned()->index();
             $table->text('message');
-            $table->string('file_path', 100)->nullable();
             $table->dateTime('created_at');
             $table->integer('created_by')->unsigned()->index();
         });
