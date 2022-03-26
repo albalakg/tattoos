@@ -16,6 +16,7 @@ class CreateUserCourseLessonsTable extends Migration
         Schema::create('user_course_lessons', function (Blueprint $table) {
             $table->id();
             $table->integer('user_course_id')->unsigned()->index();
+            $table->integer('user_id')->unsigned()->index();
             $table->integer('course_lesson_id')->unsigned()->index();
             $table->integer('progress')->index()->unsigned()->comment('the user progress in the lesson video, in percentages');
             $table->dateTime('created_at');

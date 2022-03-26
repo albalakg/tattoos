@@ -215,10 +215,14 @@ class UserController extends Controller
     }
   }
 
-  public function setLessonProgress(UserLessonProgressRequest $request, UserService $user_service)
+  public function setLessonProgress(UserLessonProgressRequest $request)
   {
     try {
-      $response = $user_service->setLessonProgress($request->lesson_id, $request->progress, Auth::user()->id);
+      $user_service = new UserService(
+        new ContentService
+      );
+      
+      $response = $user_service->setLessonProgress($request->lesson_id, Auth::user()->id, $request->progress);
       return $this->successResponse('Set the user\'s lesson progress', $response);
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;

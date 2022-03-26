@@ -2,12 +2,14 @@
 
 namespace App\Domain\Content\Models;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use App\Domain\Content\Models\CourseArea;
+use App\Domain\Users\Models\UserCourseLesson;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Domain\Content\Models\CourseLessonTag;
 use App\Domain\Content\Models\CourseLessonRank;
 use App\Domain\Content\Models\CourseLessonComment;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CourseLesson extends Model
 {
@@ -22,6 +24,13 @@ class CourseLesson extends Model
     public function getImageSrcAttribute()
     {
         return config('app.url') . '/' . 'files/content/lessons/' . $this->image;  
+    }
+    
+    public function progress()
+    {
+        return $this->hasOne(UserCourseLesson::class, 'course_lesson_id', 'id')
+                    ->where('user_id', Auth::user()->id)
+                    ->select('course_lesson_id', 'progress');
     }
     
     public function area()

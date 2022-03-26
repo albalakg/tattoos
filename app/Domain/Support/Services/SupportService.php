@@ -71,9 +71,11 @@ class SupportService
 
     foreach($tickets AS $ticket) {
       $ticket->human_time = $ticket->created_at->diffForHumans();
+      unset($ticket->created_at, $ticket->finished_at, $ticket->support_category_id);
       
       foreach($ticket->messages AS $message) {
         $message->human_time = $message->created_at->diffForHumans();
+        unset($message->created_at, $message->created_by);
       }
     }
 

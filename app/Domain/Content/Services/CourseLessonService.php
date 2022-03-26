@@ -72,7 +72,7 @@ class CourseLessonService implements IContentService
   */
   public function getLessonCourseId(int $lesson_id): bool
   {
-    return CourseLesson::where('lesson_id', $lesson_id)->value('course_id');
+    return CourseLesson::where('id', $lesson_id)->value('course_id');
   }
 
   /**

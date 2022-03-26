@@ -16,7 +16,7 @@ class UserLessonProgressRequest extends FormRequest
     {
         return [
             'lesson_id' => ['required', new IDRule('lesson_id')],
-            'progress'  => 'required|numeric|between:0,100000'
+            'progress'  => 'required|numeric|between:0,100'
         ];
     }
 }

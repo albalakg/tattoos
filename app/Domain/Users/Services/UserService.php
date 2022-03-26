@@ -48,6 +48,11 @@ class UserService
    * @var LogService
   */
   private $log_service;
+  
+  /**
+   * @var UserCours|null
+  */
+  private $user_course;
     
   /**
    * @param ContentService $content_service
@@ -132,12 +137,11 @@ class UserService
   public function getUserCourses(Object $user, int $status = null): Collection
   {
     $user_courses = UserCourse::where('user_id', $user->id);
-    
     if(!is_null($status)) {
       $user_courses = $user_courses->where('status', $status);
     }
-
-    $user_courses = $user_courses->select('id', 'course_id', 'progress')->pluck('id');
+    
+    $user_courses = $user_courses->select('id', 'course_id', 'progress')->pluck('course_id');
     $courses      = $this->content_service->getCoursesFullContent($user_courses->toArray());
 
     return $courses;
@@ -171,7 +175,7 @@ class UserService
       return $user_course_service->assignCourseToUser($order);
     } catch(Exception $ex) {
       $this->log_service->error($ex);
-      return false;
+      return null;
     }
   }
   
@@ -210,7 +214,7 @@ class UserService
   */
   public function getUserLesson(int $user_id, int $lesson_id): ?UserCourseLesson
   {
-    return UserCourseLesson::where('lesson_id', $lesson_id)
+    return UserCourseLesson::where('course_lesson_id', $lesson_id)
                           ->where('user_id', $user_id)
                           ->first();
   }
@@ -701,11 +705,14 @@ class UserService
   private function hasAccessToLesson(int $user_id, int $lesson_id): bool
   {
     $course_ID = $this->content_service->getLessonCourseId($lesson_id);
-    
-    return UserCourse::where('user_id', $user_id)
-                     ->where('course_id', $course_ID)
-                     ->where('status', StatusService::ACTIVE)
-                     ->exists();
+
+    $this->user_course = UserCourse::query()
+                        ->where('user_id', $user_id)
+                        ->where('course_id', $course_ID)
+                        ->where('status', StatusService::ACTIVE)
+                        ->first();
+
+    return !!$this->user_course;
   }
   
   /**
@@ -716,10 +723,14 @@ class UserService
   */
   private function updateLessonProgress(UserCourseLesson $user_lesson, int $progress, int $user_id): UserCourseLesson
   {
-    if($user_lesson->status) {
+    if($user_lesson->isCompleted()) {
       return $user_lesson;
     }
 
+    if($user_lesson->progress === $progress) {
+      return $user_lesson;
+    }
+    
     UserCourseLessonUpdate::create([
       'user_course_lesson_id' => $user_lesson->id,
       'user_id'               => $user_id,
@@ -729,7 +740,6 @@ class UserService
 
     $user_lesson->update([
       'progress' => $progress,
-      'status'   => $this->getStatusFromProgress($progress)
     ]);
 
     return $user_lesson;
@@ -743,11 +753,12 @@ class UserService
   */
   public function createLessonProgress(int $lesson_id, int $user_id, int $progress): UserCourseLesson
   {
-    $user_lesson            = new UserCourseLesson;
-    $user_lesson->lesson_id = $lesson_id;
-    $user_lesson->user_id   = $user_id;
-    $user_lesson->progress  = $progress;
-    $user_lesson->status    = $this->getStatusFromProgress($progress);
+    $user_lesson                    = new UserCourseLesson;
+    $user_lesson->user_course_id    = $this->user_course->id;
+    $user_lesson->course_lesson_id  = $lesson_id;
+    $user_lesson->user_id           = $user_id;
+    $user_lesson->progress          = $progress;
+    $user_lesson->created_at        = now();
     $user_lesson->save();  
 
     return $user_lesson;
