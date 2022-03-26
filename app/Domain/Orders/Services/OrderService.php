@@ -176,6 +176,9 @@ class OrderService
   private function generateOrderTicketNumber(): string
   {
     $order_number = 'ON' . random_int(0000000, 9999999);
+    if(Order::where('order_number', $order_number)->exists()) {
+      return $this->generateOrderTicketNumber();
+    }
     return $order_number;
   }
   

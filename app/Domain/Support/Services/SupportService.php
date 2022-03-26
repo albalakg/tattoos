@@ -208,6 +208,9 @@ class SupportService
   private function generateSupportTicketNumber(): string
   {
     $support_ticket_number = 'SN' . random_int(0000000, 9999999);
+    if(SupportTicket::where('support_number', $support_ticket_number)->exists()) {
+      return $this->generateSupportTicketNumber();
+    }
     return $support_ticket_number;
   }
 }
