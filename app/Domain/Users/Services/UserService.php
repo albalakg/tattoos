@@ -307,11 +307,11 @@ class UserService
       $user->status     = StatusService::PENDING;
       $user->email      = $data['email'];
       $user->password   = bcrypt($data['password']);
-      $user->created_by = $data['created_by'];
+      $user->created_by = $created_by;
       $user->save();
 
       $data['user_id']    = $user->id;
-      $this->updateUserDetails($data);
+      $this->createUserDetails($data);
       
       return $user;
     } catch(Exception $ex) {
@@ -321,6 +321,16 @@ class UserService
 
       throw $ex;
     }
+  }
+    
+  /**
+   * @param int $user_id
+   * @param int|null $updated_by
+   * @return User|null
+  */
+  public function activateUser(int $user_id, ?int $updated_by = null)
+  {
+    return $this->saveStatus($user_id, StatusService::ACTIVE);
   }
     
   /**
