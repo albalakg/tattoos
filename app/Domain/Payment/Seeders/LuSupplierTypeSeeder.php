@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace App\Domain\Payment\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Domain\Payment\Models\LuSupplierType;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace App\Domain\Content\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Domain\General\Models\LuContentType;

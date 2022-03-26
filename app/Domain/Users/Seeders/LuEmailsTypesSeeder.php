@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace App\Domain\Users\Seeders;
 
 use App\Domain\Emails\Models\LuEmailType;
 use Illuminate\Database\Seeder;
