@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Domain\Content\Models\CourseLessonDetail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Video extends Model
+class Trainer extends Model
 {
     use SoftDeletes;
     
