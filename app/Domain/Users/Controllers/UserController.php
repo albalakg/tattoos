@@ -14,6 +14,8 @@ use App\Domain\Users\Requests\CreateUserRequest;
 use App\Domain\Users\Requests\UpdateUserRequest;
 use App\Domain\Users\Requests\DeleteUsersRequest;
 use App\Domain\Users\Requests\UpdateEmailRequest;
+use App\Domain\Users\Requests\UserFavoriteRequest;
+use App\Domain\Users\Services\UserFavoriteService;
 use App\Domain\Users\Requests\UpdateProfileRequest;
 use App\Domain\Users\Requests\ChangePasswordRequest;
 use App\Domain\Users\Requests\UpdateUserEmailRequest;
@@ -203,12 +205,45 @@ class UserController extends Controller
   public function getUserFavoriteContent()
   {
     try {
-      $user_service = new UserService(
-        new ContentService
+      $user_service = new UserFavoriteService(
+        new ContentService,
+        new UserService
       );
 
       $response = $user_service->getUserFavoriteContent(Auth::user(), StatusService::ACTIVE);
       return $this->successResponse('Fetched user favorite content', $response);
+    } catch (Exception $ex) {
+      $ex->service = self::LOG_FILE;
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function addToFavorite(UserFavoriteRequest $request)
+  {
+    try {
+      $user_service = new UserFavoriteService(
+        null,
+        new UserService()
+      );
+
+      $response = $user_service->addToFavorite($request->input('lesson_id'), Auth::user()->id);
+      return $this->successResponse('Lesson has been added to the favorite list successfully', $response);
+    } catch (Exception $ex) {
+      $ex->service = self::LOG_FILE;
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function removeFromFavorite(UserFavoriteRequest $request)
+  {
+    try {
+      $user_service = new UserFavoriteService(
+        null,
+        new UserService()
+      );
+
+      $response = $user_service->removeFromFavorite($request->input('lesson_id'), Auth::user()->id);
+      return $this->successResponse('Lesson has been removed from the favorite list successfully', $response);
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);

@@ -17,5 +17,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('logout', [UserController::class, 'logout']);
     Route::post('change-password', [UserController::class, 'changePassword'])->middleware('throttle:3,10');
     Route::post('email', [UserController::class, 'updateEmail']);
+    Route::post('favorites/add', [UserController::class, 'addToFavorite']);
+    Route::post('favorites/remove', [UserController::class, 'removeFromFavorite']);
     
 });

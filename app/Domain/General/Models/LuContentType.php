@@ -15,4 +15,10 @@ class LuContentType extends Model
         self::COURSE_AREA,
         self::LESSON
     ];
+
+    const CONTENT_TYPES_NAME = [
+        self::COURSE => 'course',
+        self::COURSE_AREA => 'course area',
+        self::LESSON => 'lesson'
+    ];
 }

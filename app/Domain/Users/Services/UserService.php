@@ -15,17 +15,18 @@ use App\Events\Users\UserCreatedEvent;
 use App\Events\Users\UserDeletedEvent;
 use App\Domain\Users\Models\UserCourse;
 use App\Domain\Users\Models\UserDetail;
+use App\Domain\Users\Models\UserFavorite;
 use App\Mail\User\UpdateEmailRequestMail;
+use App\Domain\General\Models\LuContentType;
+use App\Domain\Orders\Services\OrderService;
 use App\Events\Users\UserResetPasswordEvent;
 use Illuminate\Database\Eloquent\Collection;
-use App\Domain\Content\Services\ContentService;
-use App\Domain\Orders\Services\OrderService;
-use App\Domain\Users\Models\UserResetPassword;
-use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Models\UserCourseLesson;
-use App\Domain\Users\Models\UserCourseLessonUpdate;
+use App\Domain\Users\Models\UserResetPassword;
+use App\Domain\Content\Services\ContentService;
+use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Models\UserEmailVerification;
-use App\Domain\Users\Models\UserFavorite;
+use App\Domain\Users\Models\UserCourseLessonUpdate;
 
 class UserService
 {  
@@ -233,15 +234,6 @@ class UserService
     $user_progress['last_active_lesson'] = $user->load('lastActiveLesson')->lastActiveLesson;
 
     return $user_progress;
-  }
-  /**
-   * @param Object $user
-   * @return Collection
-  */
-  public function getUserFavoriteContent(Object $user): Collection
-  {
-    $favorite_content_ids = UserFavorite::where('user_id', $user->id)->pluck('content_id')->toArray();
-    return $this->content_service->getLessonsByIds($favorite_content_ids);
   }
   
   /**
@@ -617,16 +609,6 @@ class UserService
   {
     return User::where('id', $user_id)->update(['status' => $status]);
   }
-
-  /**
-   * @param int $user_id
-   * @param string $email
-   * @return bool
-  */
-  private function saveEmail(int $user_id, string $email): bool
-  {
-    return User::where('id', $user_id)->update(['email' => $email]);
-  }
   
   /**
    * @param User $user
@@ -751,7 +733,7 @@ class UserService
    * @param int $progress
    * @return UserCourseLesson
   */
-  public function createLessonProgress(int $lesson_id, int $user_id, int $progress): UserCourseLesson
+  private function createLessonProgress(int $lesson_id, int $user_id, int $progress): UserCourseLesson
   {
     $user_lesson                    = new UserCourseLesson;
     $user_lesson->user_course_id    = $this->user_course->id;

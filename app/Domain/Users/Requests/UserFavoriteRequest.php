@@ -5,7 +5,7 @@ namespace App\Domain\Users\Requests;
 use App\Rules\IDRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserLessonProgressRequest extends FormRequest
+class UserFavoriteRequest extends FormRequest
 {
     public function authorize()
     {
@@ -16,7 +16,6 @@ class UserLessonProgressRequest extends FormRequest
     {
         return [
             'lesson_id' => ['required', new IDRule('lesson')],
-            'progress'  => 'required|numeric|between:0,100'
         ];
     }
 }
