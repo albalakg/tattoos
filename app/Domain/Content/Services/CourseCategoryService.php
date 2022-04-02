@@ -166,7 +166,7 @@ class CourseCategoryService implements IContentService
 
     if($this->isInUsed($course_category_id)) {
       $this->error_data = $this->course_service->getCoursesOfCategory($course_category_id);
-      throw new Exception('Cannot force delete Course Category that is being used');
+      throw new Exception('Cannot delete Course Category that is being used');
     }
 
     return $course_category;

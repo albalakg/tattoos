@@ -222,7 +222,7 @@ class CourseService implements IContentService
 
     if($this->isCourseInUsed($course_id)) {
       $this->error_data = $this->course_area_service->getCourseAreasOfCourse($course_id);
-      throw new Exception('Cannot force delete Course that is being used');
+      throw new Exception('Cannot delete Course that is being used');
     }
 
     return $course;

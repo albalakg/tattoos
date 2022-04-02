@@ -57,6 +57,15 @@ class CourseAreaService implements IContentService
   }
 
   /**
+   * @param int $trainer_id
+   * @return bool
+  */
+  public function isTrainerInUsed(int $trainer_id): bool
+  {
+    return CourseArea::where('trainer_id', $trainer_id)->exists();
+  }
+
+  /**
    * @param int $course_id
    * @return Collection
   */
@@ -214,7 +223,7 @@ class CourseAreaService implements IContentService
 
     if($this->isCourseAreaInUsed($course_area_id)) {
       $this->error_data = $this->course_lesson_service->getLessonsOfCourseArea($course_area_id);
-      throw new Exception('Cannot force delete Course Area that is being used');
+      throw new Exception('Cannot delete Course Area that is being used');
     }
 
     return $course_area;

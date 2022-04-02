@@ -145,7 +145,7 @@ class VideoService implements IContentService
 
     if($this->isVideoInUsed($video_id)) {
       $this->error_data = $this->course_lesson_service->getLessonsWithVideo($video_id);
-      throw new Exception('Cannot force delete video that is being used');
+      throw new Exception('Cannot delete video that is being used');
     }
 
     return $video;

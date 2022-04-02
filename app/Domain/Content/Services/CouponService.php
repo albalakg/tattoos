@@ -61,6 +61,22 @@ class CouponService
 
     return $coupon;
   }
+    
+  /**
+   * @param array $data
+   * @param int $updated_by
+   * @return Coupon|null 
+  */
+  public function update(array $data, int $updated_by): ?Coupon
+  {
+    $coupon             = Coupon::find($data['id']);
+    $coupon->type       = $data['type'];
+    $coupon->value      = $data['value'];
+    $coupon->status     = $data['status'];
+    $coupon->save();
+
+    return $coupon;
+  }
   
   /**
    * @param int $id

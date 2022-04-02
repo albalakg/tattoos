@@ -9,11 +9,11 @@ use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CouponService;
 use App\Domain\Content\Requests\GetCouponRequest;
 use App\Domain\Content\Requests\CreateCouponRequest;
-use App\Domain\Content\Requests\UpdateCouponRequest;
 use App\Domain\Content\Services\CourseLessonService;
+use App\Domain\Content\Requests\UpdateCouponsRequest;
 use App\Domain\Content\Requests\UpdateCouponStatusRequest;
 
-class CouponController extends Controller
+class TrainerController extends Controller
 {
   /**
    * @var CouponService
@@ -42,16 +42,6 @@ class CouponController extends Controller
     try {
       $response = $this->coupon_service->getByCode($request->input('code'));
       return $this->successResponse('Coupon fetched', $response);
-    } catch (Exception $ex) {
-      return $this->errorResponse($ex);
-    }
-  }
-
-  public function update(UpdateCouponRequest $request)
-  {
-    try {
-      $response = $this->coupon_service->update($request->validated(), Auth::user()->id);
-      return $this->successResponse('Coupon created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

@@ -110,6 +110,13 @@ return [
             'days' => 1,
         ],
 
+        'trainers' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/trainers/trainers.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'courseLessons' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/courseLessons/courseLessons.log'),

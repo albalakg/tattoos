@@ -21,6 +21,7 @@ class CreateTrainersTable extends Migration
             $table->integer('status')->unsigned()->index();
             $table->timestamps();
             $table->softDeletes();
+            $table->integer('created_by')->unsigned()->index();
         });
     }
 

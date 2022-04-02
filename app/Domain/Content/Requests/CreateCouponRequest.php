@@ -2,11 +2,7 @@
 
 namespace App\Domain\Content\Requests;
 
-use App\Rules\IDRule;
-use App\Rules\NameRule;
-use App\Rules\DescriptionRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Content\Rules\CouponCodeRule;
 use App\Domain\Content\Rules\CouponTypeRule;
 
 class CreateCouponRequest extends FormRequest
