@@ -20,7 +20,12 @@ class Admin
         if(Auth::user()->isAdmin()) {
             return $next($request);
         } else {
-            return response()->json('Unauthorized', 401);
+            $error_data = [
+                'message' => 'Unauthorized',
+                'status' => false,
+                'data' => NULL
+            ];
+            return response()->json($error_data, 401);
         }
     }
 }

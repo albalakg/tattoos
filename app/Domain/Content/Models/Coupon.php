@@ -10,6 +10,7 @@ class Coupon extends Model
     const LIST_OF_TYPES     = [1, 2];
     const TYPE_PERCENTAGE   = 1;
     const TYPE_COINS        = 2;
+    const CODE_LENGTH       = 7;
 
     use SoftDeletes;
 

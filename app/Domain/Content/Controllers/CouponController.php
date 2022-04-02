@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CouponService;
+use App\Domain\Content\Requests\GetCouponRequest;
 use App\Domain\Content\Requests\CreateCouponRequest;
 use App\Domain\Content\Services\CourseLessonService;
 use App\Domain\Content\Requests\UpdateCouponsRequest;
@@ -31,6 +32,16 @@ class CouponController extends Controller
     try {
       $response = $this->coupon_service->getAll();
       return $this->successResponse('Coupons fetched', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+  
+  public function getCoupon(GetCouponRequest $request)
+  {
+    try {
+      $response = $this->coupon_service->getByCode($request->input('code'));
+      return $this->successResponse('Coupon fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

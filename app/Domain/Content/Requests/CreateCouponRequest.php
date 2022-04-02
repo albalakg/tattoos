@@ -19,7 +19,6 @@ class CreateCouponRequest extends FormRequest
     public function rules()
     {
         return [
-            'code'  => ['required', new CouponCodeRule],
             'type'  => ['required', new CouponTypeRule],
             'value' => ['required', 'integer', 'between:0,10000'],
         ];

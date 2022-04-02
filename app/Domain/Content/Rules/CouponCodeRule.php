@@ -2,6 +2,7 @@
 
 namespace App\Domain\Content\Rules;
 
+use App\Domain\Content\Models\Coupon;
 use App\Domain\Helpers\StatusService;
 use Illuminate\Contracts\Validation\Rule;
 
@@ -30,7 +31,7 @@ class CouponCodeRule implements Rule
             return false;
         }
 
-        if(strlen($value) !== 10) {
+        if(strlen($value) !== Coupon::CODE_LENGTH) {
             return false;
         } 
 
@@ -44,6 +45,6 @@ class CouponCodeRule implements Rule
      */
     public function message()
     {
-        return 'Status is not valid';
+        return 'Coupon code is not valid';
     }
 }

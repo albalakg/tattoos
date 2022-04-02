@@ -2,14 +2,19 @@
 
 namespace App\Domain\Payment\Services;
 
+use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Payment\Models\Payment;
-use App\Domain\Payment\Interfaces\IPaymentSupplier;
-use Exception;
+use App\Domain\Payment\Interfaces\IPaymentProvider;
+use App\Domain\Payment\Services\Providers\CreditGuard;
 
 class PaymentService
 {
+    const PROVIDERS = [
+        'creditGuard' => CreditGuard::class
+    ];
+
     /**
      * @var Payment
     */
@@ -19,106 +24,33 @@ class PaymentService
      * @var LogService
     */
     private $log_service;
-    
-    /**
-     * @var IPaymentSupplier
-    */
-    private $payment_supplier;
-    
-    /**
-     * @param int $order_id
-     * @param IPaymentSupplier $payment_supplier
-     * @return void
-    */
-    public function __construct(int $order_id , IPaymentSupplier $payment_supplier)
-    {
-        $this->log_service      = new LogService('payment');
-        $this->payment_supplier = $payment_supplier;
-
-        $this->startPayment($order_id);
         
-        $this->info('Set Supplier: ' . $payment_supplier);
-    }
-    
     /**
-     * @return Payment
+     * @var IPaymentProvider
     */
-    public function getPayment(): Payment
-    {
-        return $this->payment;
-    }
+    private $payment_provider;
     
     /**
-     * @param int $price
-     * @return self
-    */
-    public function setPrice(int $price): self
-    {
-        $this->payment_supplier->setPrice($price);
-        $this->info('Set Price: ' . $price);
-
-        return $this;
-    }
-    
-    /**
-     * @param int $quantity
-     * @return self
-    */
-    public function setQuantity(int $quantity = 1): self
-    {
-        $this->payment_supplier->setQuantity($quantity);
-        $this->info('Set Quantity: ' . $quantity);
-
-
-        return $this;
-    }
-    
-    /**
-     * @param string $currency
-     * @return self
-    */
-    public function setCurrency(string $currency = 'NIS'): self
-    {
-        $this->payment_supplier->setCurrency($currency);
-        $this->info('Set Currency: ' . $currency);
-
-        return $this;
-    }
-    
-    /**
+     * @param int $order_id
+     * @param string $provider
      * @return void
     */
-    public function pay()
+    public function __construct(int $order_id , string $provider)
     {
-        $this->payment_supplier->pay();
-        $this->info('Set Pay');
-    }
-    
-    /**
-     * @return bool
-    */
-    public function isValid(): bool
-    {
-        $status = $this->payment_supplier->isValid() ? StatusService::ACTIVE : StatusService::INACTIVE;
-
-        $this->payment->update([
-            'status' => $status
-        ]);
-
-        $this->info('Set Validation: ' . $status);
-
-        return !!$status;
+        $this->log_service = new LogService('payment');
+        $this->setProvider($provider);
+        $this->startPayment($order_id);
     }
     
     /**
      * @param int $order_id
      * @return void
     */
-    private function startPayment(int $order_id)
+    public function startPayment(int $order_id)
     {
         $payment                = new Payment;
         $payment->order_id      = $order_id;
-        $payment->supplier_id   = $this->payment_supplier->getSupplierID();
+        $payment->provider_id   = $this->payment_provider->getProviderID();
         $payment->status        = StatusService::IN_PROGRESS;
         $payment->save();
 
@@ -126,11 +58,14 @@ class PaymentService
     }
     
     /**
-     * @param string $log
+     * find the provider and set it
+     *
+     * @param string $provider
      * @return void
     */
-    private function info(string $log)
+    private function setProvider(string $provider)
     {
-        $this->log_service->info('Payment ID: ' . $this->payment->id . $log . ' | ');
+        $provider_class = self::PROVIDERS[$provider];
+        $this->payment_provider = new $provider_class;
     }
 }

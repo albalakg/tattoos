@@ -49,7 +49,7 @@ class CourseArea extends Model
     {
         return $this->hasMany(CourseLesson::class, 'course_area_id', 'id')
                     ->where('status', StatusService::ACTIVE)
-                    ->with('video', 'progress')
+                    ->with('video')
                     ->select('id', 'course_id', 'course_area_id', 'video_id', 'name', 'content');
     }
     

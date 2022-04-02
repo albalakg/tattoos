@@ -2,8 +2,10 @@
 
 namespace App\Domain\Content\Services;
 
-use App\Domain\Helpers\StatusService;
+use Illuminate\Support\Str;
 use App\Domain\Content\Models\Coupon;
+use App\Domain\Helpers\StatusService;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -24,9 +26,12 @@ class CouponService
   */
   public function getByCode(string $code): ?Coupon
   {
-    return Coupon::where('code', $code)
+    $coupon = Coupon::where('code', $code)
                  ->where('status', StatusService::ACTIVE)
+                 ->select('type', 'value')
                  ->first();
+    $coupon->type = '%';
+    return $coupon;
   }
   
   /**
@@ -47,7 +52,7 @@ class CouponService
   public function create(array $data, int $created_by): ?Coupon
   {
     $coupon             = new Coupon;
-    $coupon->code       = $data['code'];
+    $coupon->code       = $this->generateCode();
     $coupon->type       = $data['type'];
     $coupon->value      = $data['value'];
     $coupon->status     = StatusService::PENDING;
@@ -111,5 +116,20 @@ class CouponService
   private function baseQueryBuilder(): Builder
   {
     return Coupon::query();
+  }
+  
+  /**
+   * @return string
+  */   
+  private function generateCode(): string
+  {
+    for($attempt = 0; $attempt < 5; $attempt++) {
+      $code = strtoupper(Str::random(Coupon::CODE_LENGTH));
+      if(!Coupon::where('code', $code)->exists()) {
+        return $code;
+      }
+    }
+
+    throw new Exception('Failed to generate a code');
   }
 }
