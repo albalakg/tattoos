@@ -35,6 +35,16 @@ class TrainerController extends Controller
     }
   }
 
+  public function getTrainersForApp()
+  {
+    try {
+      $response = $this->trainer_service->getTrainersForApp();
+      return $this->successResponse('Trainers fetched', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
   public function create(CreateTrainerRequest $request)
   {
     try {

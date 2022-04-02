@@ -13,11 +13,11 @@ class Trainer extends Model
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
 
-    protected $appends = ['image'];
+    protected $appends = ['imageSrc'];
 
-    public function getImageAttribute()
+    public function getImageSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/images/' . $this->image_path;  
+        return config('app.url') . '/' . 'files/content/trainers/' . $this->image;  
     }
 
     public function courseAreas()

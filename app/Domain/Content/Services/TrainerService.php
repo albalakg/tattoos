@@ -58,6 +58,18 @@ class TrainerService implements IContentService
               ->orderBy('id', 'desc')
               ->get();
   }
+
+  /**
+   * @return Collection
+  */
+  public function getTrainersForApp(): Collection
+  {
+    return $this->baseQueryBuilder()
+              ->where('status', StatusService::ACTIVE)
+              ->orderBy('id', 'desc')
+              ->select('name', 'description', 'image')
+              ->get();
+  }
     
   /**
    * @param array $data

@@ -14,11 +14,11 @@ class Video extends Model
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
 
-    protected $appends = ['video'];
+    protected $appends = ['videoSrc'];
 
-    public function getVideoAttribute()
+    public function getVideoSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/videos/' . $this->video_path;  
+        return config('app.url') . '/' . 'files/videos/' . $this->video;  
     }
 
     public function lessons()
