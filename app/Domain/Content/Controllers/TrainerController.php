@@ -6,62 +6,50 @@ use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Content\Requests\DeleteRequest;
-use App\Domain\Content\Services\CouponService;
-use App\Domain\Content\Requests\GetCouponRequest;
-use App\Domain\Content\Requests\CreateCouponRequest;
-use App\Domain\Content\Services\CourseLessonService;
-use App\Domain\Content\Requests\UpdateCouponsRequest;
-use App\Domain\Content\Requests\UpdateCouponStatusRequest;
+use App\Domain\Content\Services\TrainerService;
+use App\Domain\Content\Requests\CreateTrainerRequest;
+use App\Domain\Content\Services\CourseAreaService;
+use App\Domain\Content\Requests\UpdateTrainerRequest;
 
 class TrainerController extends Controller
 {
   /**
-   * @var CouponService
+   * @var TrainerService
   */
-  private $coupon_service;
+  private $trainer_service;
   
   public function __construct()
   {
-    $this->coupon_service = new CouponService(
-      new CourseLessonService
+    $this->trainer_service = new TrainerService(
+      new CourseAreaService()
     );
   }
 
   public function getAll()
   {
     try {
-      $response = $this->coupon_service->getAll();
-      return $this->successResponse('Coupons fetched', $response);
-    } catch (Exception $ex) {
-      return $this->errorResponse($ex);
-    }
-  }
-  
-  public function getCoupon(GetCouponRequest $request)
-  {
-    try {
-      $response = $this->coupon_service->getByCode($request->input('code'));
-      return $this->successResponse('Coupon fetched', $response);
+      $response = $this->trainer_service->getAll();
+      return $this->successResponse('Trainers fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
   }
 
-  public function create(CreateCouponRequest $request)
+  public function create(CreateTrainerRequest $request)
   {
     try {
-      $response = $this->coupon_service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Coupon created', $response);
+      $response = $this->trainer_service->create($request->validated(), Auth::user()->id);
+      return $this->successResponse('Trainer created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
   }
 
-  public function updateStatus(UpdateCouponStatusRequest $request)
+  public function update(UpdateTrainerRequest $request)
   {
     try {
-      $response = $this->coupon_service->updateStatus($request->id, $request->status, Auth::user()->id);
-      return $this->successResponse('Coupon updated', $response);
+      $response = $this->trainer_service->update($request->validated(), Auth::user()->id);
+      return $this->successResponse('Trainer created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -70,12 +58,12 @@ class TrainerController extends Controller
   public function delete(DeleteRequest $request)
   {
     try {
-      $response = $this->coupon_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Coupons deleted', $response);
+      $response = $this->trainer_service->multipleDelete($request->ids, Auth::user()->id);
+      return $this->successResponse('Trainers deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,
-        $this->coupon_service->error_data
+        $this->trainer_service->error_data
       );
     }
   }
