@@ -7,6 +7,7 @@ use App\Domain\Content\Rules\StatusRule;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Domain\Content\Rules\CouponCodeRule;
 use App\Domain\General\Models\LuContentType;
+use App\Domain\Content\Rules\PaymentMethodRule;
 
 class CreateOrderRequest extends FormRequest
 {
@@ -21,7 +22,8 @@ class CreateOrderRequest extends FormRequest
             // For now only course is an available content
             'content_type_id'   => ['required', 'bail', new IDRule, 'size:' . LuContentType::COURSE],
             'content_id'        => ['required', 'bail', new IDRule],
-            'coupon_code'       => ['required', 'string', new CouponCodeRule]
+            'coupon_code'       => ['required', 'string', new CouponCodeRule],
+            'provider'          => ['required', new PaymentMethodRule]
         ];
     }
 }

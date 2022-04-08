@@ -4,21 +4,31 @@ namespace App\Domain\Payment\Services;
 
 use Exception;
 use App\Domain\Helpers\LogService;
+use App\Domain\Orders\Models\Order;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Payment\Models\Payment;
+use App\Domain\Payment\Services\Providers\PayPlus;
 use App\Domain\Payment\Interfaces\IPaymentProvider;
-use App\Domain\Payment\Services\Providers\CreditGuard;
 
 class PaymentService
 {
     const PROVIDERS = [
-        'creditGuard' => CreditGuard::class
+        'visa' => PayPlus::class
+    ];
+
+    const PAYMENT_METHODS = [
+        'visa'
     ];
 
     /**
      * @var Payment
     */
     private $payment;
+
+    /**
+     * @var Order
+    */
+    private $order;
     
     /**
      * @var LogService
@@ -31,30 +41,31 @@ class PaymentService
     private $payment_provider;
     
     /**
-     * @param int $order_id
+     * @param Order $order
      * @param string $provider
      * @return void
     */
-    public function __construct(int $order_id , string $provider)
+    public function __construct(Order $order , string $provider)
     {
         $this->log_service = new LogService('payment');
+        $this->order = $order;
         $this->setProvider($provider);
-        $this->startPayment($order_id);
     }
-    
+
     /**
-     * @param int $order_id
      * @return void
     */
-    public function startPayment(int $order_id)
+    public function pay()
     {
-        $payment                = new Payment;
-        $payment->order_id      = $order_id;
-        $payment->provider_id   = $this->payment_provider->getProviderID();
-        $payment->status        = StatusService::IN_PROGRESS;
-        $payment->save();
+        $this->startPayment();
 
-        $this->payment = $payment;
+        // add log
+        $payment_response = $this->payment_provider
+                                ->buildPayment($this->order)
+                                ->pay();
+        // add log
+
+        $this->updatePayment();
     }
     
     /**
@@ -67,5 +78,37 @@ class PaymentService
     {
         $provider_class = self::PROVIDERS[$provider];
         $this->payment_provider = new $provider_class;
+    }
+    
+    /**
+     * Create a record for the payment
+     *
+     * @return Payment
+    */
+    private function startPayment(): Payment
+    {
+        // add log
+        $payment                = new Payment;
+        $payment->order_id      = $this->order->id;
+        $payment->provider_id   = $this->payment_provider->getProviderID();
+        $payment->status        = StatusService::IN_PROGRESS;
+        $payment->save();
+
+        // add log
+        
+        return $this->payment = $payment;
+    }
+    
+    /**
+     * update the payment status
+     *
+     * @return void
+    */
+    private function updatePayment()
+    {
+        // add log
+        $this->payment->status = $this->payment_provider->isValid() ? StatusService::ACTIVE : StatusService::INACTIVE;
+        $this->payment->save();
+        // add log
     }
 }

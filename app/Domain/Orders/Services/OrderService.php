@@ -38,10 +38,9 @@ class OrderService
   */
   private $content_service;
 
-  public function __construct(UserService $user_service = null, PaymentService $payment_service = null, ContentService $content_service = null)
+  public function __construct(UserService $user_service = null, ContentService $content_service = null)
   {
     $this->user_service     = $user_service;
-    $this->payment_service  = $payment_service;
     $this->content_service  = $content_service;
     $this->log_service      = new LogService('orders');
   }
@@ -108,7 +107,7 @@ class OrderService
       throw new Exception('The requested content does not exists');
     }
 
-    if(isset($data['coupon_code']) && !$coupon = $this->content_service->getCoupon($data['coupon_code'])) {
+    if(!$coupon = $this->content_service->getCoupon($data['coupon_code'])) {
       throw new Exception('The requested coupon does not exists');
     }
 
@@ -122,7 +121,7 @@ class OrderService
     $order->order_number    = $this->generateOrderTicketNumber();
     $order->save();
 
-    $is_payment_valid = $this->payForTheOrder($order);
+    $is_payment_valid = $this->payForTheOrder($order, $data['provider']);
     
     $order->update([
       'status' => $is_payment_valid ? StatusService::ACTIVE : StatusService::INACTIVE
@@ -130,9 +129,8 @@ class OrderService
 
     if($is_payment_valid) {
       $this->user_service->assignCourseToUser($order);
+      event(new OrderCreatedEvent($order));
     }
-
-    event(new OrderCreatedEvent($order));
     
     return $order;
   }
@@ -158,14 +156,20 @@ class OrderService
   
   /**
    * @param Order $order
+   * @param string $provider
    * @return bool
   */
-  private function payForTheOrder(Order $order): bool
+  private function payForTheOrder(Order $order, string $provider): bool
   {
-    $this->payment_service->setPrice($order->price)
-                          ->pay();
+    try {
+      $this->payment_service = new PaymentService($order, $provider);
+      $this->payment_service->pay();
 
-    return $this->payment_service->isValid();
+      return true;
+    } catch(Exception $ex) {
+      $this->log_service->critical($ex);
+      return false;
+    }
   }
   
   /**
