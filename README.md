@@ -37,3 +37,8 @@
 # runs the application
 # run php artisan serve
 
+
+
+# A user to login
+# email     = demo@goldens.com
+# password  = goldensDemoPa55
