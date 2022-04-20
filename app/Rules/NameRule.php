@@ -10,6 +10,11 @@ class NameRule implements Rule
      * @var string
     */
     private $name;
+    
+    /**
+     * @var string
+    */
+    private $valid_chars= 'abcdefghijklmnopqrstuvwxyz012345679\'-_ אבגדהוזחטיכלמנסעפצקרשת';
 
     /**
      * Create a new rule instance.
@@ -33,6 +38,13 @@ class NameRule implements Rule
     {
         if(!is_string($value)) {
             return false;
+        }
+
+        $unique_chars = count_chars($value, 3);
+        for($index = 0; $index < strlen($unique_chars); $index++) {
+            if(!strpos($this->valid_chars, $unique_chars[$index])) {
+                return false;
+            }
         }
 
         $value_length = strlen($value);
