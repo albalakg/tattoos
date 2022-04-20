@@ -16,7 +16,7 @@ class CreateSupportTicketRequest extends FormRequest
 
     public function rules()
     {
-        return [
+    return [
             'support_category_id'   => ['required', 'bail', new IDRule, 'exists:support_categories,id'],
             'full_name'             => ['nullable', 'bail', new NameRule()],
             'email'                 => ['nullable', 'email'],
