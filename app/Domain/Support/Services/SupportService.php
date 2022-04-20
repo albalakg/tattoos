@@ -64,9 +64,9 @@ class SupportService
 
     $tickets = SupportTicket::query()
                 ->whereIn('user_id', $users_ids)
-                ->with('messages', 'category')
+                ->with('messages', 'category', 'user')
                 ->orderBy('id', 'desc')
-                ->select('id', 'support_category_id', 'support_number', 'title', 'description', 'status', 'file_path', 'created_at', 'finished_at')
+                ->select('id', 'support_category_id', 'support_number', 'user_id', 'email', 'full_name', 'description', 'status', 'file_path', 'created_at', 'finished_at')
                 ->get();
 
     foreach($tickets AS $ticket) {
@@ -119,7 +119,8 @@ class SupportService
     $support_ticket->user_id              = $user ? $user->id : null;
     $support_ticket->support_number       = $this->generateSupportTicketNumber();
     $support_ticket->support_category_id  = $data['support_category_id'];
-    $support_ticket->title                = $data['title'];
+    $support_ticket->full_name            = $data['full_name'];
+    $support_ticket->email                = $data['email'];
     $support_ticket->file_path            = !empty($data['file']) ? FileService::create($data['file'], self::SUPPORT_TICKET_MESSAGES_FILES_PATH) : null;
     $support_ticket->description          = $data['description'];
     $support_ticket->status               = StatusService::ACTIVE;
@@ -127,7 +128,6 @@ class SupportService
 
     return [
       'support_number' => $support_ticket->support_number,
-      'title' => $support_ticket->title,
       'created_at' => $support_ticket->created_at,
     ];
   }
