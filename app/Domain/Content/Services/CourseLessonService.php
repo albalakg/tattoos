@@ -4,12 +4,13 @@ namespace App\Domain\Content\Services;
 
 use Exception;
 use App\Domain\Helpers\LogService;
+use App\Domain\Helpers\FileService;
 use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
 use App\Domain\Content\Models\CourseLesson;
-use App\Domain\Helpers\DataManipulationService;
 use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Helpers\DataManipulationService;
 
 class CourseLessonService implements IContentService
 {
@@ -161,6 +162,7 @@ class CourseLessonService implements IContentService
     $lesson->course_id        = $this->course_area_service->getById($data['course_area_id'])->course_id;
     $lesson->course_area_id   = $data['course_area_id'];
     $lesson->video_id         = $data['video_id'];
+    $lesson->image            = FileService::create($data['image'], self::FILES_PATH);
     $lesson->name             = $data['name'];
     $lesson->content          = $data['content'];
     $lesson->status           = StatusService::PENDING;
@@ -181,6 +183,11 @@ class CourseLessonService implements IContentService
     if(!$lesson = CourseLesson::find($data['id'])) {
       throw new Exception('Course Lesson not found');
     };
+
+    if(!empty($data['image'])) {
+      FileService::delete($lesson->image);
+      $lesson->image        = FileService::create($data['image'], self::FILES_PATH);
+    }
 
     $lesson->course_id      = $this->course_area_service->getById($data['course_area_id'])->course_id;
     $lesson->course_area_id = $data['course_area_id'];
@@ -227,6 +234,7 @@ class CourseLessonService implements IContentService
   public function forceDelete(int $lesson_id, int $deleted_by): bool
   {
     if($lesson = $this->canDelete($lesson_id)) {
+      FileService::delete($lesson->image);
       return $lesson->forceDelete();
     }
   }

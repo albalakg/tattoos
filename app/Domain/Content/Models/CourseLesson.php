@@ -23,7 +23,7 @@ class CourseLesson extends Model
 
     public function getImageSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/content/lessons/' . $this->image;  
+        return config('app.url') . '/' . 'files/' . $this->image;  
     }
     
     public function progress()

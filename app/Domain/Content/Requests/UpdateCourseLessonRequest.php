@@ -22,6 +22,7 @@ class UpdateCourseLessonRequest extends FormRequest
             'course_area_id'    => ['required', 'bail', new IDRule, 'exists:course_areas,id'],
             'video_id'          => ['required', 'bail', new IDRule, 'exists:videos,id'],
             'status'            => ['required', new StatusRule],
+            'image'             => ['nullable', 'file', 'max:5000'],
             'content'           => ['nullable', 'string'],
         ];
     }
