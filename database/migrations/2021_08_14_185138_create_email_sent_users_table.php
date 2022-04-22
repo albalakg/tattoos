@@ -16,7 +16,7 @@ class CreateEmailSentUsersTable extends Migration
         Schema::create('email_sent_users', function (Blueprint $table) {
             $table->id();
             $table->integer('email_sent_id')->unsigned()->index();
-            $table->string('email', 150)->index();
+            $table->string('email', 120)->index();
         });
     }
 

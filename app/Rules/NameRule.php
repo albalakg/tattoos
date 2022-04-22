@@ -22,7 +22,7 @@ class NameRule implements Rule
      * @param string $name
      * @return void
      */
-    public function __construct(string $name = 'ID')
+    public function __construct(string $name = 'Name')
     {
         $this->name = $name;
     }
@@ -42,7 +42,12 @@ class NameRule implements Rule
 
         $unique_chars = count_chars($value, 3);
         for($index = 0; $index < strlen($unique_chars); $index++) {
-            if(!strpos($this->valid_chars, $unique_chars[$index])) {
+            $char = $unique_chars[$index];
+            if(is_string($char)) {
+                $char = strtolower($char);
+            }
+
+            if(strpos($this->valid_chars, $char) === false) {
                 return false;
             }
         }

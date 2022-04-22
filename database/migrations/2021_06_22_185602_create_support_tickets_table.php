@@ -17,8 +17,8 @@ class CreateSupportTicketsTable extends Migration
             $table->id();
             $table->integer('support_category_id')->unsigned()->index();
             $table->integer('user_id')->unsigned()->index()->nullable();
-            $table->integer('full_name')->index()->nullable();
-            $table->integer('email')->index()->nullable();
+            $table->string('full_name', 40)->index()->nullable();
+            $table->string('email', 120)->index()->nullable();
             $table->string('support_number', 10);
             $table->text('description');
             $table->integer('status')->unsigned()->index();

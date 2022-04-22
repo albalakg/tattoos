@@ -127,6 +127,7 @@ class CourseService implements IContentService
     $course->created_by   = $created_by;
     $course->save();
 
+    $course->category_name = $course->category->name;
     return $course;
   }
 

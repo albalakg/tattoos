@@ -15,7 +15,7 @@ class CreateUserLogAttemptsTable extends Migration
     {
         Schema::create('user_log_attempts', function (Blueprint $table) {
             $table->id();
-            $table->string('email', 100);
+            $table->string('email', 120);
             $table->string('user_agent', 200);
             $table->string('ip', 50);
             $table->integer('status')->index()->unsigned();
