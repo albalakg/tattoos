@@ -100,7 +100,7 @@ class MailService
    * @param mixed $emails
    * @return void
   */
-  private function setReceivers(mixed $emails)
+  private function setReceivers($emails)
   {
     if(is_string($emails)) {
       $this->receivers = [$emails];

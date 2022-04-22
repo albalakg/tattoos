@@ -358,6 +358,7 @@ class UserService
   */
   public function updateProfile(array $data, ?int $updated_by)
   {
+    dd(123);
     $user = UserDetail::where('user_id', $data['id'])->first();
     $user->first_name = $data['first_name'];
     $user->last_name  = $data['last_name'];
