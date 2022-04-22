@@ -90,10 +90,6 @@ class RouteServiceProvider extends ServiceProvider
             ->middleware('throttle:100,10', 'guest')
             ->group(base_path("routes/groups/auth.php"));
             
-        Route::prefix('api/trainers')
-            ->namespace($this->namespace)
-            ->group(base_path("routes/groups/app/trainers.php"));
-            
         Route::prefix('api/profile')
             ->namespace($this->namespace)
             ->group(base_path("routes/groups/app/profile.php"));
@@ -113,9 +109,9 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace($this->getNamespace('Users'))
             ->group(base_path("routes/groups/app/orders.php"));
         
-        Route::prefix('api/course-categories')
+        Route::prefix('api/content')
             ->namespace($this->namespace)
-            ->group(base_path("routes/groups/app/coursesCategories.php"));
+            ->group(base_path("routes/groups/app/content.php"));
     }
     
     /**

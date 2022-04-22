@@ -93,6 +93,22 @@ class CourseLessonService implements IContentService
               ->orderBy('course_lessons.id', 'desc')
               ->get();
   }
+
+  /**
+   * @return Collection
+   * 
+   * @param int $lessons
+   * @param int $status
+  */
+  public function getRandomActiveLessons(int $lessons = 4, int $status = 1): Collection
+  {
+    return CourseLesson::query()
+              ->limit($lessons)
+              ->inRandomOrder()
+              ->where('status', $status)
+              ->select('name', 'content', 'image')
+              ->get();
+  }
   
   /**
    * @param array $lessons_ids

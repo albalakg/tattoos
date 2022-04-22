@@ -35,6 +35,16 @@ class CourseLessonController extends Controller
     }
   }
 
+  public function getRandomActiveLessons()
+  {
+    try {
+      $response = $this->lesson_service->getRandomActiveLessons();
+      return $this->successResponse('Lessons fetched', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
   public function create(CreateCourseLessonRequest $request)
   {
     try {
