@@ -16,7 +16,7 @@ class CreateCourseAreasTable extends Migration
         Schema::create('course_areas', function (Blueprint $table) {
             $table->id();
             $table->integer('course_id')->unsigned()->index();
-            $table->integer('trainer_id')->unsigned()->index();
+            $table->integer('trainer_id')->unsigned()->index()->nullable();
             $table->string('name', 100);
             $table->text('description');
             $table->string('image', 100);

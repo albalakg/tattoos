@@ -116,10 +116,12 @@ class CourseAreaService implements IContentService
     $course_area->created_by   = $created_by;
     $course_area->save();
 
-    $result = $this->assignLessons($course_area, $data['lessons']);
-    if(!$result) {
-      $this->forceDelete($course_area->id, $created_by);
-      throw new Exception('Failed to create Course Area, failed to find the assigned lessons');
+    if(!empty($data['lessons'])) {
+      $result = $this->assignLessons($course_area, $data['lessons']);
+      if(!$result) {
+        $this->forceDelete($course_area->id, $created_by);
+        throw new Exception('Failed to create Course Area, failed to find the assigned lessons');
+      }
     }
 
     $course_area->load('category');
