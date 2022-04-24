@@ -19,12 +19,12 @@ class CourseArea extends Model
 
     public function getImageSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/content/courses-areas/' . $this->image;  
+        return config('app.url') . '/' . 'files/' . $this->image;  
     }
 
     public function getTrailerSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/content/courses-areas/' . $this->trailer;  
+        return config('app.url') . '/' . 'files/' . $this->trailer;  
     }
 
     public function course()
@@ -50,7 +50,7 @@ class CourseArea extends Model
         return $this->hasMany(CourseLesson::class, 'course_area_id', 'id')
                     ->where('status', StatusService::ACTIVE)
                     ->with('video')
-                    ->select('id', 'course_id', 'course_area_id', 'video_id', 'name', 'content');
+                    ->select('id', 'course_id', 'course_area_id', 'video_id', 'name', 'content', 'image');
     }
     
     public function inactiveLessons()

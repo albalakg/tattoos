@@ -72,6 +72,18 @@ class CourseService implements IContentService
                   ->orderBy('courses.id', 'desc')
                   ->get();
   }
+  
+  /**
+   * @param int $course_id
+   * @return Course
+  */
+  public function getGuestCourseById(int $course_id): Course
+  {
+    return  Course::where('id', $course_id)
+                  ->with('activeAreasWithActiveLessons', 'category', 'details')
+                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order')
+                  ->first();
+  }
 
   /**
    * @param int $category_id

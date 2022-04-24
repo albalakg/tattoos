@@ -18,6 +18,7 @@ class CreateVideosTable extends Migration
             $table->string('name', 40)->unique();
             $table->text('description')->nullable();
             $table->integer('status')->unsigned()->index();
+            $table->integer('video_length')->index()->unsigned();
             $table->string('video_path', 100);
             $table->timestamps();
             $table->softDeletes();

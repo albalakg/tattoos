@@ -2,15 +2,14 @@
 
 namespace App\Domain\Content\Controllers;
 
-use App\Domain\Content\Models\CourseArea;
 use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Domain\Content\Services\CourseService;
-use App\Domain\Content\Requests\CreateCourseRequest;
 use App\Domain\Content\Requests\DeleteRequest;
-use App\Domain\Content\Requests\UpdateCourseRequest;
+use App\Domain\Content\Services\CourseService;
 use App\Domain\Content\Services\CourseAreaService;
+use App\Domain\Content\Requests\CreateCourseRequest;
+use App\Domain\Content\Requests\UpdateCourseRequest;
 
 class CourseController extends Controller
 {  
@@ -24,6 +23,16 @@ class CourseController extends Controller
     $this->course_service = new CourseService(
       new CourseAreaService()
     );
+  }
+
+  public function getCourse($id)
+  {
+    try {
+      $response = $this->course_service->getGuestCourseById($id);
+      return $this->successResponse('Course created', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
   }
 
   public function create(CreateCourseRequest $request)

@@ -17,7 +17,7 @@ class Trainer extends Model
 
     public function getImageSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/content/trainers/' . $this->image;  
+        return config('app.url') . '/' . 'files/' . $this->image;  
     }
 
     public function courseAreas()
