@@ -8,16 +8,12 @@ use Illuminate\Support\Str;
 use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
-use App\Domain\Helpers\MailService;
 use Illuminate\Support\Facades\Hash;
 use App\Domain\Helpers\StatusService;
 use App\Events\Users\UserCreatedEvent;
 use App\Events\Users\UserDeletedEvent;
 use App\Domain\Users\Models\UserCourse;
 use App\Domain\Users\Models\UserDetail;
-use App\Domain\Users\Models\UserFavorite;
-use App\Mail\User\UpdateEmailRequestMail;
-use App\Domain\General\Models\LuContentType;
 use App\Domain\Orders\Services\OrderService;
 use App\Events\Users\UserResetPasswordEvent;
 use Illuminate\Database\Eloquent\Collection;
@@ -133,9 +129,9 @@ class UserService
   /**
    * @param Object $user
    * @param int $status
-   * @return Collection
+   * @return Collection|null
   */
-  public function getUserCourses(Object $user, int $status = null): Collection
+  public function getUserCourses(Object $user, int $status = null): ?Collection
   {
     $user_courses = UserCourse::where('user_id', $user->id);
     if(!is_null($status)) {

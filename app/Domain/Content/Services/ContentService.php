@@ -9,7 +9,6 @@ use App\Domain\Content\Models\Course;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Services\CourseLessonService;
 
-
 /**
  * The content service is the SDK for all content related requests
 */
