@@ -286,6 +286,7 @@ class CourseLessonService implements IContentService
               'course_areas.name AS course_area_name',
               'course_categories.name AS course_category_name',
               'videos.video_path',
+              'videos.video_length',
             );
   }
 }

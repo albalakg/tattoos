@@ -41,7 +41,7 @@ class CourseLesson extends Model
     public function video()
     {
         return $this->hasOne(Video::class, 'id', 'video_id')
-                    ->select('id', 'video_path');
+                    ->select('id', 'video_path', 'video_length');
     }
 
     public function ranks()
