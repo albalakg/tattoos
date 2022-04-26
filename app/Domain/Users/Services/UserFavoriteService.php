@@ -6,6 +6,7 @@ use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Users\Models\UserFavorite;
 use Illuminate\Database\Eloquent\Builder;
+use App\Domain\Content\Models\CourseLesson;
 use App\Domain\General\Models\LuContentType;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Services\ContentService;
@@ -38,9 +39,9 @@ class UserFavoriteService
    * @param int $content_id
    * @param int $user_id
    * @param int $content_type_id
-   * @return bool
+   * @return CourseLesson|null
   */
-  public function addToFavorite(int $content_id, int $user_id, int $content_type_id = LuContentType::LESSON): bool
+  public function addToFavorite(int $content_id, int $user_id, int $content_type_id = LuContentType::LESSON): ?CourseLesson
   {
     if($this->isFavoriteContentExists($content_id, $user_id, $content_type_id)) {
       $content_name = LuContentType::CONTENT_TYPES_NAME[$content_type_id];
@@ -54,7 +55,7 @@ class UserFavoriteService
     $user_favorite->created_at        = now();
     $user_favorite->save();
                                 
-    return true;
+    return $this->getUserFavoriteSingleContent($user_id, $content_id);
   }
 
   /**
@@ -84,6 +85,27 @@ class UserFavoriteService
   {
     $favorite_content_ids = UserFavorite::where('user_id', $user->id)->pluck('content_id')->toArray();
     return $this->content_service->getLessonsByIds($favorite_content_ids);
+  }
+  
+  /**
+   * @param int $user_id
+   * @param int $content_id
+   * @return CourseLesson
+  */
+  public function getUserFavoriteSingleContent(int $user_id, int $content_id): CourseLesson
+  {
+    $favorite_content_ids = UserFavorite::where('user_id', $user_id)
+                                        ->where('content_id', $content_id)
+                                        ->pluck('content_id')
+                                        ->toArray();
+
+    $lessons = $this->content_service->getLessonsByIds($favorite_content_ids);
+
+    if(count($lessons)) {
+      return $lessons[0];
+    }
+
+    return $lessons;
   }
   
   /**

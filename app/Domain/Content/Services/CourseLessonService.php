@@ -68,6 +68,18 @@ class CourseLessonService implements IContentService
   }
 
   /**
+   * @param int $course_id
+   * @return Collection
+  */
+  public function getLessonsDurationByCourseId(int $course_id): Collection
+  {
+    return CourseLesson::where('course_id', $course_id)
+                        ->join('videos', 'videos.id', 'course_lessons.video_id')
+                        ->select('course_lessons.id', 'video_length')
+                        ->get();
+  }
+
+  /**
    * @param int $lesson_id
    * @return bool
   */

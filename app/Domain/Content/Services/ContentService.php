@@ -68,6 +68,21 @@ class ContentService
       return null;
     }
   }
+
+  /**
+   * @param int $course_id
+   * @return Collection|null
+  */
+  public function getLessonsDurationByCourseId(int $course_id): ?Collection
+  {
+    try {
+      $lesson_service = new CourseLessonService;
+      return $lesson_service->getLessonsDurationByCourseId($course_id);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return null;
+    }
+  }
   
   /**
    * @param int $lesson_id

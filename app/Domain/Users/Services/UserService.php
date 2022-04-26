@@ -198,10 +198,57 @@ class UserService
     }
 
     if($user_lesson = $this->getUserLesson($user_id, $lesson_id)) {
-      return $this->updateLessonProgress($user_lesson, $progress, $user_id);
+      $lesson_progress = $this->updateLessonProgress($user_lesson, $progress, $user_id);
+    } else {
+      $lesson_progress = $this->createLessonProgress($lesson_id, $user_id, $progress);
     }
 
-    return $this->createLessonProgress($lesson_id, $user_id, $progress);
+    $course_id = $this->content_service->getLessonCourseId($lesson_id);
+    $this->updateUserCourseProgress($course_id, $lesson_progress->user_course_id);
+
+    return $lesson_progress;
+  }
+  
+  /**
+   * @param int $course_id
+   * @param int $user_course_id
+   * @return void
+  */
+  public function updateUserCourseProgress(int $course_id, int $user_course_id)
+  {
+    try {
+      $lessons                = $this->content_service->getLessonsDurationByCourseId($course_id);
+      $lessons_durations      = $lessons->pluck('video_length')->toArray();
+      $total_course_duration  = array_sum($lessons_durations);
+      $user_total_viewed_time = 0;
+      
+      $user_lessons_progress = UserCourseLesson::where('user_course_id', $user_course_id)
+                                                ->select('course_lesson_id', 'progress')
+                                                ->get();
+
+      for($course_lesson_index = 0; $course_lesson_index < count($lessons); $course_lesson_index++) {
+        $lesson = $lessons[$course_lesson_index];
+        
+        for($user_lesson_index = 0; $user_lesson_index < count($user_lessons_progress); $user_lesson_index++) {
+          $user_lesson = $user_lessons_progress[$user_lesson_index];
+          
+          if($lesson->id === $user_lesson->course_lesson_id) {
+            // calc the user progress in that lesson
+            $user_total_viewed_time += $lesson->video_length * ( $user_lesson->progress / 100 );
+            break;
+          }
+          
+        }
+        
+      }
+      
+      $user_course_progress = $user_total_viewed_time * 100 / $total_course_duration;
+      UserCourse::where('id', $user_course_id)->update([
+        'progress' => $user_course_progress
+      ]);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+    }
   }
   
   /**
@@ -741,14 +788,5 @@ class UserService
     $user_lesson->save();  
 
     return $user_lesson;
-  }
-  
-  /**
-   * @param int $progress
-   * @return int
-  */
-  private function getStatusFromProgress(int $progress): int
-  {
-    return $progress === 100 ? 1 : 0;
   }
 }

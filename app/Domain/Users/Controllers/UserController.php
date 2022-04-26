@@ -222,7 +222,7 @@ class UserController extends Controller
   {
     try {
       $user_service = new UserFavoriteService(
-        null,
+        new ContentService,
         new UserService()
       );
 
