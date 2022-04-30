@@ -753,7 +753,7 @@ class UserService
       return $user_lesson;
     }
 
-    if($user_lesson->progress === $progress) {
+    if($user_lesson->progress >= $progress) {
       return $user_lesson;
     }
     
