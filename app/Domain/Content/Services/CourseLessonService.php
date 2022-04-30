@@ -5,6 +5,7 @@ namespace App\Domain\Content\Services;
 use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
+use App\Domain\Content\Models\Video;
 use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
@@ -41,6 +42,20 @@ class CourseLessonService implements IContentService
     return CourseLesson::where('video_id', $video_id)
                       ->select('id', 'name', 'status')
                       ->get();
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @return Video
+  */
+  public function getVideoByLessonId(int $lesson_id): Video
+  {
+    $lesson = CourseLesson::where('id', $lesson_id)
+                      ->with('video')
+                      ->select('id', 'video_id')
+                      ->first();
+
+    return $lesson->video;
   }
   
   /**

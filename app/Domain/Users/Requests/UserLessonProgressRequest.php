@@ -15,8 +15,9 @@ class UserLessonProgressRequest extends FormRequest
     public function rules()
     {
         return [
-            'lesson_id' => ['required', new IDRule('lesson')],
-            'progress'  => 'required|numeric|between:0,100'
+            'lesson_id'     => ['required', new IDRule('lesson')],
+            'start_time'    => 'required|numeric|between:0,10000',
+            'end_time'      => 'required|numeric|between:0,10000',
         ];
     }
 }

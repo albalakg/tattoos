@@ -5,7 +5,7 @@ namespace App\Domain\Users\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Domain\Users\Models\UserCourseLesson;
 
-class UserCourseLessonUpdate extends Model
+class UserCourseLessonWatch extends Model
 {
   protected $casts = [
     'created_at'  => 'datetime:Y-m-d H:i:s',

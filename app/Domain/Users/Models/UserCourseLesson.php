@@ -30,12 +30,12 @@ class UserCourseLesson extends Model
 
   public function updates()
   {
-    return $this->hasMany(UserCourseLessonUpdate::class, 'user_course_lesson_id', 'id');
+    return $this->hasMany(UserCourseLessonWatch::class, 'user_course_lesson_id', 'id');
   }
 
   public function lastUpdate()
   {
-    return $this->hasOne(UserCourseLessonUpdate::class, 'user_course_lesson_id', 'id')
+    return $this->hasOne(UserCourseLessonWatch::class, 'user_course_lesson_id', 'id')
                 ->orderBy('id', 'desc');
   }
 

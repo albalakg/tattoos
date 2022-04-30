@@ -6,6 +6,7 @@ use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Content\Models\Coupon;
 use App\Domain\Content\Models\Course;
+use App\Domain\Content\Models\Video;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Services\CourseLessonService;
 
@@ -126,6 +127,21 @@ class ContentService
     } catch(Exception $ex) {
       $this->log_service->error($ex);
       return false;
+    }
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @return Video|null
+  */
+  public function getVideoByLessonId(int $lesson_id): ?Video
+  {
+    try {
+      $coupon_service = new CourseLessonService;
+      return $coupon_service->getVideoByLessonId($lesson_id);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return null;
     }
   }
 }

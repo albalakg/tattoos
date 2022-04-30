@@ -67,7 +67,7 @@ class User extends Authenticatable
   
   public function lastActiveLesson()
   {
-    return $this->hasOne(UserCourseLessonUpdate::class, 'user_id', 'id')
+    return $this->hasOne(UserCourseLessonWatch::class, 'user_id', 'id')
                 ->with('userCourse')
                 ->orderBy('id', 'desc');
   }

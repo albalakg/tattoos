@@ -257,7 +257,7 @@ class UserController extends Controller
         new ContentService
       );
       
-      $response = $user_service->setLessonProgress($request->lesson_id, Auth::user()->id, $request->progress);
+      $response = $user_service->setLessonProgress($request->validated(), Auth::user()->id);
       return $this->successResponse('Set the user\'s lesson progress', $response);
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
