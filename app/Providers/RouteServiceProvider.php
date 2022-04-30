@@ -94,11 +94,6 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace($this->namespace)
             ->group(base_path("routes/groups/app/profile.php"));
 
-        Route::prefix('api/users')
-            ->middleware('auth:api')
-            ->namespace($this->getNamespace('Users'))
-            ->group(base_path("routes/groups/app/users.php"));
-
         Route::prefix('api/support')
             ->middleware($this->optional_middleware)
             ->namespace($this->getNamespace('Users'))
