@@ -73,9 +73,10 @@ class UserController extends Controller
     }
   }
 
-  public function create(CreateUserRequest $request, UserService $user_service)
+  public function create(CreateUserRequest $request)
   {
     try {
+      $user_service = new UserService;
       $response = $user_service->createUserByAdmin($request->validated(), Auth::user()->id);
       return $this->successResponse('User created', $response);
     } catch (Exception $ex) {
@@ -84,9 +85,10 @@ class UserController extends Controller
     }
   }
 
-  public function updateUser(UpdateUserRequest $request, UserService $user_service)
+  public function updateUser(UpdateUserRequest $request)
   {
     try {
+      $user_service = new UserService;
       $response = $user_service->updateUser($request->validated(), Auth::user()->id);
       return $this->successResponse('User updated', $response);
     } catch (Exception $ex) {
@@ -95,9 +97,10 @@ class UserController extends Controller
     }
   }
 
-  public function updateProfile(UpdateProfileRequest $request, UserService $user_service)
+  public function updateProfile(UpdateProfileRequest $request)
   {
     try {
+      $user_service = new UserService;
       $updated_user = $user_service->updateProfile($request->validated(), Auth::user()->id);
       return $this->successResponse('User updated', $updated_user);
     } catch (Exception $ex) {

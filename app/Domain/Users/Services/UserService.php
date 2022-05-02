@@ -196,7 +196,9 @@ class UserService
       throw new Exception('User doesn\'t have access to the lesson: ' . $data['lesson_id']);
     }
 
-    $progress = $this->calcVideoProgress($data['end_time'], $data['lesson_id']);
+    $video = $this->content_service->getVideoByLessonId($data['lesson_id']);
+    $end_time = $data['end_time'] > $video->video_length ? $video->video_length : $data['end_time'];
+    $progress = $this->calcVideoProgress($video->video_length, $end_time);
 
     if($user_lesson = $this->getUserLesson($user_id, $data['lesson_id'])) {
       $user_lesson = $this->updateLessonProgress($user_lesson, $progress, $user_id);
@@ -204,7 +206,7 @@ class UserService
       $user_lesson = $this->createLessonProgress($data['lesson_id'], $user_id, $progress);
     }
 
-    $this->setLessonWatchRecord($user_lesson, $data['start_time'], $data['end_time']);
+    $this->setLessonWatchRecord($user_lesson, $data['start_time'], $end_time);
 
     $course_id = $this->content_service->getLessonCourseId($data['lesson_id']);
     $this->updateUserCourseProgress($course_id, $user_lesson->user_course_id);
@@ -311,8 +313,9 @@ class UserService
       $user->save();
 
       $data['user_id']    = $user->id;
-      $this->createUserDetails($data);
-      
+      $this->log_service->info('User ' . $user['id'] . ' has been created by ' . $created_by);
+      $this->createUserDetails($data, $created_by);
+
       return $user;
     } catch(Exception $ex) {
       if(isset($user) && $user) {
@@ -350,27 +353,28 @@ class UserService
     $user->updated_by = $data['updated_by'];
     $user->save();
 
-    $this->updateUserDetails($data);
+    $this->log_service->info('User ' . $data['id'] . ', main data was updated by ' . $updated_by);
+
+    $this->updateUserDetails($data, $updated_by);
 
     return $data;
   }
     
   /**
    * @param array $data
-   * @param int|null $updated_by
+   * @param null $user_id
    * @return User|null
   */
-  public function updateProfile(array $data, ?int $updated_by)
+  public function updateProfile(array $data, int $user_id)
   {
-    dd(123);
-    $user = UserDetail::where('user_id', $data['id'])->first();
+    $user = UserDetail::where('user_id', $user_id)->first();
     $user->first_name = $data['first_name'];
     $user->last_name  = $data['last_name'];
     $user->phone      = $data['phone'];
     $user->gender     = $data['gender'];
-    $user->birth_date = $data['birth_date'];
-    $user->updated_by = $updated_by;
     $user->save();
+
+    $this->log_service->info('User ' . $user_id . ', updated his profile');
 
     return $user;
   }
@@ -408,16 +412,17 @@ class UserService
    * Create a record for the user's details
    *
    * @param array $data
+   * @param int $updated_by
    * @return UserDetail|null
    */
-  public function updateUserDetails(array $data): ?UserDetail
+  public function updateUserDetails(array $data, int $updated_by): ?UserDetail
   {
     if(!$user_details = UserDetail::where('user_id', $data['user_id'])->first()) {
       throw new Exception('Failed to find user');
     }
 
     $this->saveUserDetails($user_details, $data);
-    $this->log_service->info('User ' . $data['user_id'] . ', details were updated');
+    $this->log_service->info('User ' . $data['user_id'] . ', details were updated by ' . $updated_by);
     
     return $user_details;
   }
@@ -655,14 +660,15 @@ class UserService
   
   /**
    * @param array $data
+   * @param int|null $created_by
    * @return UserDetail
   */
-  private function createUserDetails(array $data): UserDetail
+  private function createUserDetails(array $data, ?int $created_by = null): UserDetail
   {
     $user_details             = new UserDetail();
     $user_details->user_id    = $data['user_id'];
     $this->saveUserDetails($user_details, $data);
-    $this->log_service->info('User ' . $data['user_id'] . ', details were created');
+    $this->log_service->info('User ' . $data['user_id'] . ', details were created by ' . $created_by ?? $data['user_id']);
     
     return $user_details;
   }
@@ -760,14 +766,13 @@ class UserService
   }
   
   /**
+   * @param float $video_length
    * @param float $end_time
-   * @param int $lesson_id
    * @return int
   */
-  private function calcVideoProgress(float $end_time, int $lesson_id): int
+  private function calcVideoProgress(float $video_length, float $end_time): int
   {
-    $video = $this->content_service->getVideoByLessonId($lesson_id);
-    $progress = (int) ($end_time * 100) / $video->video_length;
+    $progress = (int) ($end_time * 100) / $video_length;
     return $progress < 100 ? $progress : 100;
   }
   
