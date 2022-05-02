@@ -39,7 +39,7 @@ class UserCourse extends Model
   public function lessonsProgress()
   {
     return $this->hasMany(UserCourseLesson::class, 'user_course_id', 'id')
-                ->select('id', 'user_course_id', 'course_lesson_id', 'progress', 'created_at', 'progress');
+                ->select('id', 'user_course_id', 'course_lesson_id', 'progress', 'finished_at', 'progress');
   }
 
   public function finishedLessons()
