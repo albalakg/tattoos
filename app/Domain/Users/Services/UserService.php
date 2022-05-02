@@ -721,7 +721,9 @@ class UserService
     }
 
     $user_lesson->update([
-      'progress' => $progress,
+      'progress'    => $progress,
+      'finished_at' => $progress === 100 ? now() : null,
+      
     ]);
 
     return $user_lesson;
@@ -741,6 +743,11 @@ class UserService
     $user_lesson->user_id           = $user_id;
     $user_lesson->progress          = $progress;
     $user_lesson->created_at        = now();
+
+    if($progress === 100) {
+      $user_lesson->finished_at     = now();
+    }
+    
     $user_lesson->save();  
 
     return $user_lesson;
