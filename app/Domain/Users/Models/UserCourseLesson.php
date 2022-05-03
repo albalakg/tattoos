@@ -12,6 +12,7 @@ class UserCourseLesson extends Model
   
   protected $casts = [
     'created_at'  => 'datetime:Y-m-d H:i:s',
+    'finished_at'  => 'datetime:Y-m-d',
   ];
 
   protected $guarded = [];

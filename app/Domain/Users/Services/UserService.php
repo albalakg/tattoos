@@ -559,6 +559,8 @@ class UserService
       return;
     }
 
+    // TODO: add check to see if already has an open request 
+
     $this->saveEmailVerification($user, $email);
   }
     
