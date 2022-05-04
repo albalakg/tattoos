@@ -19,7 +19,7 @@ class CreateUserCoursesTable extends Migration
             $table->integer('user_id')->unsigned()->index();
             $table->integer('progress')->unsigned()->index();
             $table->integer('status')->unsigned()->index();
-            $table->dateTime('end_at');
+            $table->date('end_at');
             $table->integer('created_by')->unsigned()->index();
             $table->timestamps();
         });
