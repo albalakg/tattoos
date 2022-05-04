@@ -782,7 +782,11 @@ class UserService
   private function calcVideoProgress(float $video_length, float $end_time): int
   {
     $progress = (int) ($end_time * 100) / $video_length;
-    return $progress < 100 ? $progress : 100;
+    if($progress > 100 || $progress >= 95) {
+      return 100;
+    }
+
+    return $progress;
   }
   
   /**
