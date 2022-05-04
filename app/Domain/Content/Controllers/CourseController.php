@@ -25,6 +25,16 @@ class CourseController extends Controller
     );
   }
 
+  public function getGuestActiveCourses()
+  {
+    try {
+      $response = $this->course_service->getGuestActiveCourses();
+      return $this->successResponse('Course created', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
   public function getCourse($id)
   {
     try {

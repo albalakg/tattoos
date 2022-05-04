@@ -43,6 +43,12 @@ class CourseLesson extends Model
         return $this->hasOne(Video::class, 'id', 'video_id')
                     ->select('id', 'video_path', 'video_length');
     }
+    
+    public function guestVideo()
+    {
+        return $this->hasOne(Video::class, 'id', 'video_id')
+                    ->select('id', 'video_length');
+    }
 
     public function ranks()
     {

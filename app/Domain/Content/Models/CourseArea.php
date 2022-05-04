@@ -45,6 +45,14 @@ class CourseArea extends Model
         return $this->hasMany(CourseLesson::class, 'course_area_id', 'id');
     }
     
+    public function guestActiveLessons()
+    {
+        return $this->hasMany(CourseLesson::class, 'course_area_id', 'id')
+                    ->where('status', StatusService::ACTIVE)
+                    ->with('guestVideo')
+                    ->select('id', 'course_id', 'course_area_id', 'video_id', 'name', 'content', 'image');
+    }
+    
     public function activeLessons()
     {
         return $this->hasMany(CourseLesson::class, 'course_area_id', 'id')

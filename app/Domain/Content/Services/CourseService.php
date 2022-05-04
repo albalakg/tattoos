@@ -74,13 +74,24 @@ class CourseService implements IContentService
   }
   
   /**
+   * @return Collection
+  */
+  public function getGuestActiveCourses(): Collection
+  {
+    return  Course::with('guestActiveAreasWithActiveLessons', 'category', 'details')
+                  ->where('status', StatusService::ACTIVE)
+                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order')
+                  ->get();
+  }
+  
+  /**
    * @param int $course_id
    * @return Course
   */
   public function getGuestCourseById(int $course_id): Course
   {
     return  Course::where('id', $course_id)
-                  ->with('activeAreasWithActiveLessons', 'category', 'details')
+                  ->with('guestActiveAreasWithActiveLessons', 'category', 'details')
                   ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order')
                   ->first();
   }

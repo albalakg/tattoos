@@ -9,4 +9,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('course-categories', [CourseCategoryController::class, 'getActive']);
 Route::get('lessons', [CourseLessonController::class, 'getRandomActiveLessons']);
 Route::get('trainers', [TrainerController::class, 'getTrainersForApp']);
-Route::get('course/{id}', [CourseController::class, 'getCourse']);
+Route::get('courses', [CourseController::class, 'getGuestActiveCourses']);
+Route::get('courses/{id}', [CourseController::class, 'getCourse']);
