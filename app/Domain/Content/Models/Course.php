@@ -96,7 +96,7 @@ class Course extends Model
         return $this->hasMany(CourseArea::class, 'course_id', 'id')
                     ->where('status', StatusService::ACTIVE)
                     ->with('guestActiveLessons')
-                    ->select('id', 'name', 'course_id', 'description', 'view_order', 'image');
+                    ->select('id', 'name', 'course_id', 'description', 'view_order', 'image', 'trailer');
     }
 
     public function activeAreasWithActiveLessons()
