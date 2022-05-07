@@ -201,9 +201,8 @@ class OrderService
    * @param object|null $coupon
    * @return void
   */
-  private function getOrderPrice(object $course, object $coupon = null)
+  private function getOrderPrice(object $course, ?object $coupon = null)
   {
-    $total_price      = $course->price;
     $course_discount  = 0;
     $coupon_discount  = 0;
     $taxes            = 1.17;
@@ -213,11 +212,11 @@ class OrderService
     }
 
     if($coupon) {
-      $coupon_discount =  $coupon->type === '%'      ? 
+      $coupon_discount =  $coupon->type === '%' ? 
                           ($coupon->value / 100) * $course->price : 
                           $coupon->value;
     }
     
-    return floor(($total_price - $course_discount - $coupon_discount) * $taxes);
+    return floor(($course->price - $course_discount - $coupon_discount) * $taxes);
   }
 }
