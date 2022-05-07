@@ -111,7 +111,7 @@ class ContentService
       return $course_service->getCourse($course_id);
     } catch(Exception $ex) {
       $this->log_service->error($ex);
-      return false;
+      return null;
     }
   }
   
@@ -126,7 +126,7 @@ class ContentService
       return $coupon_service->getByCode($coupon_code);
     } catch(Exception $ex) {
       $this->log_service->error($ex);
-      return false;
+      return null;
     }
   }
   

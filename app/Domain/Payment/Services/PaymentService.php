@@ -2,28 +2,20 @@
 
 namespace App\Domain\Payment\Services;
 
-use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Orders\Models\Order;
-use App\Domain\Helpers\StatusService;
-use App\Domain\Payment\Models\Payment;
-use App\Domain\Payment\Services\Providers\PayPlus;
+use App\Domain\Payment\Services\Providers\PayPlusProvider;
 use App\Domain\Payment\Interfaces\IPaymentProvider;
 
 class PaymentService
 {
     const PROVIDERS = [
-        'visa' => PayPlus::class
+        'visa' => PayPlusProvider::class
     ];
 
     const PAYMENT_METHODS = [
         'visa'
     ];
-
-    /**
-     * @var Payment
-    */
-    private $payment;
 
     /**
      * @var Order
@@ -55,17 +47,18 @@ class PaymentService
     /**
      * @return void
     */
-    public function pay()
+    public function startTransaction()
     {
         $this->startPayment();
 
-        // add log
-        $payment_response = $this->payment_provider
-                                ->buildPayment($this->order)
-                                ->pay();
-        // add log
+        $this->log_service->info(('Order ' . $this->order->id . ' starting building payment'));
+        $this->payment_provider->buildPayment($this->order);
 
-        $this->updatePayment();
+        $this->log_service->info(('Order ' . $this->order->id . ' starting transaction'));
+        $payment_response = $this->payment_provider->startTransaction();
+        $this->log_service->info(('Order ' . $this->order->id . ' finished transaction'));
+
+        // $this->updatePayment($payment_response);
     }
     
     /**
@@ -83,32 +76,25 @@ class PaymentService
     /**
      * Create a record for the payment
      *
-     * @return Payment
+     * @return void
     */
-    private function startPayment(): Payment
+    private function startPayment()
     {
-        // add log
-        $payment                = new Payment;
-        $payment->order_id      = $this->order->id;
-        $payment->provider_id   = $this->payment_provider->getProviderID();
-        $payment->status        = StatusService::IN_PROGRESS;
-        $payment->save();
-
-        // add log
-        
-        return $this->payment = $payment;
+        $this->log_service->info(('Order ' . $this->order->id . ' starting payment'));
+        $this->order->supplier_id   = $this->payment_provider->getProviderID();
+        $this->order->save();
     }
     
     /**
      * update the payment status
      *
+     * @param Object $payment_response
      * @return void
     */
-    private function updatePayment()
+    private function updatePayment(Object $payment_response)
     {
-        // add log
-        $this->payment->status = $this->payment_provider->isValid() ? StatusService::ACTIVE : StatusService::INACTIVE;
-        $this->payment->save();
-        // add log
+        $this->order->token = $payment_response->token;
+        $this->order->save();
+        $this->log_service->info(('Order ' . $this->order->id . ' updated payment'));
     }
 }

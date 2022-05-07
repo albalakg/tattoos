@@ -28,8 +28,13 @@ class CouponService
   {
     $coupon = Coupon::where('code', $code)
                  ->where('status', StatusService::ACTIVE)
-                 ->select('type', 'value')
+                 ->select('id', 'type', 'value')
                  ->first();
+                 
+    if(!$coupon) {
+      return null;
+    }
+
     $coupon->type = '%';
     return $coupon;
   }

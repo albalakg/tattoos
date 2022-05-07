@@ -16,8 +16,8 @@ class LuSupplierTypeSeeder extends Seeder
     {
         LuSupplierType::truncate();
         $data = [
-            ['name' => 'ContentGuard',      'created_at' => now()],
-            ['name' => 'Paypal',            'created_at' => now()],
+            ['name' => 'PayPlus',      'created_at' => now()],
+            ['name' => 'Paypal',       'created_at' => now()],
         ];
         LuSupplierType::insert($data);
         

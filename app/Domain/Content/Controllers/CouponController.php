@@ -30,8 +30,8 @@ class CouponController extends Controller
   public function getAll()
   {
     try {
-      $response = $this->coupon_service->getAll();
-      return $this->successResponse('Coupons fetched', $response);
+      $coupons = $this->coupon_service->getAll();
+      return $this->successResponse('Coupons fetched', $coupons);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -40,8 +40,9 @@ class CouponController extends Controller
   public function getCoupon(GetCouponRequest $request)
   {
     try {
-      $response = $this->coupon_service->getByCode($request->input('code'));
-      return $this->successResponse('Coupon fetched', $response);
+      $coupon = $this->coupon_service->getByCode($request->input('code'));
+      unset($coupon->id);
+      return $this->successResponse('Coupon fetched', $coupon);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -50,8 +51,8 @@ class CouponController extends Controller
   public function update(UpdateCouponRequest $request)
   {
     try {
-      $response = $this->coupon_service->update($request->validated(), Auth::user()->id);
-      return $this->successResponse('Coupon created', $response);
+      $coupon = $this->coupon_service->update($request->validated(), Auth::user()->id);
+      return $this->successResponse('Coupon created', $coupon);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -60,8 +61,8 @@ class CouponController extends Controller
   public function create(CreateCouponRequest $request)
   {
     try {
-      $response = $this->coupon_service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Coupon created', $response);
+      $coupon = $this->coupon_service->create($request->validated(), Auth::user()->id);
+      return $this->successResponse('Coupon created', $coupon);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

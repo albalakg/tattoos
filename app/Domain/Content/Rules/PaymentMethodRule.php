@@ -2,11 +2,10 @@
 
 namespace App\Domain\Content\Rules;
 
-use App\Domain\Content\Models\Coupon;
-use App\Domain\Helpers\StatusService;
 use Illuminate\Contracts\Validation\Rule;
+use App\Domain\Payment\Services\PaymentService;
 
-class CouponCodeRule implements Rule
+class PaymentMethodRule implements Rule
 {
     /**
      * Create a new rule instance.
@@ -31,7 +30,7 @@ class CouponCodeRule implements Rule
             return false;
         }
 
-        if(strlen($value) !== Coupon::CODE_LENGTH) {
+        if(!in_array($value, PaymentService::PAYMENT_METHODS)) {
             return false;
         } 
 
@@ -45,6 +44,6 @@ class CouponCodeRule implements Rule
      */
     public function message()
     {
-        return 'Coupon code is not valid';
+        return 'Payment method is not valid';
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Content\Controllers\CouponController;
 use App\Domain\Content\Controllers\CourseCategoryController;
 use App\Domain\Content\Controllers\CourseController;
 use App\Domain\Content\Controllers\CourseLessonController;

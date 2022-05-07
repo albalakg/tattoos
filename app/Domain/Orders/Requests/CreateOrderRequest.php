@@ -20,10 +20,11 @@ class CreateOrderRequest extends FormRequest
     {
         return [
             // For now only course is an available content
-            'content_type_id'   => ['required', 'bail', new IDRule, 'size:' . LuContentType::COURSE],
             'content_id'        => ['required', 'bail', new IDRule],
-            'coupon_code'       => ['required', 'string', new CouponCodeRule],
-            'provider'          => ['required', new PaymentMethodRule]
+            'coupon_code'       => ['nullable', 'string', new CouponCodeRule],
+            // Not required for now 
+            // 'content_type_id'   => ['required', 'bail', new IDRule, 'size:' . LuContentType::COURSE],
+            // 'provider'          => ['required', new PaymentMethodRule]
         ];
     }
 }

@@ -67,16 +67,17 @@ class PayPlusProvider implements IPaymentProvider
     public function buildPayment(Order $order)
     {
         $this->setPrice($order->price);
+        return $this;
     }
     
     /**
      * @return void
     */
-    public function pay()
+    public function startTransaction()
     {
-        return Http::withHeaders([
-            'Authorization' => config('payment.payplus.token')
-        ])->post(config('payment.payplus.address'), $this->payment_load);        
+        // return Http::withHeaders([
+        //     'Authorization' => config('payment.payplus.token')
+        // ])->post(config('payment.payplus.address'), $this->payment_load);        
     }
     
     /**

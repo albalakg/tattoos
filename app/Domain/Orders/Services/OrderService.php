@@ -107,9 +107,7 @@ class OrderService
       throw new Exception('The requested content does not exists');
     }
 
-    if(!$coupon = $this->content_service->getCoupon($data['coupon_code'])) {
-      throw new Exception('The requested coupon does not exists');
-    }
+    $coupon = $data['coupon_code'] ? $this->content_service->getCoupon($data['coupon_code']) : null;
 
     $order                  = new Order();
     $order->user_id         = $created_by;
@@ -121,18 +119,20 @@ class OrderService
     $order->order_number    = $this->generateOrderTicketNumber();
     $order->save();
 
-    $is_payment_valid = $this->payForTheOrder($order, $data['provider']);
-    
-    $order->update([
-      'status' => $is_payment_valid ? StatusService::ACTIVE : StatusService::INACTIVE
-    ]);
-
-    if($is_payment_valid) {
-      $this->user_service->assignCourseToUser($order);
-      event(new OrderCreatedEvent($order));
-    }
+    $this->startPaymentTransaction($order);
     
     return $order;
+  }
+  
+  /**
+   * When order is completed we will update the order state
+   *
+   * @param  mixed $token
+   * @return void
+  */
+  public function completed(string $token)
+  {
+    
   }
   
   /**
@@ -155,15 +155,18 @@ class OrderService
   }
   
   /**
+   * visa is the default provider and at the moment the only provider
+   * TODO: when adding a new provider need to make it more dynamic
+   * 
    * @param Order $order
    * @param string $provider
    * @return bool
   */
-  private function payForTheOrder(Order $order, string $provider): bool
+  private function startPaymentTransaction(Order $order, string $provider = 'visa'): bool
   {
     try {
       $this->payment_service = new PaymentService($order, $provider);
-      $this->payment_service->pay();
+      $this->payment_service->startTransaction();
 
       return true;
     } catch(Exception $ex) {
@@ -203,18 +206,18 @@ class OrderService
     $total_price      = $course->price;
     $course_discount  = 0;
     $coupon_discount  = 0;
-    $percentage_type  = 1;
+    $taxes            = 1.17;
 
     if($course->discount) {
       $course_discount = ($course->discount / 100) * $course->price;
     }
 
     if($coupon) {
-      $coupon_discount =  $coupon->type === $percentage_type      ? 
+      $coupon_discount =  $coupon->type === '%'      ? 
                           ($coupon->value / 100) * $course->price : 
                           $coupon->value;
     }
     
-    return $total_price - $course_discount - $coupon_discount;
+    return floor(($total_price - $course_discount - $coupon_discount) * $taxes);
   }
 }

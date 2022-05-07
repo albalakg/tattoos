@@ -11,6 +11,6 @@ interface IPaymentProvider
     public function setQuantity(int $quantity);
     public function setCurrency(string $currency);
     public function buildPayment(Order $order);
-    public function pay();
+    public function startTransaction();
     public function isValid(): bool;
 }

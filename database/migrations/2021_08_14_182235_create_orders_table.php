@@ -18,7 +18,9 @@ class CreateOrdersTable extends Migration
             $table->integer('user_id')->unsigned()->index();
             $table->integer('content_type_id')->unsigned()->index();
             $table->integer('content_id')->unsigned()->index();
+            $table->integer('supplier_id')->unsigned()->index()->nullable();
             $table->string('order_number', 10);
+            $table->string('token', 100)->nullable();
             $table->integer('status')->unsigned()->index();
             $table->decimal('price');
             $table->integer('coupon_id')->unsigned()->index()->nullable();
