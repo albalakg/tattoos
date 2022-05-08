@@ -121,7 +121,7 @@ class OrderService
 
     $this->startPaymentTransaction($order);
     
-    return $order;
+    return Order::where('id', $order->id)->value('token');
   }
   
   /**

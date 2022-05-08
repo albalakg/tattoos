@@ -237,6 +237,8 @@ class UserService
                     ->with('lessonsProgress')
                     ->select('id', 'course_id', 'progress')
                     ->get();
+                    
+    // $user_progress['last_active_lesson'] = $this->getUserLastActiveLesson($user_progress['courses']);
     $user_progress['last_active_lesson'] = $user->load('lastActiveLesson')->lastActiveLesson;
 
     return $user_progress;
@@ -830,4 +832,26 @@ class UserService
       $this->log_service->error($ex);
     }
   }
+  
+  /**
+   * Get the last unfinished lesson
+   *
+   * @param Collection $courses
+   * @return object|null
+  */
+  private function getUserLastActiveLesson(Collection $courses): ?object
+  {
+    $last_active_lesson = null;
+
+    foreach($courses AS $course) {
+      foreach($course->lessonsProgress AS $lesson) {
+        if(!$last_active_lesson || ($lesson->finished_at > $last_active_lesson->finished_at)) {
+          $last_active_lesson = $lesson;
+        }
+      }
+    }
+
+    return $last_active_lesson;
+  }
+
 }
