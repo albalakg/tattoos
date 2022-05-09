@@ -162,14 +162,15 @@ class UserService
   }
   
   /**
-   * @param object $order
+   * @param int $user_id
+   * @param int $content_id
    * @return UserCourse|null
   */
-  public function assignCourseToUser(object $order): ?UserCourse
+  public function assignCourseToUser(int $user_id, int $content_id): ?UserCourse
   {
     try {
       $user_course_service = new UserCourseService();
-      return $user_course_service->assignCourseToUser($order);
+      return $user_course_service->assignCourseToUser($user_id, $content_id);
     } catch(Exception $ex) {
       $this->log_service->error($ex);
       return null;

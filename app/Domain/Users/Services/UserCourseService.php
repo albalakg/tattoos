@@ -217,19 +217,20 @@ class UserCourseService
   }
 
   /**
-   * @param object $data
+   * @param int $user_id
+   * @param int $content_id
    * @return UserCourse|null
   */
-  public function assignCourseToUser(object $data): ?UserCourse
+  public function assignCourseToUser(int $user_id, int $content_id): ?UserCourse
   {
     try {
       $user_course              = new UserCourse;
-      $user_course->user_id     = $data->user_id;
-      $user_course->course_id   = $data->content_id;
+      $user_course->user_id     = $user_id;
+      $user_course->course_id   = $content_id;
       $user_course->progress    = 0;
       $user_course->end_at      = Carbon::now()->addMonths(self::DEFAULT_USER_COURSE_PERIOD);
       $user_course->status      = StatusService::ACTIVE;
-      $user_course->created_by  = $data->user_id;
+      $user_course->created_by  = $user_id;
       $user_course->save();
 
       return $user_course;

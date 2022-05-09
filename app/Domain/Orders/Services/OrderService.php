@@ -132,7 +132,20 @@ class OrderService
   */
   public function completed(string $token)
   {
-    
+    $order = Order::where('token', $token)
+                  ->select('content_id', 'user_id')
+                  ->first();
+
+    if(!$order) {
+      $this->log_service->error('Failed to complete the order with the token ' . $token);
+      return null;
+    }
+                  
+    $this->user_service->assignCourseToUser($order->user_id, $order->content_id);
+    $this->log_service->info('Assigned course ' . $order->content_id . ' to user ' . $order->user_id);
+    $order->update([
+      'status' => StatusService::ACTIVE
+    ]);
   }
   
   /**
