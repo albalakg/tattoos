@@ -45,6 +45,7 @@ class UserFavoriteService
   {
     if($this->isFavoriteContentExists($content_id, $user_id, $content_type_id)) {
       $content_name = LuContentType::CONTENT_TYPES_NAME[$content_type_id];
+      $this->log_service->info('The content ' . $content_id . ' is already in the user\'s favorite list');
       throw new Exception("The $content_name is already in the user's favorite list");
     }
 
@@ -54,7 +55,9 @@ class UserFavoriteService
     $user_favorite->content_type_id   = $content_type_id;
     $user_favorite->created_at        = now();
     $user_favorite->save();
-                                
+
+    $this->log_service->info('The content ' . $content_id . 'has been added to the user\'s favorite list');
+
     return $this->getUserFavoriteSingleContent($user_id, $content_id);
   }
 
@@ -68,6 +71,7 @@ class UserFavoriteService
   {
     if(!$this->isFavoriteContentExists($content_id, $user_id, $content_type_id)) {
       $content_name = LuContentType::CONTENT_TYPES_NAME[$content_type_id];
+      $this->log_service->info('The content ' . $content_id . ' is not in the user\'s favorite list');
       throw new Exception("The $content_name was not found in the user's favorite list");
     }
 

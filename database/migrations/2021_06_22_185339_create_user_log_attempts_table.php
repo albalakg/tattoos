@@ -19,7 +19,6 @@ class CreateUserLogAttemptsTable extends Migration
             $table->string('user_agent', 200);
             $table->string('ip', 50);
             $table->integer('status')->index()->unsigned();
-            $table->integer('attempts')->unsigned();
             $table->dateTime('created_at');
         });
     }

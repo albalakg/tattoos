@@ -237,6 +237,8 @@ class UserCourseService
       $user_course->created_by  = $user_id;
       $user_course->save();
 
+      $this->log_service->info('User ' . $user_id . ' has been assigned to course ' . $content_id);
+
       return $user_course;
     } catch(Exception $ex) {
       $this->log_service->error($ex);
@@ -262,6 +264,8 @@ class UserCourseService
     $user_course->status      = StatusService::ACTIVE;
     $user_course->save();
 
+    $this->log_service->info('User ' . $user_course->user_id . ' course ' . $user_course->course_id . ' has been updated to: ' . json_encode($user_course));
+
     return $user_course;
   }
   
@@ -274,11 +278,12 @@ class UserCourseService
   {
     try {
       if(!$user_course = UserCourse::find($user_course_id)) {
+        $this->log_service->info('User course ' . $user_course_id . ' was not found');
         throw new Exception('User Course not found');
       }
   
       $user_course->delete();
-      
+      $this->log_service->info('User course ' . $user_course_id . ' has been deleted');
     } catch(Exception $ex) {
       $this->log_service->error($ex);
     }
@@ -331,6 +336,7 @@ class UserCourseService
   private function disableCourse(int $user_course_id)
   {
     if(!$user_course = UserCourse::find($user_course_id)) {
+      $this->log_service->info('User course ' . $user_course_id . ' was not found');
       throw new Exception('User Course not found');
     }
 
@@ -338,6 +344,8 @@ class UserCourseService
 
     $user_course->status = StatusService::INACTIVE;
     $user_course->save();
+
+    $this->log_service->info('User course ' . $user_course_id . ' has been disabled');
   }
 
   /**
