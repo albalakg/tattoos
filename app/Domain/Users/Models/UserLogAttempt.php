@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserLogAttempt extends Model
 {
+  protected $guarded = [];
+
+  public $timestamps = false;
+
   public function user()
   {
     return $this->hasOne(User::class, 'email', 'email');

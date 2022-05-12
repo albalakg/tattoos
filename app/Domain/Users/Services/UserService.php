@@ -269,6 +269,7 @@ class UserService
   public function logout(User $user)
   {
     $user->token()->revoke();
+    $this->log_service->info('User ' . $user->id . ' logged out successfully');
   }
   
   /**
@@ -284,10 +285,13 @@ class UserService
       $user->email      = $data['email'];
       $user->password   = bcrypt($data['password']);
       $user->save();
-      
+
+      $this->log_service->info('User ' . $user->id . 'completed sign up, part 1');
       $data['user_id'] = $user->id;
       $this->createUserDetails($data);
+      $this->log_service->info('User ' . $user->id . 'completed sign up, part 2');
       $this->saveEmailVerification($user, $user->email);
+      $this->log_service->info('User ' . $user->id . 'completed sign up, part 3');
       return $user;
     } catch(Exception $ex) {
       if(isset($user) && $user) {
@@ -530,8 +534,9 @@ class UserService
   */
   public function updateUserEmail(array $data, int $updated_by): bool
   {
+    $user = User::where('id', $data['id'])->update(['email' => $data['email']]);
     $this->log_service->info("User $updated_by updated the email of user " . $data['id']);
-    return User::where('id', $data['id'])->update(['email' => $data['email']]);
+    return $user;
   } 
   
   /**
@@ -541,8 +546,9 @@ class UserService
   */
   public function updateUserPassword(array $data, int $updated_by): bool
   {
+    $result = $this->savePassword($this->getUserById($data['id']), $data['password']);
     $this->log_service->info("User $updated_by updated the password of user " . $data['id']);
-    return $this->savePassword($this->getUserById($data['id']), $data['password']);
+    return $result;
   } 
    
   /**
@@ -553,7 +559,7 @@ class UserService
   public function changeEmail(User $user, string $email)
   {
     if($user->email === $email) {
-      $this->log_service->info('User failed to change email, attempted his same current email');
+      $this->log_service->info('User failed to change email, attempted his current email');
       return;
     }
     
@@ -562,9 +568,21 @@ class UserService
       return;
     }
 
-    // TODO: add check to see if already has an open request 
+    if($this->userHasOpenEmailVerificationRequest($user->id)) {
+      $this->log_service->info('User already has an open email verification request');
+      return;
+    }
 
     $this->saveEmailVerification($user, $email);
+  }
+  
+  /**
+   * @param int $user_id
+   * @return bool
+  */
+  public function userHasOpenEmailVerificationRequest(int $user_id): bool
+  {
+    return UserEmailVerification::where('user_id', $user_id)->whereNotNull('verified_at');
   }
     
   /**
@@ -578,7 +596,7 @@ class UserService
                                         ->where('token', $token)
                                         ->first();
     if(!$verification) {
-      $this->log_service->info("Failed to verify the email: $email, with the token: $token");
+      $this->log_service->info("Failed to verify the email with the token: $token");
       throw new Exception('Failed to verify email');
     }
 
@@ -586,7 +604,9 @@ class UserService
       return;
     }
     
-    $this->log_service->info("Email $email is verified");
+    $user = $this->getUserByEmail($email);
+    
+    $this->log_service->info('User ' . $user->id . ' has verified his email');
     $verification->update(['verified_at' => now()]);
     $this->updateUserEmail([
       'id'    => $verification->user_id,
@@ -622,7 +642,9 @@ class UserService
   */
   private function saveStatus(int $user_id, int $status): bool
   {
-    return User::where('id', $user_id)->update(['status' => $status]);
+    $result = User::where('id', $user_id)->update(['status' => $status]);
+    $this->log_service->info('User ' . $user_id . ' status has been updated to ' . $status);
+    return $result;
   }
   
   /**

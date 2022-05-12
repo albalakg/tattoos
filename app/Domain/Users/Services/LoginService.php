@@ -8,6 +8,7 @@ use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Helpers\MaintenanceService;
 use App\Domain\Users\Models\UserLogAttempt;
+use App\Domain\Users\Requests\LoginRequest;
 
 class LoginService
 {        
@@ -45,22 +46,20 @@ class LoginService
     }
     
     /**
-     * attempt
-     *
-     * @param string $email
-     * @param string $password
+     * @param LoginRequest $request
      * @return self
     */
-    public function attempt(string $email, string $password): self
+    public function attempt(LoginRequest $request): self
     {
-        $this->log_service->info('Attempt login with email: ' . $email);
-        $attempt = Auth::attempt(['email' => $email, 'password' => $password]);
+        $attempt = Auth::attempt(['email' => $request->input('email'), 'password' => $request->input('password')]);
+        $this->writeLoginAttempt($request, $attempt);
+
         if(!$attempt) {
-            $this->errorLog('Email or password is invalid');
+            throw new Exception('Email or password is invalid');
         }
 
         $this->user = Auth::user();
-        
+        $this->log_service->info('User ' . $this->user->id . ' logged in');
         $this->isUserAuthorizedToAccess();
         $this->buildUserDetails();
 
@@ -83,15 +82,18 @@ class LoginService
     private function isUserAuthorizedToAccess()
     {
         if($this->user->isInactive()) {
-            $this->errorLog('User is unauthorized to login');
+            $this->log_service->info('User ' . $this->user->id . ' is unauthorized to login');
+            throw new Exception('Unauthorized to login');
         }
 
         if($this->user->isWaitingForConfirmation()) {
-            $this->errorLog('Please confirm your email first');
+            $this->log_service->info('User ' . $this->user->id . ' must confirm the email');
+            throw new Exception('Please confirm your email first');
         }
 
         if($this->is_maintenance && !$this->user->isAdmin()) {
-            $this->errorLog('Sorry, Unauthorized to login during maintenance mode');
+            $this->log_service->info('User ' . $this->user->id . ' can\'t access while in maintenance');
+            throw new Exception('Sorry, Unauthorized to login during maintenance mode');
         }
     }
     
@@ -126,14 +128,19 @@ class LoginService
         return $this->user->createToken(config('app.name'))->accessToken;
     }
     
-    
     /**
-     * @param string $message
+     * @param LoginRequest $request
+     * @param bool $attempt
      * @return void
     */
-    private function errorLog(string $message)
+    private function writeLoginAttempt(LoginRequest $request, bool $attempt)
     {
-        $this->log_service->error($message);
-        throw new Exception($message);
+        UserLogAttempt::create([
+            'email'         => $request->input('email'),
+            'status'        => $attempt,
+            'user_agent'    => $request->header('user-agent'),
+            'ip'            => $request->ip(),
+            'created_at'    => now()
+        ]);
     }
 }
