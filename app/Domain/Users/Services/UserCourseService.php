@@ -224,6 +224,10 @@ class UserCourseService
   public function assignCourseToUser(int $user_id, int $content_id): ?UserCourse
   {
     try {
+      if($this->isUserHasCourse($user_id, $content_id)) {
+        throw new Exception('User ' . $user_id . ' already has an active course ' . $content_id);
+      }
+
       $user_course              = new UserCourse;
       $user_course->user_id     = $user_id;
       $user_course->course_id   = $content_id;
