@@ -77,7 +77,8 @@ class OrderService
   public function updateStatus(int $order_id, int $status, int $updated_by)
   {
     if(!$order = Order::find($order_id)) {
-      throw new Exception('Order not found');
+      $this->log_service->error('Order ' . $order_id . ' was not found');
+      throw new Exception('Order was not found');
     }
 
     $this->saveOrderLog($order, $updated_by);
@@ -104,6 +105,7 @@ class OrderService
     $coupon = null;
 
     if(!$course = $this->content_service->getCourse($data['content_id'])) {
+      $this->log_service->error('The requested content ' . $data['content_id'] . ' was not found');
       throw new Exception('The requested content does not exists');
     }
 
@@ -119,6 +121,7 @@ class OrderService
     $order->order_number    = $this->generateOrderTicketNumber();
     $order->save();
 
+    $this->log_service->info('Order has been created: ' . json_encode($order));
     $this->startPaymentTransaction($order);
     
     return Order::where('id', $order->id)->value('token');
@@ -142,10 +145,10 @@ class OrderService
     }
                   
     $this->user_service->assignCourseToUser($order->user_id, $order->content_id);
-    $this->log_service->info('Assigned course ' . $order->content_id . ' to user ' . $order->user_id);
     $order->update([
       'status' => StatusService::ACTIVE
     ]);
+    $this->log_service->info('Order ' . $order->id . ' has been completed');
   }
   
   /**
@@ -162,6 +165,8 @@ class OrderService
       $order_log->created_at  = now();
       $order_log->created_by  = $created_by;
       $order_log->save();
+
+      $this->log_service->info('Order was updated to: ' . json_encode($order_log));
     } catch(Exception $ex) {
       $this->log_service->error($ex);
     }
@@ -230,6 +235,8 @@ class OrderService
                           $coupon->value;
     }
     
-    return floor(($course->price - $course_discount - $coupon_discount) * $taxes);
+    $total_price = floor(($course->price - $course_discount - $coupon_discount) * $taxes);
+    $this->log_service->info("Calc order price: course_discount=$course_discount|coupon_discount=$coupon_discount|total_price=$total_price");
+    return $total_price;
   }
 }
