@@ -126,6 +126,8 @@ class SupportService
     $support_ticket->status               = StatusService::ACTIVE;
     $support_ticket->save();
 
+    $this->log_service->info('Support ticket has been created: ' . json_encode($support_ticket));
+
     return [
       'support_number' => $support_ticket->support_number,
       'created_at' => $support_ticket->created_at,
@@ -140,7 +142,8 @@ class SupportService
   public function createSupportTicketMessage(array $data, int $created_by): SupportTicketMessage
   {
     if(!SupportTicket::where('id', $data['support_ticket_id'])->exists()) {
-      throw new Exception('Support Ticket not found');
+      $this->log_service->error('Support ticket ' . $data['support_ticket_id'] . ' was not found');
+      throw new Exception('Support Ticket was not found');
     }
 
     $support_ticket_message                     = new SupportTicketMessage();
@@ -154,6 +157,7 @@ class SupportService
     }
 
     $support_ticket_message->save();
+    $this->log_service->info('Support ticket message was created: ' . json_encode($support_ticket_message));
     $support_ticket_message->load('customer');
 
     $mail_service = new MailService;
@@ -182,6 +186,8 @@ class SupportService
       $support_ticket_log->created_at         = now();
       $support_ticket_log->created_by         = $created_by;
       $support_ticket_log->save();
+
+      $this->log_service->info('Support ticket was updated: ' . json_encode($support_ticket_log));
     } catch(Exception $ex) {
       $this->log_service->error($ex);
     }

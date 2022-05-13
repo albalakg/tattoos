@@ -63,6 +63,8 @@ class VideoService implements IContentService
     $video->created_by   = $created_by;
     $video->save();
 
+    $this->log_service->info('Video has been created: ' . json_encode($video));
+
     return $video;
   }
     
@@ -88,6 +90,9 @@ class VideoService implements IContentService
     }
 
     $video->save();
+    
+    $this->log_service->info('Video has been updated: ' . json_encode($video));
+
     return $video;
   }
   
@@ -117,7 +122,9 @@ class VideoService implements IContentService
       return false;
     }
 
-    return $video->delete();
+    $result = $video->delete();
+    $this->log_service->info('Video ' . $video_id . ' has been deleted');
+    return $result;
   }
   
   /**
@@ -132,7 +139,9 @@ class VideoService implements IContentService
     }
 
     FileService::delete($video->video_path);
-    return $video->forceDelete();
+    $result = $video->forceDelete();
+    $this->log_service->info('Video ' . $video_id . ' has been forced deleted');
+    return $result;
   }
   
   /**

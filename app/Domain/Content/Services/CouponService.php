@@ -11,6 +11,17 @@ use Illuminate\Database\Eloquent\Collection;
 
 class CouponService
 {
+
+  /**
+   * @var LogService
+  */
+  private $log_service;
+
+  public function __construct()
+  {
+    $this->log_service = new LogService('coupons');
+  }
+
   /**
    * @param int $coupon_id
    * @return Coupon|null
@@ -64,6 +75,9 @@ class CouponService
     $coupon->created_by = $created_by;
     $coupon->save();
 
+
+    $this->log_service->info('Coupon has been created: ' . json_encode($coupon));
+
     return $coupon;
   }
     
@@ -80,6 +94,8 @@ class CouponService
     $coupon->status     = $data['status'];
     $coupon->save();
 
+    $this->log_service->info('Coupon has been updated: ' . json_encode($coupon));
+
     return $coupon;
   }
   
@@ -91,9 +107,13 @@ class CouponService
   */
   public function updateStatus(int $id, int $status, int $updated_by): bool
   {
-    return Coupon::where('id', $id)->update([
+    $result = Coupon::where('id', $id)->update([
       'status' => $status
     ]);
+
+    $this->log_service->info('Coupon ' . $id . ' status has been updated to ' . $status);
+
+    return $result;
   }
   
   /**
@@ -116,7 +136,9 @@ class CouponService
   */
   public function delete(int $coupon_id, int $deleted_by): bool
   {
-    return Coupon::where('id', $coupon_id)->delete();
+    $result = Coupon::where('id', $coupon_id)->delete();
+    $this->log_service->info('Coupon ' . $coupon_id . ' has been deleted');
+    return $result;
   }
   
   /**
@@ -126,7 +148,9 @@ class CouponService
   */
   public function forceDelete(int $coupon_id, int $deleted_by): bool
   {
-    return Coupon::where('id', $coupon_id)->forceDelete();
+    $result = Coupon::where('id', $coupon_id)->forceDelete();
+    $this->log_service->info('Coupon ' . $coupon_id . ' has been force deleted');
+    return $result;
   }
   
   /**

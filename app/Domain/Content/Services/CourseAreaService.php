@@ -116,6 +116,8 @@ class CourseAreaService implements IContentService
     $course_area->created_by   = $created_by;
     $course_area->save();
 
+    $this->log_service->info('Course area ' . $course_area->id . ' has been created: ' . json_encode($course_area));
+
     try {
       if(!empty($data['lessons'])) {
         $result = $this->assignLessons($course_area, $data['lessons']);
@@ -168,6 +170,7 @@ class CourseAreaService implements IContentService
     }
     
     $course_area->save();
+    $this->log_service->info('Course area ' . $course_area->id . ' has been updated: ' . json_encode($course_area));
     return $course_area;
   }
   
@@ -197,7 +200,9 @@ class CourseAreaService implements IContentService
       return false;
     }
     
-    return $course_area->delete();
+    $result = $course_area->delete();
+    $this->log_service->info('Course area ' . $course_area_id . ' has been deleted');
+    return $result;
   }
   
   /**
@@ -214,7 +219,9 @@ class CourseAreaService implements IContentService
     FileService::delete($course_area->image);
     FileService::delete($course_area->trailer);
 
-    return $course_area->forceDelete();
+    $result = $course_area->forceDelete();
+    $this->log_service->info('Course area ' . $course_area_id . ' has been force deleted');
+    return $result;
   }
   
   /**

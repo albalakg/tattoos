@@ -138,6 +138,13 @@ return [
             'days' => 1,
         ],
 
+        'coupons' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/coupons/coupons.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'orders' => [
             'driver' => 'daily',
             'path' => storage_path('logs/orders/orders.log'),

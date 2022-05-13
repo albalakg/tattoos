@@ -83,6 +83,7 @@ class CourseCategoryService implements IContentService
     $course_category->created_by   = $created_by;
     $course_category->save();
 
+    $this->log_service->info('Course Category ' . $course_category->id . ' has been created: ' . json_encode($course_category));
     return $course_category;
   }
     
@@ -106,6 +107,7 @@ class CourseCategoryService implements IContentService
     $course_category->status       = StatusService::PENDING;
     $course_category->save();
 
+    $this->log_service->info('Course Category ' . $course_category->id . ' has been updated: ' . json_encode($course_category));
     return $course_category;
   }
   
@@ -136,7 +138,9 @@ class CourseCategoryService implements IContentService
       return false;
     }
 
-    return $course_category->delete();
+    $result = $course_category->delete();
+    $this->log_service->info('Course Category ' . $course_category_id . ' has been deleted');
+    return $result;
   }
   
   /**
@@ -151,7 +155,10 @@ class CourseCategoryService implements IContentService
     }
 
     FileService::delete($course_category->image);
-    return $course_category->forceDelete();
+    
+    $result = $course_category->forceDelete();
+    $this->log_service->info('Course Category ' . $course_category_id . ' has been forced deleted');
+    return $result;
   }
   
   /**

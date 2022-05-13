@@ -54,6 +54,8 @@ class SupportCategoryService
     $support_category->created_by   = $created_by;
     $support_category->save();
 
+    $this->log_service->info('Support category was created: ' . json_encode($support_category));
+
     return $support_category;
   }
   
@@ -77,11 +79,13 @@ class SupportCategoryService
   public function delete(int $id, int $deleted_by): bool
   {
     if(!$support_category = SupportCategory::find($id)) {
+      $this->log_service->error('Support category ' . $id . ' was not found');
       throw new Exception('Support Category not found');
     }
 
     $support_category->delete();
-    
+    $this->log_service->error('Support category ' . $id . ' was deleted');
+
     return true;
   }
     
@@ -98,10 +102,12 @@ class SupportCategoryService
                                        ->first();
 
     if(!$support_category) {
+      $this->log_service->error('Support category ' . $support_category_id . ' was not found');
       throw new Exception('Support Category not found');
     }
     
     if($support_category->status === $status) {
+      $this->log_service->error('Support category ' . $support_category_id . ' failed to be updated since have the same status: ' . $status);
       throw new Exception('Attempted to update the same status to the Support Category');
     }
 

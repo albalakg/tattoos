@@ -195,6 +195,8 @@ class CourseLessonService implements IContentService
     $lesson->status           = StatusService::PENDING;
     $lesson->save();
 
+    $this->log_service->info('Lesson ' . $lesson->id . ' has been created: ' . json_encode($lesson));
+
     return $this->baseQueryBuilder()
           ->where('course_lessons.id', $lesson->id)
           ->first();
@@ -223,6 +225,9 @@ class CourseLessonService implements IContentService
     $lesson->status         = $data['status'];
     
     $lesson->save();
+
+    $this->log_service->info('Lesson ' . $lesson->id . ' has been updated: ' . json_encode($lesson));
+
     return $lesson;
   }
   
@@ -249,7 +254,9 @@ class CourseLessonService implements IContentService
   public function delete(int $lesson_id, int $deleted_by): bool
   {
     if($lesson = $this->canDelete($lesson_id)) {
-      return $lesson->delete();
+      $result = $lesson->delete();
+      $this->log_service->info('Lesson ' . $lesson_id . ' has been deleted');
+      return $result;
     }
   }
   
@@ -262,7 +269,9 @@ class CourseLessonService implements IContentService
   {
     if($lesson = $this->canDelete($lesson_id)) {
       FileService::delete($lesson->image);
-      return $lesson->forceDelete();
+      $result = $lesson->forceDelete();
+      $this->log_service->info('Lesson ' . $lesson_id . ' has been forced deleted');
+      return $result;
     }
   }
     

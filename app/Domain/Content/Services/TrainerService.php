@@ -7,7 +7,6 @@ use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\FileService;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Content\Models\Trainer;
-use App\Domain\Content\Models\CourseArea;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
 use Illuminate\Database\Eloquent\Collection;
@@ -86,6 +85,8 @@ class TrainerService implements IContentService
     $trainer->created_by   = $created_by;
     $trainer->save();
 
+    $this->log_service->info('Trainer has been created: ' . json_encode($trainer));
+
     return $trainer;
   }
 
@@ -110,6 +111,9 @@ class TrainerService implements IContentService
     }
     
     $trainer->save();
+    
+    $this->log_service->info('Trainer has been updated: ' . json_encode($trainer));
+
     return $trainer;
   }
   
@@ -135,11 +139,13 @@ class TrainerService implements IContentService
   */
   public function delete(int $trainer_id, int $deleted_by): bool
   {
-    if(!$course_area = $this->canDelete($trainer_id)) {
+    if(!$trainer = $this->canDelete($trainer_id)) {
       return false;
     }
     
-    return $course_area->delete();
+    $result = $trainer->delete();
+    $this->log_service->info('Trainer ' . $trainer_id . ' has been deleted');
+    return $result;
   }
   
   /**
@@ -155,7 +161,9 @@ class TrainerService implements IContentService
 
     FileService::delete($trainer->image);
 
-    return $trainer->forceDelete();
+    $result = $trainer->forceDelete();
+    $this->log_service->info('Trainer ' . $trainer_id . ' has been forced deleted');
+    return $result;
   }
   
   /**

@@ -151,6 +151,8 @@ class CourseService implements IContentService
     $course->created_by   = $created_by;
     $course->save();
 
+    $this->log_service->info('Course ' . $course->id . ' has been created: ' . json_encode($course));
+
     $course->category_name = $course->category->name;
     return $course;
   }
@@ -184,6 +186,8 @@ class CourseService implements IContentService
       $course->trailer    = FileService::create($data['trailer'], self::FILES_PATH);
     }
     
+    $this->log_service->info('Course ' . $course->id . ' has been updated: ' . json_encode($course));
+
     $course->save();
     
     return $this->baseQueryBuilder()
@@ -215,7 +219,9 @@ class CourseService implements IContentService
       return false;
     }
 
-    return $course->delete();
+    $result = $course->delete();
+    $this->log_service->info('Course ' . $course_id . ' has been deleted');
+    return $result;
   }
   
   /**
@@ -232,7 +238,9 @@ class CourseService implements IContentService
     FileService::delete($course->image);
     FileService::delete($course->trailer);
 
-    return $course->forceDelete();
+    $result = $course->forceDelete();
+    $this->log_service->info('Course ' . $course_id . ' has been forced deleted');
+    return $result;
   }
    
   /**
