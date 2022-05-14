@@ -222,9 +222,26 @@ class UserService
   */
   public function getUserLesson(int $user_id, int $lesson_id): ?UserCourseLesson
   {
+    $user_course = $this->getUserActiveCourseByLesson($user_id, $lesson_id);
     return UserCourseLesson::where('course_lesson_id', $lesson_id)
                           ->where('user_id', $user_id)
+                          ->where('user_course_id', $user_course->id)
                           ->first();
+  }
+
+  /**
+   * @param int $user_id
+   * @param int $lesson_id
+   * @return UserCourse|null
+  */
+  public function getUserActiveCourseByLesson(int $user_id, int $lesson_id): ?UserCourse
+  {
+    return UserCourse::where('user_id', $user_id)
+                      ->where('user_courses.status', StatusService::ACTIVE)
+                      ->join('course_lessons', 'course_lessons.course_id', 'user_courses.course_id')
+                      ->where('course_lessons.id', $lesson_id)
+                      ->select('user_courses.*')
+                      ->first();
   }
   
   /**
@@ -235,6 +252,7 @@ class UserService
   {
     $user_progress = [];
     $user_progress['courses'] = UserCourse::where('user_id', $user->id)
+                    ->where('status', StatusService::ACTIVE)
                     ->with('lessonsProgress')
                     ->select('id', 'course_id', 'progress')
                     ->get();
