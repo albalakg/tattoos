@@ -210,7 +210,7 @@ class UserService
     $this->setLessonWatchRecord($user_lesson, $data['start_time'], $end_time);
 
     $course_id = $this->content_service->getLessonCourseId($data['lesson_id']);
-    $this->updateUserCourseProgress($course_id, $user_lesson->user_course_id);
+    $user_lesson->course_progress = $this->updateUserCourseProgress($course_id, $user_lesson->user_course_id);
 
     return $user_lesson;
   }
@@ -835,9 +835,9 @@ class UserService
   /**
    * @param int $course_id
    * @param int $user_course_id
-   * @return void
+   * @return ?float
   */
-  private function updateUserCourseProgress(int $course_id, int $user_course_id)
+  private function updateUserCourseProgress(int $course_id, int $user_course_id): ?float
   {
     try {
       $lessons                = $this->content_service->getLessonsDurationByCourseId($course_id);
@@ -848,7 +848,6 @@ class UserService
       $user_lessons_progress = UserCourseLesson::where('user_course_id', $user_course_id)
                                                 ->select('course_lesson_id', 'progress')
                                                 ->get();
-
       for($course_lesson_index = 0; $course_lesson_index < count($lessons); $course_lesson_index++) {
         $lesson = $lessons[$course_lesson_index];
         
@@ -864,13 +863,15 @@ class UserService
         }
         
       }
-      
       $user_course_progress = $user_total_viewed_time * 100 / $total_course_duration;
       UserCourse::where('id', $user_course_id)->update([
         'progress' => $user_course_progress
       ]);
+
+      return $user_course_progress;
     } catch(Exception $ex) {
       $this->log_service->error($ex);
+      return null;
     }
   }
   
