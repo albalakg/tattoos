@@ -23,7 +23,12 @@ class CreateCourseLessonsTable extends Migration
             $table->integer('status')->unsigned()->index();
             $table->integer('view_order')->unsigned()->index();
             $table->string('name', 100);
+            $table->text('description')->nullable();
             $table->text('content')->nullable();
+            $table->numeric('rehearsals')->nullable()->description('the amount of rehearsals');
+            $table->numeric('rest_time')->nullable()->description('rest time in minutes');
+            $table->numeric('activity_time')->nullable()->description('activity time in seconds');
+            $table->numeric('activity_period')->nullable()->description('activity period in hours');
             $table->timestamps();
             $table->softDeletes();
         });

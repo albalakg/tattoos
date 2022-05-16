@@ -18,7 +18,31 @@ class SupportCategorySeeder extends Seeder
         SupportCategory::truncate();
         $data = [
             [
-                'name'          => 'Contact Us',
+                'name'          => 'צור קשר',
+                'status'        => StatusService::ACTIVE,
+                'created_at'    => now(),
+                'created_by'    => 0
+            ],
+            [
+                'name'          => 'בעייה עם הפרופיל',
+                'status'        => StatusService::ACTIVE,
+                'created_at'    => now(),
+                'created_by'    => 0
+            ],
+            [
+                'name'          => 'גישה לתכנים',
+                'status'        => StatusService::ACTIVE,
+                'created_at'    => now(),
+                'created_by'    => 0
+            ],
+            [
+                'name'          => 'עניין כספי',
+                'status'        => StatusService::ACTIVE,
+                'created_at'    => now(),
+                'created_by'    => 0
+            ],
+            [
+                'name'          => 'אחר',
                 'status'        => StatusService::ACTIVE,
                 'created_at'    => now(),
                 'created_by'    => 0
