@@ -20,6 +20,10 @@ class CreateCourseLessonRequest extends FormRequest
             'course_area_id'    => ['required', 'bail', new IDRule, 'exists:course_areas,id'],
             'video_id'          => ['required', 'bail', new IDRule, 'exists:videos,id'],
             'image'             => ['required', 'file', 'max:5000'],
+            'rehearsals'        => ['nullable', 'numeric', 'between:1,100000'],
+            'rest_time'         => ['nullable', 'numeric', 'between:1,100000'],
+            'activity_time'     => ['nullable', 'numeric', 'between:1,100000'],
+            'activity_period'   => ['nullable', 'numeric', 'between:1,100'],
             'content'           => ['nullable', 'string'],
         ];
     }

@@ -192,6 +192,10 @@ class CourseLessonService implements IContentService
     $lesson->image            = FileService::create($data['image'], self::FILES_PATH);
     $lesson->name             = $data['name'];
     $lesson->content          = $data['content'];
+    $lesson->rehearsals       = $data['rehearsals']       ?? null;
+    $lesson->rest_time        = $data['rest_time']        ?? null;
+    $lesson->activity_time    = $data['activity_time']    ?? null;
+    $lesson->activity_period  = $data['activity_period']  ?? null;
     $lesson->status           = StatusService::PENDING;
     $lesson->save();
 
@@ -223,6 +227,22 @@ class CourseLessonService implements IContentService
     $lesson->name           = $data['name'];
     $lesson->content        = $data['content'];
     $lesson->status         = $data['status'];
+    
+    if(!empty($data['rehearsals'])) {
+      $lesson->rehearsals = $data['rehearsals'];
+    }
+    
+    if(!empty($data['rest_time'])) {
+      $lesson->rest_time = $data['rest_time'];
+    }
+
+    if(!empty($data['activity_time'])) {
+      $lesson->activity_time = $data['activity_time'];
+    }
+
+    if(!empty($data['activity_period'])) {
+      $lesson->activity_period = $data['activity_period'];
+    }
     
     $lesson->save();
 

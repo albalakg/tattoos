@@ -25,10 +25,10 @@ class CreateCourseLessonsTable extends Migration
             $table->string('name', 100);
             $table->text('description')->nullable();
             $table->text('content')->nullable();
-            $table->numeric('rehearsals')->nullable()->description('the amount of rehearsals');
-            $table->numeric('rest_time')->nullable()->description('rest time in minutes');
-            $table->numeric('activity_time')->nullable()->description('activity time in seconds');
-            $table->numeric('activity_period')->nullable()->description('activity period in hours');
+            $table->integer('rehearsals')->unsigned()->nullable()->comment('the amount of rehearsals');
+            $table->integer('rest_time')->unsigned()->nullable()->comment('rest time in minutes');
+            $table->integer('activity_time')->unsigned()->nullable()->comment('activity time in seconds');
+            $table->integer('activity_period')->unsigned()->nullable()->comment('activity period in hours');
             $table->timestamps();
             $table->softDeletes();
         });
