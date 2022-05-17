@@ -403,18 +403,15 @@ class UserService
     $user->last_name  = $data['last_name'];
     $user->phone      = $data['phone'];
     $user->gender     = $data['gender'];
-
-    if(!empty($data['team'])) {
-      $user->team_id    = $this->getTeamId($data['team'], $user->id);
-    }
-
-    if(!empty($data['city'])) {
-      $user->city_id    = $this->getCityId($data['city'], $user->id);
-    }
+    $user->team_id    = $this->getTeamId($data['team'] ?? null, $user->id);
+    $user->city_id    = $this->getCityId($data['city'] ?? null, $user->id);
 
     $user->save();
 
     $this->log_service->info('User ' . $user_id . ', updated his profile');
+    
+    $user->team = $data['team'] ?? null;
+    $user->city = $data['city'] ?? null;
 
     return $user;
   }
@@ -615,17 +612,21 @@ class UserService
   */
   public function userHasOpenEmailVerificationRequest(int $user_id): bool
   {
-    return UserEmailVerification::where('user_id', $user_id)->whereNotNull('verified_at');
+    return UserEmailVerification::where('user_id', $user_id)->whereNull('verified_at')->exists();
   }
   
   /**
    * Get team ID if exists or creates a new one and retrieve its ID
    *
-   * @param string $team_name
-   * @return int
+   * @param string|null $team_name
+   * @return int|null
   */
-  public function getTeamId(string $team_name, ?int $user_id = null): int
+  public function getTeamId(?string $team_name, ?int $user_id = null): ?int
   {
+    if(!$team_name) {
+      return null;
+    }
+
     if($team_id = LuTeam::where('name', $team_name)->value('id')) {
       return $team_id;
     }  
@@ -646,11 +647,15 @@ class UserService
   /**
    * Get city ID if exists or creates a new one and retrieve its ID
    *
-   * @param string $city_name
-   * @return int
+   * @param string|null $city_name
+   * @return int|null
   */
-  public function getCityId(string $city_name, ?int $user_id = null): int
+  public function getCityId(?string $city_name, ?int $user_id = null): ?int
   {
+    if(!$city_name) {
+      return null;
+    }
+
     if($city_id = LuCity::where('name', $city_name)->value('id')) {
       return $city_id;
     }  
@@ -794,14 +799,8 @@ class UserService
     $user_details->phone      = $data['phone']      ?? null;
     $user_details->gender     = $data['gender']     ?? null;
     $user_details->birth_date = $data['birth_date'] ?? null;
-
-    if(!empty($data['team'])) {
-      $user_details->team_id    = $this->getTeamId($data['team'], $user_details->user_id);
-    }
-
-    if(!empty($data['city'])) {
-      $user_details->city_id    = $this->getCityId($data['city'], $user_details->user_id);
-    }
+    $user_details->team_id    = $this->getTeamId($data['team'] ?? null, $user_details->user_id);
+    $user_details->city_id    = $this->getCityId($data['city'] ?? null, $user_details->user_id);
 
     $user_details->save();
     return $user_details;
