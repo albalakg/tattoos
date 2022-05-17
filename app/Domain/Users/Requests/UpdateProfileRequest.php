@@ -2,6 +2,8 @@
 
 namespace App\Domain\Users\Requests;
 
+use App\Domain\Users\Rules\CityRule;
+use App\Domain\Users\Rules\TeamRule;
 use App\Domain\Users\Rules\PhoneRule;
 use App\Domain\Users\Rules\GenderRule;
 use App\Domain\Users\Rules\LastNameRule;
@@ -23,6 +25,8 @@ class UpdateProfileRequest extends FormRequest
             'phone'         => ['nullable', 'bail', new PhoneRule],
             'gender'        => ['nullable', new GenderRule],
             'birth_date'    => ['nullable', 'date'],
+            'team'          => ['nullable', new TeamRule],
+            'city'          => ['nullable', new CityRule],
         ];
     }
 }

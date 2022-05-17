@@ -21,6 +21,8 @@ use App\Domain\Users\Models\UserCourseLesson;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Support\Services\SupportService;
+use App\Domain\Users\Models\LuCity;
+use App\Domain\Users\Models\LuTeam;
 use App\Domain\Users\Models\UserEmailVerification;
 use App\Domain\Users\Models\UserCourseLessonWatch;
 
@@ -72,6 +74,8 @@ class UserService
   {
     return User::join('roles', 'roles.id', 'users.role_id')
               ->join('user_details', 'user_details.user_id', 'users.id')
+              ->leftJoin('lu_teams', 'lu_teams.id', 'user_details.team_id')
+              ->leftJoin('lu_cities', 'lu_cities.id', 'user_details.city_id')
               ->select(
                 'users.id',
                 'users.status',
@@ -82,6 +86,8 @@ class UserService
                 'user_details.last_name',
                 'user_details.gender',
                 'user_details.birth_date',
+                'lu_teams.name AS team',
+                'lu_cities.name AS city',
                 'roles.name AS role'
               )
               ->orderBy('users.created_at', 'desc')
@@ -397,6 +403,15 @@ class UserService
     $user->last_name  = $data['last_name'];
     $user->phone      = $data['phone'];
     $user->gender     = $data['gender'];
+
+    if(!empty($data['team'])) {
+      $user->team_id    = $this->getTeamId($data['team'], $user->id);
+    }
+
+    if(!empty($data['city'])) {
+      $user->city_id    = $this->getCityId($data['city'], $user->id);
+    }
+
     $user->save();
 
     $this->log_service->info('User ' . $user_id . ', updated his profile');
@@ -602,7 +617,56 @@ class UserService
   {
     return UserEmailVerification::where('user_id', $user_id)->whereNotNull('verified_at');
   }
-    
+  
+  /**
+   * Get team ID if exists or creates a new one and retrieve its ID
+   *
+   * @param string $team_name
+   * @return int
+  */
+  public function getTeamId(string $team_name, ?int $user_id = null): int
+  {
+    if($team_id = LuTeam::where('name', $team_name)->value('id')) {
+      return $team_id;
+    }  
+
+    return $this->createTeam($team_name, $user_id)->id;
+  }
+  
+  /**
+   * @param string $team_name
+   * @param int|null $user_id
+   * @return LuTeam
+  */
+  public function createTeam(string $team_name, ?int $user_id = null): LuTeam
+  {
+    return LuTeam::create(['name' => $team_name, 'created_by' => $user_id]);
+  }
+
+  /**
+   * Get city ID if exists or creates a new one and retrieve its ID
+   *
+   * @param string $city_name
+   * @return int
+  */
+  public function getCityId(string $city_name, ?int $user_id = null): int
+  {
+    if($city_id = LuCity::where('name', $city_name)->value('id')) {
+      return $city_id;
+    }  
+
+    return $this->createCity($city_name, $user_id)->id;
+  }
+  
+  /**
+   * @param string $city_name
+   * @return LuCity
+  */
+  public function createCity(string $city_name, ?int $user_id = null): LuCity
+  {
+    return LuCity::create(['name' => $city_name, 'created_by' => $user_id]);
+  }
+
   /**
    * @param string $email
    * @param string $token
@@ -725,13 +789,21 @@ class UserService
   */
   private function saveUserDetails(UserDetail $user_details, array $data): UserDetail
   {
-    $user_details->first_name  = $data['first_name'];
-    $user_details->last_name   = $data['last_name'];
-    $user_details->phone       = $data['phone'] ?? null;
-    $user_details->gender      = $data['gender'] ?? null;
-    $user_details->birth_date  = $data['birth_date'] ?? null;
-    $user_details->save();
+    $user_details->first_name = $data['first_name'];
+    $user_details->last_name  = $data['last_name'];
+    $user_details->phone      = $data['phone']      ?? null;
+    $user_details->gender     = $data['gender']     ?? null;
+    $user_details->birth_date = $data['birth_date'] ?? null;
 
+    if(!empty($data['team'])) {
+      $user_details->team_id    = $this->getTeamId($data['team'], $user_details->user_id);
+    }
+
+    if(!empty($data['city'])) {
+      $user_details->city_id    = $this->getCityId($data['city'], $user_details->user_id);
+    }
+
+    $user_details->save();
     return $user_details;
   }
   

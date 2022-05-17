@@ -34,7 +34,8 @@ class User extends Authenticatable
   
   public function details()
   {
-    return $this->hasOne(UserDetail::class, 'user_id', 'id');
+    return $this->hasOne(UserDetail::class, 'user_id', 'id')
+                ->with('city', 'team');
   }
   
   public function favorites()

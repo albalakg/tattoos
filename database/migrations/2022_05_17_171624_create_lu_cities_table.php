@@ -17,6 +17,7 @@ class CreateLuCitiesTable extends Migration
             $table->id();
             $table->string('name', 100);
             $table->dateTime('created_at');
+            $table->integer('created_by')->unsigned()->index()->nullable();
         });
     }
 

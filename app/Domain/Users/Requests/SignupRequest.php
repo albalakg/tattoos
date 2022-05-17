@@ -2,6 +2,8 @@
 
 namespace App\Domain\Users\Requests;
 
+use App\Domain\Users\Rules\CityRule;
+use App\Domain\Users\Rules\TeamRule;
 use App\Domain\Users\Rules\PhoneRule;
 use App\Domain\Users\Rules\LastNameRule;
 use App\Domain\Users\Rules\PasswordRule;
@@ -22,6 +24,8 @@ class SignupRequest extends FormRequest
             'password'      => ['required', new PasswordRule],
             'first_name'    => ['required', new FirstNameRule],
             'last_name'     => ['required', new LastNameRule],
+            'team'          => ['nullable', new TeamRule],
+            'city'          => ['nullable', new CityRule],
             'phone'         => ['nullable', 'bail', new PhoneRule, 'unique:user_details,phone'],
         ];
     }

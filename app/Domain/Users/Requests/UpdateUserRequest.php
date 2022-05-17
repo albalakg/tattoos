@@ -3,7 +3,9 @@
 namespace App\Domain\Users\Requests;
 
 use App\Rules\IDRule;
+use App\Domain\Users\Rules\CityRule;
 use App\Domain\Users\Rules\RoleRule;
+use App\Domain\Users\Rules\TeamRule;
 use App\Domain\Users\Rules\PhoneRule;
 use App\Domain\Users\Rules\GenderRule;
 use App\Domain\Users\Rules\StatusRule;
@@ -25,6 +27,8 @@ class UpdateUserRequest extends FormRequest
             'first_name'    => ['required', new FirstNameRule],
             'last_name'     => ['required', new LastNameRule],
             'role'          => ['required', new RoleRule],
+            'team'          => ['nullable', new TeamRule],
+            'city'          => ['nullable', new CityRule],
             'phone'         => ['required', 'bail', new PhoneRule, 'unique:user_details,phone,' . request()->id . ',user_id'],
             'status'        => ['required', new StatusRule],
             'gender'        => ['nullable', new GenderRule],
