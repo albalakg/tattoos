@@ -20,8 +20,8 @@ class CreateUserDetailsTable extends Migration
             $table->string('last_name', 50);
             $table->string('phone', 50)->unique()->nullable();
             $table->integer('gender')->unsigned()->nullable();
-            $table->integer('team_id')->unsigned()->nullable();
-            $table->integer('city_id')->unsigned()->nullable();
+            $table->integer('team_id')->unsigned()->nullable()->index();
+            $table->integer('city_id')->unsigned()->nullable()->index();
             $table->date('birth_date')->nullable();
         });
     }

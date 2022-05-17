@@ -22,13 +22,13 @@ class UserDetail extends Model
   public function city()
   {
     return $this->hasOne(LuCity::class, 'id', 'city_id')
-                ->select('city_id', 'name');
+                ->select('id', 'name');
   }
   
   public function team()
   {
     return $this->hasOne(LuTeam::class, 'id', 'team_id')
-                ->select('city_id', 'name');
+                ->select('id', 'name');
   }
   
   protected $appends = ['fullName'];

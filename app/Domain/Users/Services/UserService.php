@@ -640,7 +640,7 @@ class UserService
   */
   public function createTeam(string $team_name, ?int $user_id = null): LuTeam
   {
-    return LuTeam::create(['name' => $team_name, 'created_by' => $user_id]);
+    return LuTeam::create(['name' => $team_name, 'created_by' => $user_id, 'created_at' => now()]);
   }
 
   /**
@@ -664,7 +664,7 @@ class UserService
   */
   public function createCity(string $city_name, ?int $user_id = null): LuCity
   {
-    return LuCity::create(['name' => $city_name, 'created_by' => $user_id]);
+    return LuCity::create(['name' => $city_name, 'created_by' => $user_id, 'created_at' => now()]);
   }
 
   /**

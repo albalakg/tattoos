@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLuTeamTable extends Migration
+class CreateLuTeamsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateLuTeamTable extends Migration
      */
     public function up()
     {
-        Schema::create('lu_team', function (Blueprint $table) {
+        Schema::create('lu_teams', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
             $table->dateTime('created_at');
@@ -28,6 +28,6 @@ class CreateLuTeamTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('lu_team');
+        Schema::dropIfExists('lu_teams');
     }
 }
