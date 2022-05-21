@@ -5,17 +5,18 @@ use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\MailService;
 use App\Domain\Orders\Models\Order;
-use App\Events\Orders\OrderCreatedEvent;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Orders\Models\OrderLog;
+use App\Events\Orders\OrderCreatedEvent;
 use App\Mail\Tests\OrderStatusUpdateMail;
 use App\Domain\Users\Services\UserService;
 use App\Domain\General\Models\LuContentType;
+use App\Domain\Orders\Models\MarketingToken;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Helpers\DataManipulationService;
-use App\Domain\Orders\Models\MarketingToken;
 use App\Domain\Payment\Services\PaymentService;
+use App\Domain\Orders\Services\MarketingTokenService;
 
 class OrderService
 {
@@ -39,11 +40,17 @@ class OrderService
   */
   private $content_service;
 
-  public function __construct(UserService $user_service = null, ContentService $content_service = null)
+  /**
+   * @var MarketingTokenService|null
+  */
+  private $marketing_token_service;
+
+  public function __construct(UserService $user_service = null, ContentService $content_service = null, MarketingTokenService $marketing_token_service = null)
   {
-    $this->user_service     = $user_service;
-    $this->content_service  = $content_service;
-    $this->log_service      = new LogService('orders');
+    $this->user_service             = $user_service;
+    $this->content_service          = $content_service;
+    $this->marketing_token_service  = $marketing_token_service;
+    $this->log_service              = new LogService('orders');
   }
   
   /**
@@ -110,15 +117,16 @@ class OrderService
       throw new Exception('The requested content does not exists');
     }
 
-    $coupon = $data['coupon_code'] ? $this->content_service->getCoupon($data['coupon_code']) : null;
+    $coupon           = $data['coupon_code'] ? $this->content_service->getCoupon($data['coupon_code']) : null;
+    $marketing_token  = $this->marketing_token_service->getMarketingTokenByToken(request()->cookie('marketing_token'));
 
     $order                      = new Order();
     $order->user_id             = $created_by;
     $order->content_type_id     = LuContentType::COURSE;
     $order->content_id          = $data['content_id'];
     $order->coupon_id           = $coupon->id ?? null;
-    $order->marketing_token_id  = $this->getMarketingTokenId(request()->cookie('marketing_token'));
-    $order->price               = $this->getOrderPrice($course, $coupon);
+    $order->marketing_token_id  = $marketing_token->id ?? null;
+    $order->price               = $this->getOrderPrice($course, $coupon, $marketing_token);
     $order->status              = StatusService::IN_PROGRESS;
     $order->order_number        = $this->generateOrderTicketNumber();
     $order->save();
@@ -219,13 +227,15 @@ class OrderService
    * 
    * @param object $course
    * @param object|null $coupon
+   * @param object|null $marketing_token
    * @return void
   */
-  private function getOrderPrice(object $course, ?object $coupon = null)
+  private function getOrderPrice(object $course, ?object $coupon = null, ?object $marketing_token = null)
   {
-    $course_discount  = 0;
-    $coupon_discount  = 0;
-    $taxes            = 1.17;
+    $course_discount            = 0;
+    $coupon_discount            = 0;
+    $marketing_token_discount   = 0;
+    $taxes                      = 1.17;
 
     if($course->discount) {
       $course_discount = ($course->discount / 100) * $course->price;
@@ -236,22 +246,13 @@ class OrderService
                           ($coupon->value / 100) * $course->price : 
                           $coupon->value;
     }
-    
-    $total_price = floor(($course->price - $course_discount - $coupon_discount) * $taxes);
-    $this->log_service->info("Calc order price: course_discount=$course_discount|coupon_discount=$coupon_discount|total_price=$total_price");
-    return $total_price;
-  }
-  
-  /**
-   * @param string|null $token
-   * @return int|null
-  */
-  private function getMarketingTokenId(?string $token): ?int
-  {
-    if(strlen($token) !== MarketingToken::TOKEN_LENGTH) {
-      return null;
-    }
 
-    return MarketingToken::where('token', $token)->value('id');
+    if($marketing_token) {
+      $marketing_token_discount = $marketing_token->discount;
+    }
+    
+    $total_price = floor(($course->price - $course_discount - $coupon_discount - $marketing_token_discount) * $taxes);
+    $this->log_service->info("Calc order price: course_discount=$course_discount|coupon_discount=$coupon_discount|marketing_token_discount=$marketing_token_discount|total_price=$total_price");
+    return $total_price;
   }
 }

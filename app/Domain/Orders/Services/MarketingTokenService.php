@@ -37,6 +37,19 @@ class MarketingTokenService
                 ->with('orders')
                 ->get();
   }
+
+  /**
+   * @param string|null $token
+   * @return MarketingToken|null
+  */
+  public function getMarketingTokenByToken(?string $token): ?MarketingToken
+  {
+    if(strlen($token) !== MarketingToken::TOKEN_LENGTH) {
+      return null;
+    }
+
+    return MarketingToken::where('token', $token)->first();
+  }
     
   /**
    * @param array $data
