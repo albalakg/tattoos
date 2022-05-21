@@ -14,6 +14,7 @@ use App\Domain\General\Models\LuContentType;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Helpers\DataManipulationService;
+use App\Domain\Orders\Models\MarketingToken;
 use App\Domain\Payment\Services\PaymentService;
 
 class OrderService
@@ -84,7 +85,7 @@ class OrderService
     $this->saveOrderLog($order, $updated_by);
 
     $order->update(['status' => $status]);
-    $order->load('user');
+    $this->user_service->getUserByID($order->user_id);
 
     $mail_service = new MailService;
     $mail_service->delay()->send(
@@ -111,14 +112,15 @@ class OrderService
 
     $coupon = $data['coupon_code'] ? $this->content_service->getCoupon($data['coupon_code']) : null;
 
-    $order                  = new Order();
-    $order->user_id         = $created_by;
-    $order->content_type_id = LuContentType::COURSE;
-    $order->content_id      = $data['content_id'];
-    $order->coupon_id       = $coupon->id ?? null;
-    $order->price           = $this->getOrderPrice($course, $coupon);
-    $order->status          = StatusService::IN_PROGRESS;
-    $order->order_number    = $this->generateOrderTicketNumber();
+    $order                      = new Order();
+    $order->user_id             = $created_by;
+    $order->content_type_id     = LuContentType::COURSE;
+    $order->content_id          = $data['content_id'];
+    $order->coupon_id           = $coupon->id ?? null;
+    $order->marketing_token_id  = $this->getMarketingTokenId(request()->cookie('marketing_token'));
+    $order->price               = $this->getOrderPrice($course, $coupon);
+    $order->status              = StatusService::IN_PROGRESS;
+    $order->order_number        = $this->generateOrderTicketNumber();
     $order->save();
 
     $this->log_service->info('Order has been created: ' . json_encode($order));
@@ -238,5 +240,18 @@ class OrderService
     $total_price = floor(($course->price - $course_discount - $coupon_discount) * $taxes);
     $this->log_service->info("Calc order price: course_discount=$course_discount|coupon_discount=$coupon_discount|total_price=$total_price");
     return $total_price;
+  }
+  
+  /**
+   * @param string|null $token
+   * @return int|null
+  */
+  private function getMarketingTokenId(?string $token): ?int
+  {
+    if(strlen($token) !== MarketingToken::TOKEN_LENGTH) {
+      return null;
+    }
+
+    return MarketingToken::where('token', $token)->value('id');
   }
 }

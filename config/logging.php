@@ -124,6 +124,13 @@ return [
             'days' => 1,
         ],
 
+        'marketingToken' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/marketingToken/marketingToken.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'userfavorites' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/userfavorites/userfavorites.log'),

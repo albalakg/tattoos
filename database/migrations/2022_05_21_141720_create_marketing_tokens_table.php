@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersTable extends Migration
+class CreateMarketingTokensTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('marketing_tokens', function (Blueprint $table) {
             $table->id();
-            $table->integer('role_id')->index()->unsigned();
             $table->string('email', 120)->unique()->nullable();
-            $table->string('password')->index()->nullable();
-            $table->integer('status')->index()->unsigned();
+            $table->string('token', 50)->unique();
+            $table->decimal('discount')->index()->unsigned()->comment('the discount is in shekels');
             $table->timestamps();
             $table->softDeletes();
             $table->integer('created_by')->index()->unsigned()->nullable();
@@ -32,6 +31,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('marketing_tokens');
     }
 }

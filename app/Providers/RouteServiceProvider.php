@@ -154,6 +154,11 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace($this->namespace)
             ->group(base_path("routes/groups/cms/orders.php"));
 
+        Route::prefix('api/cms/marketing-tokens')
+            ->middleware('auth:api', 'admin')
+            ->namespace($this->namespace)
+            ->group(base_path("routes/groups/cms/marketingTokens.php"));
+
         Route::prefix('api/cms/support')
             ->middleware('auth:api', 'admin')
             ->namespace($this->namespace)
