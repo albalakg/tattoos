@@ -14,7 +14,7 @@ class NameRule implements Rule
     /**
      * @var string
     */
-    private $valid_chars= 'abcdefghijklmnopqrstuvwxyz012345679\'-_ אבגדהוזחטיכלמנסעפצקרשת';
+    private $valid_chars= 'abcdefghijklmnopqrstuvwxyz012345679\'-_\sאבגדהוזחטיכלמנסעפצקרשת';
 
     /**
      * Create a new rule instance.
@@ -40,17 +40,18 @@ class NameRule implements Rule
             return false;
         }
 
-        $unique_chars = count_chars($value, 3);
-        for($index = 0; $index < strlen($unique_chars); $index++) {
-            $char = $unique_chars[$index];
-            if(is_string($char)) {
-                $char = strtolower($char);
-            }
+        // TODO: fix the chars in hebrew
+        // $unique_chars = count_chars($value, 3);
+        // for($index = 0; $index < strlen($unique_chars); $index++) {
+        //     $char = $unique_chars[$index];
+        //     if(is_string($char)) {
+        //         $char = strtolower($char);
+        //     }
 
-            if(strpos($this->valid_chars, $char) === false) {
-                return false;
-            }
-        }
+        //     if(strpos($this->valid_chars, $char) === false) {
+        //         return false;
+        //     }
+        // }
 
         $value_length = strlen($value);
         return $value_length >= 2 && $value_length <= 40;

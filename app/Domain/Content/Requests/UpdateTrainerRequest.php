@@ -5,6 +5,7 @@ namespace App\Domain\Content\Requests;
 use App\Rules\IDRule;
 use App\Rules\NameRule;
 use App\Rules\DescriptionRule;
+use App\Domain\Content\Rules\StatusRule;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Domain\Content\Rules\TrainerTitleRule;
 
@@ -22,7 +23,8 @@ class UpdateTrainerRequest extends FormRequest
             'name'          => ['required', new NameRule('name')],
             'title'         => ['required', new TrainerTitleRule],
             'description'   => ['nullable', new DescriptionRule],
-            'image'         => ['required', 'file', 'max:1000']
+            'status'        => ['required', new StatusRule],
+            'image'         => ['nullable', 'file', 'max:1000']
         ];
     }
 }

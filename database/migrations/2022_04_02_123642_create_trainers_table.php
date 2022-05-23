@@ -17,7 +17,7 @@ class CreateTrainersTable extends Migration
             $table->id();
             $table->string('name', 40);
             $table->string('title', 100);
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->string('image', 100);
             $table->integer('status')->unsigned()->index();
             $table->timestamps();
