@@ -79,6 +79,7 @@ class TrainerService implements IContentService
   {
     $trainer               = new Trainer;
     $trainer->name         = $data['name'];
+    $trainer->title        = $data['title'];
     $trainer->description  = $data['description'];
     $trainer->status       = StatusService::PENDING;
     $trainer->image        = FileService::create($data['image'], self::FILES_PATH);
@@ -102,6 +103,7 @@ class TrainerService implements IContentService
     };
 
     $trainer->name         = $data['name'];
+    $trainer->title        = $data['title'];
     $trainer->description  = $data['description'];
     $trainer->status       = $data['status'];
     

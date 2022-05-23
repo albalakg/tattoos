@@ -37,16 +37,6 @@ class OrderController extends Controller
     }
   }
 
-  public function updateStatus(UpdateOrderStatusRequest $request)
-  {
-    try {
-      $response = $this->service->updateStatus($request->id, $request->status, Auth::user()->id);
-      return $this->successResponse('Order\'s status updated', $response);
-    } catch (Exception $ex) {
-      return $this->errorResponse($ex);
-    }
-  }
-
   public function create(CreateOrderRequest $request)
   {
     try {

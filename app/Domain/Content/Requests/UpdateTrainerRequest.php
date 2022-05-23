@@ -6,6 +6,7 @@ use App\Rules\IDRule;
 use App\Rules\NameRule;
 use App\Rules\DescriptionRule;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Domain\Content\Rules\TrainerTitleRule;
 
 class UpdateTrainerRequest extends FormRequest
 {
@@ -19,6 +20,7 @@ class UpdateTrainerRequest extends FormRequest
         return [
             'id'            => ['required', 'bail', new IDRule, 'exists:trainers,id'],
             'name'          => ['required', new NameRule('name')],
+            'title'         => ['required', new TrainerTitleRule],
             'description'   => ['nullable', new DescriptionRule],
             'image'         => ['required', 'file', 'max:1000']
         ];

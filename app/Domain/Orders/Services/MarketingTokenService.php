@@ -77,6 +77,7 @@ class MarketingTokenService
   {
     $marketing_token              = MarketingToken::find($data['id']);
     $marketing_token->discount    = $data['discount'];
+    $marketing_token->email       = $data['email'];
     $marketing_token->save();
 
     $this->log_service->info('Marketing token has been updated: ' . json_encode($marketing_token));

@@ -129,6 +129,7 @@ class OrderService
     $order->price               = $this->getOrderPrice($course, $coupon, $marketing_token);
     $order->status              = StatusService::IN_PROGRESS;
     $order->order_number        = $this->generateOrderTicketNumber();
+    dd($order);
     $order->save();
 
     $this->log_service->info('Order has been created: ' . json_encode($order));

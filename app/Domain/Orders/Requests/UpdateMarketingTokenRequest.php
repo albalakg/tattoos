@@ -16,7 +16,8 @@ class UpdateMarketingTokenRequest extends FormRequest
     {
         return [
             'id'        => ['required', 'bail', new IDRule, 'exists:marketing_tokens,id'],
-            'discount'  => ['required', 'integer', 'between:1,10000']
+            'discount'  => ['required', 'integer', 'between:1,10000'],
+            'email'     => ['required', 'email', 'unique:marketing_tokens,email,' . request()->id]
         ];
     }
 }

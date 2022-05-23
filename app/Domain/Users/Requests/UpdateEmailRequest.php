@@ -2,7 +2,7 @@
 
 namespace App\Domain\Users\Requests;
 
-use App\Rules\IDRule;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateEmailRequest extends FormRequest
@@ -15,7 +15,7 @@ class UpdateEmailRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email,' . Auth::user()->id,
         ];
     }
 }

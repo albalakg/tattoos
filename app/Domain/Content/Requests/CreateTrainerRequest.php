@@ -3,8 +3,9 @@
 namespace App\Domain\Content\Requests;
 
 use App\Rules\NameRule;
-use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\DescriptionRule;
+use Illuminate\Foundation\Http\FormRequest;
+use App\Domain\Content\Rules\TrainerTitleRule;
 
 class CreateTrainerRequest extends FormRequest
 {
@@ -17,6 +18,7 @@ class CreateTrainerRequest extends FormRequest
     {
         return [
             'name'          => ['required', new NameRule('name')],
+            'title'         => ['required', new TrainerTitleRule],
             'description'   => ['nullable', new DescriptionRule],
             'image'         => ['required', 'file', 'max:1000']
         ];

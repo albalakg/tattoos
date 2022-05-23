@@ -2,10 +2,11 @@
 
 namespace App\Domain\Content\Services;
 
+use Exception;
 use Illuminate\Support\Str;
+use App\Domain\Helpers\LogService;
 use App\Domain\Content\Models\Coupon;
 use App\Domain\Helpers\StatusService;
-use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 

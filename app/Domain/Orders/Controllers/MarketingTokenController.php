@@ -39,7 +39,7 @@ class MarketingTokenController extends Controller
   {
     try {
       $response = $this->service->update($request->validated());
-      return $this->successResponse('Order has been updated', $response);
+      return $this->successResponse('Marketing Token has been updated', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -49,7 +49,7 @@ class MarketingTokenController extends Controller
   {
     try {
       $response = $this->service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Order has been created', $response);
+      return $this->successResponse('Marketing Token has been created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -59,7 +59,7 @@ class MarketingTokenController extends Controller
   {
     try {
       $response = $this->service->delete($request->input('id'));
-      return $this->successResponse('Order has been deleted', $response);
+      return $this->successResponse('Marketing Token has been deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -69,7 +69,7 @@ class MarketingTokenController extends Controller
   {
     try {
       $response = $this->service->forceDelete($request->input('id'));
-      return $this->successResponse('Order has been forced deleted', $response);
+      return $this->successResponse('Marketing Token has been forced deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
