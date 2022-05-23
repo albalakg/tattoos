@@ -21,6 +21,7 @@ class UpdateCourseAreasRequest extends FormRequest
             'id'                => ['required', 'bail', new IDRule, 'exists:course_areas,id'],
             'name'              => ['required', new NameRule],
             'course_id'         => ['required', new IDRule],
+            'trainer_id'        => ['required', new IDRule],
             'description'       => ['nullable', new DescriptionRule],
             'image'             => ['nullable', 'file', 'max:5000'],
             'trailer'           => ['nullable', 'file', 'max:10000'],

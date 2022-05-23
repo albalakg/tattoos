@@ -19,6 +19,7 @@ class CreateCourseAreaRequest extends FormRequest
         return [
             'name'          => ['required', new NameRule],
             'course_id'     => ['required', new IDRule],
+            'trainer_id'    => ['required', new IDRule],
             'description'   => ['nullable', new DescriptionRule],
             'image'         => ['required', 'file', 'max:5000'],
             'trailer'       => ['required', 'file', 'max:10000'],

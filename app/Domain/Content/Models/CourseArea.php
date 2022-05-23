@@ -4,6 +4,7 @@ namespace App\Domain\Content\Models;
 
 use App\Domain\Content\Models\Course;
 use App\Domain\Helpers\StatusService;
+use App\Domain\Content\Models\Trainer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -31,8 +32,12 @@ class CourseArea extends Model
     {
         return $this->hasOne(Course::class, 'id', 'course_id');
     }
-    
 
+    public function trainer()
+    {
+        return $this->hasOne(Trainer::class, 'id', 'trainer_id');
+    }
+    
     public function category()
     {
         return $this->hasOne(Course::class, 'id', 'course_id')

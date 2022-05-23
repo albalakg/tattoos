@@ -85,6 +85,7 @@ class CourseAreaService implements IContentService
               ->select(
                 'course_areas.id',
                 'course_areas.name',
+                'course_areas.trainer_id',
                 'course_areas.description',
                 'course_areas.course_id',
                 'course_areas.status',
@@ -107,6 +108,7 @@ class CourseAreaService implements IContentService
   {
     $course_area               = new CourseArea;
     $course_area->course_id    = $data['course_id'];
+    $course_area->trainer_id   = $data['trainer_id'];
     $course_area->name         = $data['name'];
     $course_area->description  = $data['description'];
     $course_area->view_order   = 0;
@@ -131,6 +133,7 @@ class CourseAreaService implements IContentService
     }
 
     $course_area->load('category');
+    $course_area->load('trainer');
     return $course_area;
   }
 
@@ -147,6 +150,7 @@ class CourseAreaService implements IContentService
 
     $course_area->course_id    = $data['course_id'];
     $course_area->name         = $data['name'];
+    $course_area->trainer_id   = $data['trainer_id'];
     $course_area->description  = $data['description'];
     $course_area->view_order   = 0;
     $course_area->status       = $data['status'];
