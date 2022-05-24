@@ -1,13 +1,11 @@
 <?php
 namespace App\Domain\Orders\Services;
 
-use Exception;
 use Illuminate\Support\Str;
-use Ramsey\Collection\Collection;
 use App\Domain\Helpers\LogService;
-use App\Domain\Users\Services\UserService;
 use App\Domain\Orders\Models\MarketingToken;
 use App\Domain\Orders\Services\OrderService;
+use Illuminate\Database\Eloquent\Collection;
 
 
 class MarketingTokenService
@@ -35,6 +33,15 @@ class MarketingTokenService
   {
     return MarketingToken::orderBy('id', 'desc')
                 ->with('orders')
+                ->select(
+                  'id',
+                  'name',
+                  'email',
+                  'phone',
+                  'token',
+                  'discount',
+                  'created_at'
+                )
                 ->get();
   }
 
@@ -59,8 +66,10 @@ class MarketingTokenService
   public function create(array $data, int $created_by)
   {
     $marketing_token              = new MarketingToken();
-    $marketing_token->email       = $data['email'];
     $marketing_token->discount    = $data['discount'];
+    $marketing_token->name        = $data['name'];
+    $marketing_token->email       = $data['email'];
+    $marketing_token->phone       = $data['phone'];
     $marketing_token->token       = $this->generateToken();
     $marketing_token->created_by  = $created_by;
     $marketing_token->save();
@@ -77,7 +86,9 @@ class MarketingTokenService
   {
     $marketing_token              = MarketingToken::find($data['id']);
     $marketing_token->discount    = $data['discount'];
+    $marketing_token->name        = $data['name'];
     $marketing_token->email       = $data['email'];
+    $marketing_token->phone       = $data['phone'];
     $marketing_token->save();
 
     $this->log_service->info('Marketing token has been updated: ' . json_encode($marketing_token));

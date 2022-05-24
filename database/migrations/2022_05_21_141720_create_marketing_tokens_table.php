@@ -15,9 +15,11 @@ class CreateMarketingTokensTable extends Migration
     {
         Schema::create('marketing_tokens', function (Blueprint $table) {
             $table->id();
+            $table->string('name', 120);
             $table->string('email', 120)->unique()->nullable();
+            $table->string('phone', 15)->unique()->nullable();
             $table->string('token', 50)->unique();
-            $table->decimal('discount')->index()->unsigned()->comment('the discount is in shekels');
+            $table->integer('discount')->index()->unsigned()->comment('the discount is in shekels');
             $table->timestamps();
             $table->softDeletes();
             $table->integer('created_by')->index()->unsigned()->nullable();
