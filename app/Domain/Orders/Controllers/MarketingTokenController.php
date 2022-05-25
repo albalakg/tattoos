@@ -58,7 +58,7 @@ class MarketingTokenController extends Controller
   public function delete(DeleteMarketingTokenRequest $request)
   {
     try {
-      $response = $this->service->delete($request->input('id'));
+      $response = $this->service->delete($request->input('ids'));
       return $this->successResponse('Marketing Token has been deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

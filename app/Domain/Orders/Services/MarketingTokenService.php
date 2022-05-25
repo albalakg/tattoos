@@ -5,6 +5,7 @@ use Illuminate\Support\Str;
 use App\Domain\Helpers\LogService;
 use App\Domain\Orders\Models\MarketingToken;
 use App\Domain\Orders\Services\OrderService;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 
 
@@ -97,25 +98,37 @@ class MarketingTokenService
   
   /**
    * Soft delete the item 
-   * @param int $id
+   * @param array $ids
    * @return bool
   */
-  public function delete(int $id): bool
+  public function delete(array $ids): bool
   {
-    $result = MarketingToken::where('id', $id)->delete();
-    $this->log_service->info('Marketing Token ' . $id . ' has been deleted');
-    return $result;
+    foreach ($ids as $id) {
+      try {
+        $this->log_service->info('Marketing Token ' . $id . ' has been deleted');
+        MarketingToken::where('id', $id)->delete();
+      } catch(Exception $ex) {
+        $this->log_service->error($ex);
+      }
+    }
+    return true;
   }
   
   /**
-   * @param int $id
+   * @param array $ids
    * @return bool
   */
-  public function forceDelete(int $id): bool
+  public function forceDelete(array $ids): bool
   {
-    $result = MarketingToken::where('id', $id)->forceDelete();
-    $this->log_service->info('Marketing Token ' . $id . ' has been forced deleted');
-    return $result;
+    foreach ($ids as $id) {
+      try {
+        $result = MarketingToken::where('id', $id)->forceDelete();
+        $this->log_service->info('Marketing Token ' . $id . ' has been forced deleted');
+      } catch(Exception $ex) {
+        $this->log_service->error($ex);
+      }
+    }
+    return true;
   }
   
   /**

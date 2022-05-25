@@ -15,7 +15,8 @@ class DeleteMarketingTokenRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => ['required', 'bail', new IDRule, 'exists:marketing_tokens,id'],
+            'ids'   => 'required|array|between:1,100',
+            'ids.*' => [new IDRule] 
         ];
     }
 }
