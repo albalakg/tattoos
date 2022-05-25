@@ -118,7 +118,7 @@ class OrderService
     }
 
     $coupon           = $data['coupon_code'] ? $this->content_service->getCoupon($data['coupon_code']) : null;
-    $marketing_token  = $this->marketing_token_service->getMarketingTokenByToken(request()->cookie('marketing_token'));
+    $marketing_token  = isset($data['marketing_token']) ? $this->marketing_token_service->getMarketingTokenByToken($data['marketing_token']) : null;
 
     $order                      = new Order();
     $order->user_id             = $created_by;
@@ -129,7 +129,6 @@ class OrderService
     $order->price               = $this->getOrderPrice($course, $coupon, $marketing_token);
     $order->status              = StatusService::IN_PROGRESS;
     $order->order_number        = $this->generateOrderTicketNumber();
-    dd($order);
     $order->save();
 
     $this->log_service->info('Order has been created: ' . json_encode($order));
@@ -251,7 +250,7 @@ class OrderService
     if($marketing_token) {
       $marketing_token_discount = $marketing_token->discount;
     }
-    
+
     $total_price = floor(($course->price - $course_discount - $coupon_discount - $marketing_token_discount) * $taxes);
     $this->log_service->info("Calc order price: course_discount=$course_discount|coupon_discount=$coupon_discount|marketing_token_discount=$marketing_token_discount|total_price=$total_price");
     return $total_price;

@@ -100,7 +100,7 @@ class RouteServiceProvider extends ServiceProvider
             ->group(base_path("routes/groups/app/support.php"));
 
         Route::prefix('api/orders')
-            ->middleware($this->optional_middleware)
+            ->middleware('auth:api')
             ->namespace($this->getNamespace('Users'))
             ->group(base_path("routes/groups/app/orders.php"));
         
