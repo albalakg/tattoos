@@ -116,6 +116,11 @@ class OrderService
       $this->log_service->error('The requested content ' . $data['content_id'] . ' was not found');
       throw new Exception('The requested content does not exists');
     }
+    
+    if(!$this->canCreateOrder($data['content_id'], $created_by)) {
+      $this->log_service->error('The requested content ' . $data['content_id'] . ' is already active or pending');
+      throw new Exception('User cannot create this order, there has already an active or pending order of this content'); 
+    }
 
     $coupon           = $data['coupon_code'] ? $this->content_service->getCoupon($data['coupon_code']) : null;
     $marketing_token  = isset($data['marketing_token']) ? $this->marketing_token_service->getMarketingTokenByToken($data['marketing_token']) : null;
@@ -254,5 +259,31 @@ class OrderService
     $total_price = floor(($course->price - $course_discount - $coupon_discount - $marketing_token_discount) * $taxes);
     $this->log_service->info("Calc order price: course_discount=$course_discount|coupon_discount=$coupon_discount|marketing_token_discount=$marketing_token_discount|total_price=$total_price");
     return $total_price;
+  }
+
+  /**
+   * @param int $content_id
+   * @param int $created_by
+   * @return boolean
+  */
+  private function canCreateOrder(int $content_id, int $created_by): bool
+  {
+    $has_active_order = $this->userHasAnActiveOrInProgressOfOrder($content_id, $created_by);
+    // add more rules here...
+
+    return !$has_active_order;
+  }
+
+  /**
+   * @param int $content_id
+   * @param int $created_by
+   * @return boolean
+  */
+  private function userHasAnActiveOrInProgressOfOrder(int $content_id, int $created_by): bool
+  {
+    return Order::where('user_id', $created_by)
+                ->where('content_id', $content_id)
+                ->whereIn('status', [StatusService::ACTIVE, StatusService::IN_PROGRESS])
+                ->exists();
   }
 }
