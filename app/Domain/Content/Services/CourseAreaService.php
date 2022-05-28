@@ -98,7 +98,20 @@ class CourseAreaService implements IContentService
               ->orderBy('course_areas.id', 'desc')
               ->get();
   }
-    
+          
+  /**
+   * Fully deletes all of the content
+   *
+   * @return void
+  */
+  public function truncate()
+  {
+    $course_areas_ids = CourseArea::pluck('id');
+    foreach($course_areas_ids AS $course_area_id) {
+      $this->forceDelete($course_area_id, 0);
+    }
+  }
+
   /**
    * @param array $data
    * @param int $created_by

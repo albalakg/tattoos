@@ -75,7 +75,20 @@ class CourseCategoryService implements IContentService
               ->orderBy('id', 'desc')
               ->get();
   }
-    
+      
+  /**
+   * Fully deletes all of the content
+   *
+   * @return void
+  */
+  public function truncate()
+  {
+    $categories_ids = CourseCategory::pluck('id');
+    foreach($categories_ids AS $category_id) {
+      $this->forceDelete($category_id, 0);
+    }
+  }
+
   /**
    * @param array $data
    * @param int $created_by

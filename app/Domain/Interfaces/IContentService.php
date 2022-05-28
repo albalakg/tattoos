@@ -10,4 +10,5 @@ interface IContentService
     public function delete(int $id, int $deleted_by): bool;
     public function forceDelete(int $id, int $deleted_by): bool;
     public function getAll(): object;
+    public function truncate();
 }

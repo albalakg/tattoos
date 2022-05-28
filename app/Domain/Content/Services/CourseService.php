@@ -130,6 +130,19 @@ class CourseService implements IContentService
                 ->select('id', 'name', 'status')
                 ->get();
   }
+  
+  /**
+   * Fully deletes all of the content
+   *
+   * @return void
+  */
+  public function truncate()
+  {
+    $courses_ids = Course::pluck('id');
+    foreach($courses_ids AS $course_id) {
+      $this->forceDelete($course_id, 0);
+    }
+  }
     
   /**
    * @param array $data

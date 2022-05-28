@@ -77,7 +77,20 @@ class TrainerService implements IContentService
   {
     return Trainer::inRandomOrder()->first();
   }
-    
+      
+  /**
+   * Fully deletes all of the content
+   *
+   * @return void
+  */
+  public function truncate()
+  {
+    $trainers_ids = Trainer::pluck('id');
+    foreach($trainers_ids AS $trainer_id) {
+      $this->forceDelete($trainer_id, 0);
+    }
+  }
+
   /**
    * @param array $data
    * @param int $created_by

@@ -54,6 +54,19 @@ class VideoService implements IContentService
   {
     return Video::inRandomOrder()->first();
   }
+      
+  /**
+   * Fully deletes all of the content
+   *
+   * @return void
+  */
+  public function truncate()
+  {
+    $videos_ids = Video::pluck('id');
+    foreach($videos_ids AS $video_id) {
+      $this->forceDelete($video_id, 0);
+    }
+  }
 
   /**
    * @param array $data

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\Fakers;
+namespace App\Console\Commands\Content;
 
 use Exception;
 use Illuminate\Console\Command;
@@ -19,7 +19,7 @@ class CourseFaker extends Command
      *
      * @var string
      */
-    protected $signature = 'faker:course';
+    protected $signature = 'content:generate {total_course_areas?} {total_lessons?} {total_trainers?} {total_video?}';
 
     /**
      * The console command description.

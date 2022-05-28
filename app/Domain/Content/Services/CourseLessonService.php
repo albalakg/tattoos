@@ -188,6 +188,19 @@ class CourseLessonService implements IContentService
     $last_view_order = CourseLesson::orderBy('view_order', 'desc')->value('view_order');
     return $last_view_order ? $last_view_order++ : 1; 
   }
+  
+  /**
+   * Fully deletes all of the content
+   *
+   * @return void
+  */
+  public function truncate()
+  {
+    $lessons_ids = CourseLesson::pluck('id');
+    foreach($lessons_ids AS $lesson_id) {
+      $this->forceDelete($lesson_id, 0);
+    }
+  }
 
   /**
    * @param array $data

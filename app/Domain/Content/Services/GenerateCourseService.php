@@ -63,6 +63,11 @@ class GenerateCourseService
   private $total_videos = 5;
   
   /**
+   * @var int
+  */
+  private $total_trainers = 6;
+  
+  /**
    * @var array
   */
   private $course_meta_data = [];
@@ -126,6 +131,16 @@ class GenerateCourseService
    * @param int $total
    * @return self
   */
+  public function setTotalTrainers(int $total): self
+  {
+    $this->total_trainers = $total;
+    return $this;
+  }
+  
+  /**
+   * @param int $total
+   * @return self
+  */
   public function setTotalLessons(int $total): self
   {
     $this->total_lessons = $total;
@@ -149,7 +164,13 @@ class GenerateCourseService
   */
   public function getGenerationDetails(): string
   {
-    return '1 Course, ' . $this->total_course_areas . ' Course Areas, ' . $this->total_lessons . ' lessons, ' . $this->total_videos . ' videos';
+    return  '1 Course Category, '     . 
+            '1 Course, '              . 
+            $this->total_course_areas . ' Course Areas, ' . 
+            $this->total_lessons      . ' lessons, ' . 
+            $this->total_videos       . ' videos, ' .
+            $this->total_trainers     . ' trainers'
+            ;
   }
   
   /**
@@ -188,17 +209,38 @@ class GenerateCourseService
 
   public function generate()
   {
+    $this->buildTrainersMetaData();
+    $this->saveTrainers();
+
+    $this->buildVideosMetaData();
+    $this->saveVideos();
+
+    $this->buildCourseCategoryMetaData();
+    $this->saveCourseCategory();
+
     $this->buildCourseMetaData();
     $this->saveCourse();
 
     $this->buildCourseAreasMetaData();
     $this->saveCourseAreas();
 
-    $this->buildVideosMetaData();
-    $this->saveVideos();
-
     $this->buildCourseLessonsMetaData();
     $this->saveCourseLessons();
+  }
+
+  private function buildCourseCategoryMetaData()
+  {
+    $this->course_meta_data = [
+      'name'        => 'Fake course category name ' . Str::random(5),
+      'description' => $this->getDescription(),
+      'status'      => StatusService::ACTIVE,
+      'image'       => $this->getCourseImage(),
+    ];
+  }
+
+  private function saveCourseCategory()
+  {
+    $this->created_course = $this->course_category_service->create($this->course_meta_data, 0);
   }
 
   private function buildCourseMetaData()
@@ -218,7 +260,7 @@ class GenerateCourseService
 
   private function saveCourse()
   {
-    $this->created_course = $this->course_service->create($this->course_meta_data, 1);
+    $this->created_course = $this->course_service->create($this->course_meta_data, 0);
   }
 
   private function buildCourseAreasMetaData()
@@ -246,7 +288,7 @@ class GenerateCourseService
   {
     foreach($this->course_areas_meta_data AS $course_area) {
       try {
-        $this->created_course_areas[] = $this->course_area_service->create($course_area, 1);
+        $this->created_course_areas[] = $this->course_area_service->create($course_area, 0);
       } catch(Exception $ex) {
         $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
       }
@@ -273,9 +315,38 @@ class GenerateCourseService
 
   private function saveVideos()
   {
-    foreach($this->videos_meta_data AS $key => $video) {
+    foreach($this->videos_meta_data AS $video) {
       try {
         $this->created_videos[] = $this->video_service->create($video, 0);
+      } catch(Exception $ex) {
+        $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
+      }
+    }
+  }
+
+  private function buildTrainersMetaData()
+  {
+    $token = Str::random(5);
+    for($index = 0; $index < $this->total_trainers; $index++) {
+      try {
+        $this->trainers_meta_data[] = [
+          'name'          => 'Fake trainer name ' . $token . '-' . + $index,
+          'title'         => 'Fake Title',
+          'description'   => $this->getDescription(),
+          'image'          => $this->getCourseImage(),
+          'status'        => StatusService::ACTIVE,
+        ];
+      } catch(Exception $ex) {
+        $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
+      }
+    }
+  }
+
+  private function saveTrainers()
+  {
+    foreach($this->trainers_meta_data AS $trainer) {
+      try {
+        $this->created_trainers[] = $this->trainer_service->create($trainer, 0);
       } catch(Exception $ex) {
         $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
       }
@@ -308,7 +379,7 @@ class GenerateCourseService
   {
     foreach($this->lessons_meta_data AS $course_area) {
       try {
-        $this->created_course_lessons[] = $this->course_lesson_service->create($course_area, 1);
+        $this->created_course_lessons[] = $this->course_lesson_service->create($course_area, 0);
       } catch(Exception $ex) {
         $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
       }
