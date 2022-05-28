@@ -142,6 +142,7 @@ class CourseService implements IContentService
     foreach($courses_ids AS $course_id) {
       $this->forceDelete($course_id, 0);
     }
+    Course::truncate();
   }
     
   /**
@@ -162,6 +163,7 @@ class CourseService implements IContentService
     $course->image        = FileService::create($data['image'], self::FILES_PATH);
     $course->trailer      = FileService::create($data['trailer'], self::FILES_PATH);
     $course->created_by   = $created_by;
+    $course->status       = $data['status'] ?? StatusService::PENDING;
     $course->save();
 
     $this->log_service->info('Course ' . $course->id . ' has been created: ' . json_encode($course));

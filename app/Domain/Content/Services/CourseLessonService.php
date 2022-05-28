@@ -200,6 +200,7 @@ class CourseLessonService implements IContentService
     foreach($lessons_ids AS $lesson_id) {
       $this->forceDelete($lesson_id, 0);
     }
+    CourseLesson::truncate();
   }
 
   /**
@@ -221,7 +222,7 @@ class CourseLessonService implements IContentService
     $lesson->activity_time    = $data['activity_time']    ?? null;
     $lesson->activity_period  = $data['activity_period']  ?? null;
     $lesson->view_order       = $data['view_order']       ?? null;
-    $lesson->status           = StatusService::PENDING;
+    $lesson->status           = $data['status']           ?? StatusService::PENDING;
     $lesson->save();
 
     $this->log_service->info('Lesson ' . $lesson->id . ' has been created: ' . json_encode($lesson));

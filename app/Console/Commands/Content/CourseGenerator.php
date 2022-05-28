@@ -12,14 +12,14 @@ use App\Domain\Content\Services\CourseCategoryService;
 use App\Domain\Content\Services\GenerateCourseService;
 use App\Domain\Content\Services\TrainerService;
 
-class CourseFaker extends Command
+class CourseGenerator extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'content:generate {total_course_areas?} {total_lessons?} {total_trainers?} {total_video?}';
+    protected $signature = 'content:generate';
 
     /**
      * The console command description.
@@ -54,7 +54,7 @@ class CourseFaker extends Command
                 new VideoService,
                 new TrainerService,
             );
-
+ 
             $course_generator->generate();
 
             if($course_generator->hasErrors()) {

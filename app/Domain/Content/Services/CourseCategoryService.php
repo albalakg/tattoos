@@ -87,6 +87,7 @@ class CourseCategoryService implements IContentService
     foreach($categories_ids AS $category_id) {
       $this->forceDelete($category_id, 0);
     }
+    CourseCategory::truncate();
   }
 
   /**
@@ -102,6 +103,7 @@ class CourseCategoryService implements IContentService
     $course_category->image        = FileService::create($data['image'], self::FILES_PATH);
     $course_category->status       = StatusService::PENDING;
     $course_category->created_by   = $created_by;
+    $course_category->status       = $data['status'] ?? StatusService::PENDING;
     $course_category->save();
 
     $this->log_service->info('Course Category ' . $course_category->id . ' has been created: ' . json_encode($course_category));

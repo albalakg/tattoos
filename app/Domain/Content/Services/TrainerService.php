@@ -89,6 +89,7 @@ class TrainerService implements IContentService
     foreach($trainers_ids AS $trainer_id) {
       $this->forceDelete($trainer_id, 0);
     }
+    Trainer::truncate();
   }
 
   /**
@@ -105,6 +106,7 @@ class TrainerService implements IContentService
     $trainer->status       = StatusService::PENDING;
     $trainer->image        = FileService::create($data['image'], self::FILES_PATH);
     $trainer->created_by   = $created_by;
+    $trainer->status       = $data['status'] ?? StatusService::PENDING;
     $trainer->save();
 
     $this->log_service->info('Trainer has been created: ' . json_encode($trainer));

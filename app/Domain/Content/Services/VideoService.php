@@ -66,6 +66,7 @@ class VideoService implements IContentService
     foreach($videos_ids AS $video_id) {
       $this->forceDelete($video_id, 0);
     }
+    Video::truncate();
   }
 
   /**
@@ -82,6 +83,7 @@ class VideoService implements IContentService
     $video->status       = StatusService::ACTIVE;
     $video->video_path   = FileService::create($data['file'], self::FILES_PATH);
     $video->created_by   = $created_by;
+    $video->status       = $data['status'] ?? StatusService::PENDING;
 
     $video->save();
 

@@ -265,13 +265,14 @@ class GenerateCourseService
 
   private function buildCourseAreasMetaData()
   {
+    $token = Str::random(5);
     for($index = 0; $index < $this->total_course_areas; $index++) {
       try {
         $this->course_areas_meta_data[] = [
           'course_id'   => $this->created_course->id,
           'trainer_id'  => $this->trainer_service->getRandomTrainer()->id ?? 0,
-          'name'        => 'Fake course area name ' . $index++,
-          'image'       => 'add image path',
+          'name'        => 'Fake course area name ' . $token . '-' . + $index,
+          'image'       => $this->getCourseImage(),
           'trailer'     => NULL,
           'status'      => StatusService::ACTIVE,
           'price'       => $this->getRandomPrice(),
@@ -362,7 +363,7 @@ class GenerateCourseService
           'course_id'       => $this->created_course->id,
           'course_area_id'  => $this->getCourseAreaId(),
           'name'            => 'Fake lesson name ' . $token . '-' . + $index,
-          'image'           => 'add image path',
+          'image'           => $this->getCourseImage(),
           'video_id'        => $this->video_service->getRandomVideo()->id,
           'status'          => StatusService::ACTIVE,
           'content'         => $this->getLessonContent(),
