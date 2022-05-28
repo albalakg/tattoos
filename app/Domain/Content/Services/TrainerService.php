@@ -85,7 +85,7 @@ class TrainerService implements IContentService
   */
   public function truncate()
   {
-    $trainers_ids = Trainer::pluck('id');
+    $trainers_ids = Trainer::withTrashed()->pluck('id');
     foreach($trainers_ids AS $trainer_id) {
       $this->forceDelete($trainer_id, 0);
     }
@@ -195,7 +195,7 @@ class TrainerService implements IContentService
   */
   private function canDelete(int $trainer_id): Trainer
   {
-    if(!$trainer = Trainer::where('id', $trainer_id)->first()) {
+    if(!$trainer = Trainer::where('id', $trainer_id)->withTrashed()->first()) {
       throw new Exception('Trainer not found');
     }
 

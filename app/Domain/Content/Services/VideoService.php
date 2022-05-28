@@ -62,7 +62,7 @@ class VideoService implements IContentService
   */
   public function truncate()
   {
-    $videos_ids = Video::pluck('id');
+    $videos_ids = Video::withTrashed()->pluck('id');
     foreach($videos_ids AS $video_id) {
       $this->forceDelete($video_id, 0);
     }

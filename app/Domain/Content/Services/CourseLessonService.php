@@ -196,7 +196,7 @@ class CourseLessonService implements IContentService
   */
   public function truncate()
   {
-    $lessons_ids = CourseLesson::pluck('id');
+    $lessons_ids = CourseLesson::withTrashed()->pluck('id');
     foreach($lessons_ids AS $lesson_id) {
       $this->forceDelete($lesson_id, 0);
     }

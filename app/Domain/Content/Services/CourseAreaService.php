@@ -106,7 +106,7 @@ class CourseAreaService implements IContentService
   */
   public function truncate()
   {
-    $course_areas_ids = CourseArea::pluck('id');
+    $course_areas_ids = CourseArea::withTrashed()->pluck('id');
     foreach($course_areas_ids AS $course_area_id) {
       $this->forceDelete($course_area_id, 0);
     }

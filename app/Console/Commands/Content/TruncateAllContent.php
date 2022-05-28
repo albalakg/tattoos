@@ -49,12 +49,12 @@ class TruncateAllContent extends Command
     public function handle()
     {
         $content_list = [
-            new TrainerService(new CourseAreaService),
             new CourseLessonService,
-            new VideoService(new CourseLessonService),
             new CourseAreaService(new CourseLessonService),
             new CourseService(new CourseAreaService),
             new CourseCategoryService(new CourseService),
+            new VideoService(new CourseLessonService),
+            new TrainerService(new CourseAreaService),
         ];
 
         $bar = $this->output->createProgressBar(count($content_list));

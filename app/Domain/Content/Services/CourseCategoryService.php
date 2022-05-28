@@ -83,7 +83,7 @@ class CourseCategoryService implements IContentService
   */
   public function truncate()
   {
-    $categories_ids = CourseCategory::pluck('id');
+    $categories_ids = CourseCategory::withTrashed()->pluck('id');
     foreach($categories_ids AS $category_id) {
       $this->forceDelete($category_id, 0);
     }
