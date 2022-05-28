@@ -126,7 +126,7 @@ class GenerateCourseService
    * @param int $total
    * @return self
   */
-  public function setTotalLessonsPerCourseArea(int $total): self
+  public function setTotalLessons(int $total): self
   {
     $this->total_lessons = $total;
     return $this;
