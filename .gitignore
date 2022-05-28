@@ -3,6 +3,7 @@
 /public/storage
 /public/files
 /storage/*.key
+!/storage/app/FakerContent/
 /vendor
 .env
 .phpunit.result.cache

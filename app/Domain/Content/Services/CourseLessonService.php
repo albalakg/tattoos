@@ -177,7 +177,18 @@ class CourseLessonService implements IContentService
     
     return true;
   }
-    
+        
+  /**
+   * Checks the latest view order and returns the next one
+   *
+   * @return int
+  */
+  public function getNextViewOrder(): int
+  {
+    $last_view_order = CourseLesson::orderBy('view_order', 'desc')->value('view_order');
+    return $last_view_order ? $last_view_order++ : 1; 
+  }
+
   /**
    * @param array $data
    * @param int $created_by
@@ -196,6 +207,7 @@ class CourseLessonService implements IContentService
     $lesson->rest_time        = $data['rest_time']        ?? null;
     $lesson->activity_time    = $data['activity_time']    ?? null;
     $lesson->activity_period  = $data['activity_period']  ?? null;
+    $lesson->view_order       = $data['view_order']       ?? null;
     $lesson->status           = StatusService::PENDING;
     $lesson->save();
 

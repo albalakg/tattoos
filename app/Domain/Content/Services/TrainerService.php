@@ -69,6 +69,14 @@ class TrainerService implements IContentService
               ->select('name', 'description', 'image')
               ->get();
   }
+  
+  /**
+   * @return null|Trainer
+  */
+  public function getRandomTrainer(): ?Trainer
+  {
+    return Trainer::inRandomOrder()->first();
+  }
     
   /**
    * @param array $data

@@ -191,7 +191,18 @@ class CourseAreaService implements IContentService
       }
     }
   } 
-  
+    
+  /**
+   * Checks the latest view order and returns the next one
+   *
+   * @return int
+  */
+  public function getNextViewOrder(): int
+  {
+    $last_view_order = CourseArea::orderBy('view_order', 'desc')->value('view_order');
+    return $last_view_order ? $last_view_order++ : 1; 
+  }
+
   /**
    * Soft delete the item 
    * @param int $course_area_id

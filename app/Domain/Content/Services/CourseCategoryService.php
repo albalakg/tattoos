@@ -57,6 +57,14 @@ class CourseCategoryService implements IContentService
   }
   
   /**
+   * @return null|CourseCategory
+  */
+  public function getRandomCategory(): ?CourseCategory
+  {
+    return CourseCategory::inRandomOrder()->first();
+  }
+  
+  /**
    * @param int $status
    * @return Collection
   */

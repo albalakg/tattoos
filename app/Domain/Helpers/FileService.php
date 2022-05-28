@@ -5,6 +5,7 @@ namespace App\Domain\Helpers;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use App\Domain\Helpers\LogService;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class FileService
@@ -14,16 +15,25 @@ class FileService
   /**
    * Create a file
    *
-   * @param UploadedFile $file
+   * @param string|UploadedFile $file
    * @param string $path
    * @param string $disk
    * @param string $name
    * @return string
   */
-  static public function create(UploadedFile $file, string $path, string $disk = self::DEFAULT_DISK) :string
+  static public function create($file, string $path, string $disk = self::DEFAULT_DISK) :string
   {
     try {
-      return Storage::disk($disk)->putFile($path, $file);
+      if(!$file) {
+        throw new Exception('File is invalid');
+      }
+
+      if(is_string($file)) {
+        return self::copy($file, $path, 'local');
+      } else {
+        return Storage::disk($disk)->putFile($path, $file);
+      }
+
     } catch(Exception $ex) {
       self::writeErrorLog($ex);
       return '';
@@ -33,13 +43,13 @@ class FileService
   /**
    * Create a file
    *
-   * @param UploadedFile $file
+   * @param string|UploadedFile $file
    * @param string $path
    * @param string $disk
    * @param string $name
    * @return string
   */
-  static public function createWithName(UploadedFile $file, string $path, string $name, string $disk = self::DEFAULT_DISK) :string
+  static public function createWithName(mixed $file, string $path, string $name, string $disk = self::DEFAULT_DISK) :string
   {
     try {
       return Storage::disk($disk)->putFileAs($path, $file, $name);
@@ -99,21 +109,22 @@ class FileService
    *
    * @param string $path_from
    * @param string $path_to
-   * @param string $disk
-   * @return bool
+   * @param string $from_disk
+   * @param string $to_disk
+   * @return string
    */
-  static public function copy(string $path_from, string $path_to, string $disk = self::DEFAULT_DISK) :bool
+  static public function copy(string $path_from, string $path_to, string $from_disk = self::DEFAULT_DISK, string $to_disk = self::DEFAULT_DISK) :string
   {
     try {
-      if( !Storage::disk($disk)->exists($path_from) ) {
+      if( !Storage::disk($from_disk)->exists($path_from) ) {
         throw new Exception("File $path_from not found");
       }
-      
-      Storage::disk($disk)->copy($path_from, $path_to);
-      return true;
+
+      $file = Storage::disk($from_disk)->path($path_from);
+      return Storage::disk($to_disk)->putFile($path_to , $file);
     } catch(Exception $ex) {
       self::writeErrorLog($ex);
-      return false;
+      return '';
     }
   }
   

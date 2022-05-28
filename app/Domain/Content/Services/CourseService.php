@@ -144,7 +144,7 @@ class CourseService implements IContentService
     $course->description  = $data['description'];
     $course->price        = $data['price'];
     $course->discount     = $data['discount'];
-    $course->view_order   = 0;
+    $course->view_order   = $data['view_order'] ?? 0;
     $course->status       = StatusService::PENDING;
     $course->image        = FileService::create($data['image'], self::FILES_PATH);
     $course->trailer      = FileService::create($data['trailer'], self::FILES_PATH);
@@ -173,7 +173,6 @@ class CourseService implements IContentService
     $course->description  = $data['description'];
     $course->price        = $data['price'];
     $course->discount     = $data['discount'];
-    $course->view_order   = 0;
     $course->status       = $data['status'];
     
     if(!empty($data['image'])) {
@@ -241,6 +240,17 @@ class CourseService implements IContentService
     $result = $course->forceDelete();
     $this->log_service->info('Course ' . $course_id . ' has been forced deleted');
     return $result;
+  }
+  
+  /**
+   * Checks the latest view order and returns the next one
+   *
+   * @return int
+  */
+  public function getNextViewOrder(): int
+  {
+    $last_view_order = Course::orderBy('view_order', 'desc')->value('view_order');
+    return $last_view_order ? $last_view_order++ : 1; 
   }
    
   /**

@@ -48,6 +48,14 @@ class VideoService implements IContentService
   }
     
   /**
+   * @return null|Video
+  */
+  public function getRandomVideo(): ?Video
+  {
+    return Video::inRandomOrder()->first();
+  }
+
+  /**
    * @param array $data
    * @param int $created_by
    * @return Video
@@ -61,6 +69,7 @@ class VideoService implements IContentService
     $video->status       = StatusService::ACTIVE;
     $video->video_path   = FileService::create($data['file'], self::FILES_PATH);
     $video->created_by   = $created_by;
+
     $video->save();
 
     $this->log_service->info('Video has been created: ' . json_encode($video));
