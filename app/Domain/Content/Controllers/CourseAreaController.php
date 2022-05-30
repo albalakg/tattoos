@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CourseAreaService;
+use App\Domain\Content\Requests\OrderContentRequest;
 use App\Domain\Content\Services\CourseLessonService;
 use App\Domain\Content\Requests\CreateCourseAreaRequest;
 use App\Domain\Content\Requests\UpdateCourseAreasRequest;
@@ -65,6 +66,16 @@ public function delete(DeleteRequest $request)
         $ex,
         $this->course_area_service->error_data
       );
+    }
+  }
+  
+  public function order(OrderContentRequest $request)
+  {
+    try {
+      $response = $this->course_area_service->updateOrder($request->content);
+      return $this->successResponse('Course Areas order updated successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
     }
   }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CourseAreaService;
+use App\Domain\Content\Requests\OrderContentRequest;
 use App\Domain\Content\Services\CourseLessonService;
 use App\Domain\Content\Requests\CreateCourseLessonRequest;
 use App\Domain\Content\Requests\UpdateCourseLessonRequest;
@@ -65,11 +66,21 @@ class CourseLessonController extends Controller
     }
   }
 
-public function delete(DeleteRequest $request)
+  public function delete(DeleteRequest $request)
   {
     try {
       $response = $this->lesson_service->multipleDelete($request->ids, Auth::user()->id);
       return $this->successResponse('Lessons deleted', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function order(OrderContentRequest $request)
+  {
+    try {
+      $response = $this->lesson_service->updateOrder($request->content);
+      return $this->successResponse('Lessons order updated successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

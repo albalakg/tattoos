@@ -278,6 +278,19 @@ class CourseLessonService implements IContentService
   }
   
   /**
+   * update the view order of the content
+   *
+   * @param array $lessons
+   * @return void
+  */
+  public function updateOrder(array $lessons)
+  {
+    foreach($lessons AS $lesson) {
+      CourseLesson::where('id', $lesson['id'])->update(['view_order' => $lesson['view_order']]);
+    }
+  }
+  
+  /**
    * @param string $path
    * @param int $deleted_by
    * @return void
@@ -363,6 +376,7 @@ class CourseLessonService implements IContentService
               'course_lessons.name',
               'course_lessons.content',
               'course_lessons.status',
+              'course_lessons.view_order',
               'course_lessons.created_at',
               'courses.name AS course_name',
               'course_areas.name AS course_area_name',

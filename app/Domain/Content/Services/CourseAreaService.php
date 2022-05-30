@@ -194,6 +194,19 @@ class CourseAreaService implements IContentService
   }
   
   /**
+   * update the view order of the content
+   *
+   * @param array $course_areas
+   * @return void
+  */
+  public function updateOrder(array $course_areas)
+  {
+    foreach($course_areas AS $course_area) {
+      CourseArea::where('id', $course_area['id'])->update(['view_order' => $course_area['view_order']]);
+    }
+  }
+  
+  /**
    * @param string $path
    * @param int $deleted_by
    * @return void
