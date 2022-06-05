@@ -57,6 +57,16 @@ Route::get('/course-almost-expired', function() {
     return view('mails.user.courseAlmostExpired', ['data' => $data]);
 });
 
+Route::get('/activity-reminder', function() {
+    $date = new Carbon;
+    $data = [
+        'name'          => 'עדן',
+        'course_id'     => 1,
+        'lesson_id'     => 1,
+    ];
+    return view('mails.user.activityReminder', ['data' => $data]);
+});
+
 Route::get('/course-completed', function() {
     $date = new Carbon;
     $data = [
