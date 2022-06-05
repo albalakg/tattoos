@@ -46,6 +46,17 @@ Route::get('/new-course', function() {
     return view('mails.user.newCourse', ['data' => $data]);
 });
 
+Route::get('/course-almost-expired', function() {
+    $date = new Carbon;
+    $data = [
+        'name'          => 'עדן',
+        'course_name'   => 'כדורגל בסיסי',
+        'course_id'     => 1,
+        'end_at'        => $date->addDays(364)->format('d/m/Y'),
+    ];
+    return view('mails.user.courseAlmostExpired', ['data' => $data]);
+});
+
 Route::get('/course-completed', function() {
     $date = new Carbon;
     $data = [
