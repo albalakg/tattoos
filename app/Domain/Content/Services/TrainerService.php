@@ -66,7 +66,7 @@ class TrainerService implements IContentService
     return $this->baseQueryBuilder()
               ->where('status', StatusService::ACTIVE)
               ->orderBy('id', 'desc')
-              ->select('name', 'description', 'image')
+              ->select('name', 'title', 'description', 'image')
               ->get();
   }
   

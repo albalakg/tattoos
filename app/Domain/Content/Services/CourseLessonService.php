@@ -179,6 +179,18 @@ class CourseLessonService implements IContentService
   }
         
   /**
+   * Gets the next view order of the course area
+   *
+   * @param int $course_area_id
+   * @return int
+  */
+  public function getLessonViewOrder(int $course_area_id): int
+  {
+    $last_view_order = CourseLesson::where('course_area_id', $course_area_id)->orderBy('view_order', 'desc')->value('view_order');
+    return $last_view_order ? ++$last_view_order : 1; 
+  }
+        
+  /**
    * Checks the latest view order and returns the next one
    *
    * @return int
@@ -217,11 +229,12 @@ class CourseLessonService implements IContentService
     $lesson->image            = FileService::create($data['image'], self::FILES_PATH);
     $lesson->name             = $data['name'];
     $lesson->content          = $data['content'];
+    $lesson->description      = $data['description'];
     $lesson->rehearsals       = $data['rehearsals']       ?? null;
     $lesson->rest_time        = $data['rest_time']        ?? null;
     $lesson->activity_time    = $data['activity_time']    ?? null;
     $lesson->activity_period  = $data['activity_period']  ?? null;
-    $lesson->view_order       = $data['view_order']       ?? null;
+    $lesson->view_order       = $this->getLessonViewOrder($data['course_area_id']);
     $lesson->status           = $data['status']           ?? StatusService::PENDING;
     $lesson->save();
 
@@ -252,6 +265,7 @@ class CourseLessonService implements IContentService
     $lesson->course_area_id = $data['course_area_id'];
     $lesson->name           = $data['name'];
     $lesson->content        = $data['content'];
+    $lesson->description    = $data['description'];
     $lesson->status         = $data['status'];
     
     if(!empty($data['rehearsals'])) {
@@ -375,6 +389,11 @@ class CourseLessonService implements IContentService
               'course_lessons.course_area_id',
               'course_lessons.name',
               'course_lessons.content',
+              'course_lessons.description',
+              'course_lessons.rehearsals',
+              'course_lessons.activity_time',
+              'course_lessons.activity_period',
+              'course_lessons.rest_time',
               'course_lessons.status',
               'course_lessons.view_order',
               'course_lessons.created_at',

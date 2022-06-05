@@ -22,12 +22,13 @@ class UpdateCourseLessonRequest extends FormRequest
             'course_area_id'    => ['required', 'bail', new IDRule, 'exists:course_areas,id'],
             'video_id'          => ['required', 'bail', new IDRule, 'exists:videos,id'],
             'status'            => ['required', new StatusRule],
-            'image'             => ['nullable', 'file', 'max:5000'],
+            'content'           => ['required', 'string',  'between:1,100000'],
+            'description'       => ['required', 'string',  'between:1,100000'],
             'rehearsals'        => ['nullable', 'numeric', 'between:1,100000'],
             'rest_time'         => ['nullable', 'numeric', 'between:1,100000'],
             'activity_time'     => ['nullable', 'numeric', 'between:1,100000'],
             'activity_period'   => ['nullable', 'numeric', 'between:1,100'],
-            'content'           => ['nullable', 'string'],
+            'image'             => ['nullable', 'file', 'max:5000'],
         ];
     }
 }

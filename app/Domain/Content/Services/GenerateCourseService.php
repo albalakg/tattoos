@@ -305,7 +305,7 @@ class GenerateCourseService
           'name'          => 'Fake video name ' . $token . '-' . + $index,
           'description'   => $this->getDescription(),
           'status'        => StatusService::ACTIVE,
-          'video_length'  => 10,
+          'video_length'  => 8,
           'file'          => $this->getVideo(),
         ];
       } catch(Exception $ex) {
