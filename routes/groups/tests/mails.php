@@ -25,3 +25,11 @@ Route::get('/email-confirmation', function() {
     ];
     return view('mails.profile.updateEmailRequest', ['data' => $data]);
 });
+
+Route::get('/delete-account-request', function() {
+    $data = [
+        'name'  => 'עדן',
+        'token' => 'ASD3FV32f233fdfsadfdsf'
+    ];
+    return view('mails.profile.deleteAccountRequest', ['data' => $data]);
+});

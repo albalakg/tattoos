@@ -3,45 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Account Request</title>
+    <title>MiToo - Forgot Password</title>
+
+    <style>
+        body {
+            direction: rtl;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0;
+            margin: 0;
+        }
+
+        table {
+            width: 40%;
+            margin: auto;
+        }
+
+        .header {
+            background-color: #173656;
+            height: 250px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 20px;
+        }
+
+        .header img {
+            width: 30%;
+        }
+
+        .content {
+            position: relative;
+            top: -200px;
+            background-color: #fff;
+            width: 94%;
+            border-radius: 10px;
+            box-shadow: 0 0 10px 2px #8885;
+        }
+
+        .content div {
+            padding: 1px 10px;
+            padding-bottom: 10px;
+            text-align: right;
+        }
+
+        .content img {
+            width: 60%;
+        }
+
+        .blue--text {
+            color: #16588f;
+        }
+
+        button {
+            background-color: #e6b260;
+            padding: 10px 30px;
+            border-radius: 25px;
+            border: 1px solid #fff;
+            box-shadow: 0 0 5px 1px #e6b26088;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cancel--button {
+            background-color: #333;
+            box-shadow: 0 0 5px 1px #3338;
+        }
+
+        .links {
+            display: flex;
+            justify-content: space-between;
+            width: 50%;
+            margin: auto;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media only screen and (max-width: 600px) {
+            table {
+                width: 100%;
+                border-spacing: unset;
+            }
+
+            .header {
+                border-radius: unset;
+            }
+        }
+
+    </style>
 </head>
 <body>
     <table>
         <thead>
             <tr>
-                <td align="center">
-                    <h1>
-                        Delete Account Request
-                    </h1>
+                <td class="header" align="center">
+                    <img src="{{ URL::to('/') }}/files/general/white-logo.png" />
                 </td>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td align="center">
-                    <p>
-                        Hello {{ $data->user_name }},
+                    <div class="content">
+                        <div>
+                            <h1>
+                                היי {{ $data['name'] }}, <span class="blue--text">בטוח שרוצה למחוק את המשתמש?</span>
+                            </h1>
+                            <p>
+                            במידה ואתה בטוח שרוצה למחוק את המשתמש נשמח לעזור לך בזה.
+                            <br>
+                            רק לפני כן, נרצה להזכיר לך שעם המחיקה, כל המידע על המשתמש כולל כל ההתקדמות, יימחקו תמידית.
+                            <br>
+                            לא אהיה ניתן לשחזר את המידע.
+                            <br>
+                            למחיקת המשתמש, תלחץ על הפתור למטה.
+                            </p>
+                        </div>
                         <br>
-                        Are you sure you want to delete your account?
+                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
                         <br>
-                        From the moment the account is deleted, there is no way to restore the lost data.
-                    </p>
+                        <br>
+                        <br>
+                        <br>
+
+                        <div class="actions">
+                            <a href="{{URL::to('/')}}/delete-account&token={{ $data['token'] }}&status=1">
+                                <button>
+                                    מחק משתמש
+                                </button>
+                            </a>
+
+                            <a href="{{URL::to('/')}}/delete-account&token={{ $data['token'] }}&status=0">
+                                <button class="cancel--button">
+                                    בטל מחיקה
+                                </button>
+                            </a>
+                        </div>
+                        
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                    </div>
                 </td>
             </tr>
             <tr>
-                <td align="left">
-                    <a href="{{URL::to('/')}}/delete-account?email={{ $data->email }}&token={{ $data->token }}&status=1">
-                        <button>
-                            Confirm
-                        </button>
-                    </a>
-                </td>
-                <td align="right">
-                    <a href="{{URL::to('/')}}/delete-account?email={{ $data->email }}&token={{ $data->token }}&status=0">
-                        <button>
-                            Cancel Request
-                        </button>
-                    </a>
+                <td align="center">
+                    <div class="links">
+                        <div class="link">
+                            <a href="">
+                                <img src="{{ URL::to('/') }}/files/general/instagram.png" />
+                            </a>
+                        </div>
+                        <div class="link">
+                            <a href="">
+                                <img src="{{ URL::to('/') }}/files/general/facebook.png" />
+                            </a>
+                        </div>
+                        <div class="link">
+                            <a href="">
+                                <img src="{{ URL::to('/') }}/files/general/linkedin.png" />
+                            </a>
+                        </div>
+                        <div class="link">
+                            <a href="">
+                                <img src="{{ URL::to('/') }}/files/general/twitter.png" />
+                            </a>
+                        </div>
+                    </div>
+                    <br>
+                    <small>
+                        GOLDENS
+                    </small>
+                    <br>
+                    <small>
+                        המקום שלך להתפתח
+                    </small>
                 </td>
             </tr>
         </tbody>

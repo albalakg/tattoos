@@ -101,7 +101,7 @@
                     <div class="content">
                         <div>
                             <h1>
-                                היי {{ $data['name'] }}, <span class="blue--text">צריך לעדכן את המייל?</span>
+                                היי {{ $data['name'] }}, <span class="blue--text">רוצה לעדכן את הכתובת מייל?</span>
                             </h1>
                             <p>
                             שמחים לעזור לך בהחלפת הכתובת אמייל.
