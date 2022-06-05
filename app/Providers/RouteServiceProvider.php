@@ -56,6 +56,7 @@ class RouteServiceProvider extends ServiceProvider
             });
 
         $this->setAppRoutes();
+        $this->setTestsRoutes();
         $this->setCMSRoutes();
     }
 
@@ -182,5 +183,16 @@ class RouteServiceProvider extends ServiceProvider
             ->middleware('auth:api', 'admin')
             ->namespace($this->namespace)
             ->group(base_path("routes/groups/cms/courses.php"));
+    }
+    
+    /**
+     * @return void
+    */
+    private function setTestsRoutes()
+    {
+        Route::prefix('tests/mails')
+            ->middleware('testing')
+            ->namespace($this->namespace)
+            ->group(base_path("routes/groups/tests/mails.php"));
     }
 }

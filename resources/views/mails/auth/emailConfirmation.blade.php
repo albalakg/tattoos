@@ -86,7 +86,7 @@
         <thead>
             <tr>
                 <td class="header" align="center">
-                    <img src="../files/general/white-logo.png" />
+                    <img src="{{ URL::to('/') }}/files/general/white-logo.png" />
                 </td>
             </tr>
         </thead>
@@ -105,7 +105,7 @@
                             </p>
                         </div>
                         <br>
-                        <img src="../files/general/dark-logo.png" />
+                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
                         <br>
                         <br>
                         <br>
@@ -129,22 +129,22 @@
                     <div class="links">
                         <div class="link">
                             <a href="">
-                                <img src="../files/general/instagram.png" />
+                                <img src="{{ URL::to('/') }}/files/general/instagram.png" />
                             </a>
                         </div>
                         <div class="link">
                             <a href="">
-                                <img src="../files/general/facebook.png" />
+                                <img src="{{ URL::to('/') }}/files/general/facebook.png" />
                             </a>
                         </div>
                         <div class="link">
                             <a href="">
-                                <img src="../files/general/linkedin.png" />
+                                <img src="{{ URL::to('/') }}/files/general/linkedin.png" />
                             </a>
                         </div>
                         <div class="link">
                             <a href="">
-                                <img src="../files/general/twitter.png" />
+                                <img src="{{ URL::to('/') }}/files/general/twitter.png" />
                             </a>
                         </div>
                     </div>
