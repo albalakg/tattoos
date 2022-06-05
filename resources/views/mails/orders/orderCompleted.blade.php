@@ -3,34 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Course</title>
-</head>
-<body>
-    <table>
-        <thead>
-            <tr>
-                <td align="center">
-                    <h1>
-                    New Course
-                    </h1>
-                </td>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td align="center">
-                    <p>
-                        Hello {{ $data->user_name }},
-                        <br>
-                        You have just started the course "{{ $data->course }}".
-                        <br>
-                        The course cost {{ $data->price }} NIS.
-                        <br>
-                        The course ends at {{ $data->end_at }}.<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MiToo - Forgot Password</title>
 
     <style>
@@ -80,23 +52,17 @@
             cursor: pointer;
         }
 
-        .cancel--button {
-            background-color: #333;
-            box-shadow: 0 0 5px 1px #3338;
-        }
-
-        a {
-            text-decoration: none;
+        .links {
+            display: flex;
+            justify-content: space-between;
+            width: 50%;
+            margin: auto;
         }
 
         @media only screen and (max-width: 600px) {
             table {
                 width: 100%;
                 border-spacing: unset;
-            }
-
-            .header {
-                border-radius: unset;
             }
         }
 
@@ -111,15 +77,19 @@
                     <div class="content">
                         <div>
                             <h1>
-                                היי {{ $data['name'] }}, <span class="blue--text">בהצלחה בקורס!</span>
+                                היי {{ $data['name'] }}, <span class="blue--text">ההזמנה בוצעה בהצלחה!</span>
                             </h1>
+                            <small>
+                            המספר הזמנה הינו: {{ $data['order_number'] }}
+                            </small>
                             <p>
-                                הרגע התחלת את הקורס "{{ $data['course_name'] }}".
-                                <br>
-                                יש לך גישה עכשיו לכל תכני הקורס עד התאריך "{{ $data['end_at'] }}".
-                                <br>
-                                בשביל להיכנס לקורס לחץ על הכפתור למטה.
+                            תודה רבה שרכשת את הקורס "{{ $data['course_name'] }}".
+                            <br>
+                            עלות הקורס הינה {{ $data ['price'] }} ש"ח.
+                            <br>
+                            הקורס זמין עד התאריך "{{ $data['end_at'] }}".
                             </p>
+                            
                         </div>
                         <br>
                         <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
@@ -133,7 +103,7 @@
                                 היכנס לקורס
                             </button>
                         </a>
-
+                        
                         <br>
                         <br>
                         <br>
@@ -142,31 +112,6 @@
                 </td>
             </tr>
             @include('mails.templates.footer')
-        </tbody>
-    </table>
-</body>
-</html>
-                        <br>
-                        Thanks
-                    </p>
-                </td>
-            </tr>
-            <tr>
-                <td align="left">
-                    <a href="{{URL::to('/')}}/delete-account?email={{ $data->email }}&token={{ $data->token }}&status=1">
-                        <button>
-                            Confirm
-                        </button>
-                    </a>
-                </td>
-                <td align="right">
-                    <a href="{{URL::to('/')}}/delete-account?email={{ $data->email }}&token={{ $data->token }}&status=0">
-                        <button>
-                            Cancel Request
-                        </button>
-                    </a>
-                </td>
-            </tr>
         </tbody>
     </table>
 </body>

@@ -55,3 +55,16 @@ Route::get('/course-completed', function() {
     ];
     return view('mails.user.userCompletedCourse', ['data' => $data]);
 });
+
+Route::get('/order-completed', function() {
+    $date = new Carbon;
+    $data = [
+        'name'          => 'עדן',
+        'course_name'   => 'כדורגל בסיסי',
+        'order_number'  => 'ON32902347',
+        'price'         => 1500,
+        'course_id'     => 1,
+        'end_at'        => $date->addDays(364)->format('d/m/Y'),
+    ];
+    return view('mails.orders.orderCompleted', ['data' => $data]);
+});
