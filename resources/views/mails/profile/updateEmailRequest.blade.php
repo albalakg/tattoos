@@ -57,10 +57,6 @@
                 width: 100%;
                 border-spacing: unset;
             }
-
-            .header {
-                border-radius: unset;
-            }
         }
 
     </style>

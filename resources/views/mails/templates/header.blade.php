@@ -19,6 +19,17 @@
         .header img {
             width: 30%;
         }
+
+        @media only screen and (max-width: 600px) {
+            table {
+                width: 100%;
+                border-spacing: unset;
+            }
+
+            .header {
+                border-radius: unset;
+            }
+        }
     </style>
 </head>
 <body>
