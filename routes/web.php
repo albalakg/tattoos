@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/mail/email-confirmation', function() {
+    $data = [
+        'name'  => 'עדן',
+        'token' => 'ASD3FV32f233fdfsadfdsf'
+    ];
+    return view('mails.auth.emailConfirmation', ['data' => $data]);
+});
+
 Route::get('/', function () {
     return view('welcome');
 });
