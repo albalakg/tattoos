@@ -72,10 +72,14 @@
             width: 50%;
             margin: auto;
         }
-
         @media only screen and (max-width: 600px) {
             table {
                 width: 100%;
+                border-spacing: unset;
+            }
+
+            .header {
+                border-radius: unset;
             }
         }
 
