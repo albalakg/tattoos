@@ -65,13 +65,6 @@
             font-weight: bold;
             cursor: pointer;
         }
-
-        .links {
-            display: flex;
-            justify-content: space-between;
-            width: 50%;
-            margin: auto;
-        }
         @media only screen and (max-width: 600px) {
             table {
                 width: 100%;
@@ -87,13 +80,7 @@
 </head>
 <body>
     <table>
-        <thead>
-            <tr>
-                <td class="header" align="center">
-                    <img src="{{ URL::to('/') }}/files/general/white-logo.png" />
-                </td>
-            </tr>
-        </thead>
+        @include('mails.templates.header')
         <tbody>
             <tr>
                 <td align="center">
@@ -128,40 +115,7 @@
                     </div>
                 </td>
             </tr>
-            <tr>
-                <td align="center">
-                    <div class="links">
-                        <div class="link">
-                            <a href="">
-                                <img src="{{ URL::to('/') }}/files/general/instagram.png" />
-                            </a>
-                        </div>
-                        <div class="link">
-                            <a href="">
-                                <img src="{{ URL::to('/') }}/files/general/facebook.png" />
-                            </a>
-                        </div>
-                        <div class="link">
-                            <a href="">
-                                <img src="{{ URL::to('/') }}/files/general/linkedin.png" />
-                            </a>
-                        </div>
-                        <div class="link">
-                            <a href="">
-                                <img src="{{ URL::to('/') }}/files/general/twitter.png" />
-                            </a>
-                        </div>
-                    </div>
-                    <br>
-                    <small>
-                        GOLDENS
-                    </small>
-                    <br>
-                    <small>
-                        המקום שלך להתפתח
-                    </small>
-                </td>
-            </tr>
+            @include('mails.templates.footer')
         </tbody>
     </table>
 </body>

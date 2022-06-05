@@ -18,7 +18,7 @@ Route::get('/forgot-password', function() {
     return view('mails.auth.forgotPassword', ['data' => $data]);
 });
 
-Route::get('/email-confirmation', function() {
+Route::get('/update-email', function() {
     $data = [
         'name'  => 'עדן',
         'token' => 'ASD3FV32f233fdfsadfdsf'

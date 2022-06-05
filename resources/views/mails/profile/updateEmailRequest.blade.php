@@ -18,20 +18,6 @@
             margin: auto;
         }
 
-        .header {
-            background-color: #173656;
-            height: 250px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding-top: 20px;
-        }
-
-        .header img {
-            width: 30%;
-        }
-
         .content {
             position: relative;
             top: -200px;
@@ -66,13 +52,6 @@
             cursor: pointer;
         }
 
-        .links {
-            display: flex;
-            justify-content: space-between;
-            width: 50%;
-            margin: auto;
-        }
-
         @media only screen and (max-width: 600px) {
             table {
                 width: 100%;
@@ -88,13 +67,7 @@
 </head>
 <body>
     <table>
-        <thead>
-            <tr>
-                <td class="header" align="center">
-                    <img src="{{ URL::to('/') }}/files/general/white-logo.png" />
-                </td>
-            </tr>
-        </thead>
+        @include('mails.templates.header')
         <tbody>
             <tr>
                 <td align="center">
@@ -131,40 +104,7 @@
                     </div>
                 </td>
             </tr>
-            <tr>
-                <td align="center">
-                    <div class="links">
-                        <div class="link">
-                            <a href="">
-                                <img src="{{ URL::to('/') }}/files/general/instagram.png" />
-                            </a>
-                        </div>
-                        <div class="link">
-                            <a href="">
-                                <img src="{{ URL::to('/') }}/files/general/facebook.png" />
-                            </a>
-                        </div>
-                        <div class="link">
-                            <a href="">
-                                <img src="{{ URL::to('/') }}/files/general/linkedin.png" />
-                            </a>
-                        </div>
-                        <div class="link">
-                            <a href="">
-                                <img src="{{ URL::to('/') }}/files/general/twitter.png" />
-                            </a>
-                        </div>
-                    </div>
-                    <br>
-                    <small>
-                        GOLDENS
-                    </small>
-                    <br>
-                    <small>
-                        המקום שלך להתפתח
-                    </small>
-                </td>
-            </tr>
+            @include('mails.templates.footer')
         </tbody>
     </table>
 </body>
