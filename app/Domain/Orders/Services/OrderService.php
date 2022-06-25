@@ -132,7 +132,7 @@ class OrderService
     $order->coupon_id           = $coupon->id ?? null;
     $order->marketing_token_id  = $marketing_token->id ?? null;
     $order->price               = $this->getOrderPrice($course, $coupon, $marketing_token);
-    $order->status              = StatusService::IN_PROGRESS;
+    $order->status              = StatusService::PENDING;
     $order->order_number        = $this->generateOrderTicketNumber();
     $order->save();
 

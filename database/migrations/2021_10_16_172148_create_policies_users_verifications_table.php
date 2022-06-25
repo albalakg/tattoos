@@ -16,6 +16,7 @@ class CreatePoliciesUsersVerificationsTable extends Migration
         Schema::create('policies_users_verifications', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id')->index()->unsigned();
+            $table->integer('tnc_id')->index()->unsigned();
             $table->dateTime('created_at');
         });
     }

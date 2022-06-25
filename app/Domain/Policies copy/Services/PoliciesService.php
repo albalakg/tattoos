@@ -54,8 +54,13 @@ class PoliciesService
                 ->orderBy('id', 'desc')
                 ->get();
   }
-
-  public function create(array $data, int $created_by): PolicyTermsAndCondition
+  
+  /**
+   * @param data $data
+   * @param int $created_by
+   * @return PolicyTermsAndCondition
+  */ 
+  public function createTermsAndConditions(array $data, int $created_by): PolicyTermsAndCondition
   {
     $tnc              = new PolicyTermsAndCondition();
     $tnc->content     = $data['content'];
@@ -67,14 +72,18 @@ class PoliciesService
   
   /**
    * @param int $user_id
-   * @param int $tnc_id
    * @return void
   */
-  public function verifyTermsAndConditions(int $user_id, int $tnc_id)
+  public function verifyTermsAndConditions(int $user_id)
   {
+    $current_tnc = $this->getCurrentTermsAndConditions();
+    if(!$current_tnc) {
+      return;
+    }
+
     $tnc_verification             = new PolicyUserVerification();
     $tnc_verification->user_id    = $user_id;
-    $tnc_verification->tnc_id     = $tnc_id;
+    $tnc_verification->tnc_id     = $current_tnc->id;
     $tnc_verification->created_at = now();
     $tnc_verification->save();
   }

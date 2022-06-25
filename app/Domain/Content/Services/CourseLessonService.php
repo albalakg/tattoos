@@ -134,7 +134,7 @@ class CourseLessonService implements IContentService
               ->limit($lessons)
               ->inRandomOrder()
               ->where('status', $status)
-              ->select('name', 'content', 'image')
+              ->select('name', 'description', 'image')
               ->get();
   }
   
