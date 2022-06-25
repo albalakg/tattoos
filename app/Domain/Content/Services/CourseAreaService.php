@@ -85,6 +85,7 @@ class CourseAreaService implements IContentService
               ->select(
                 'course_areas.id',
                 'course_areas.name',
+                'course_areas.view_order',
                 'course_areas.trainer_id',
                 'course_areas.description',
                 'course_areas.course_id',
