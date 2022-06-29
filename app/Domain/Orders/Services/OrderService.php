@@ -1,6 +1,7 @@
 <?php
 namespace App\Domain\Orders\Services;
 
+use App\Domain\Content\Models\Coupon;
 use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\MailService;
@@ -247,7 +248,7 @@ class OrderService
     }
 
     if($coupon) {
-      $coupon_discount =  $coupon->type === '%' ? 
+      $coupon_discount =  $coupon->type === Coupon::TYPE_PERCENTAGE ? 
                           ($coupon->value / 100) * $course->price : 
                           $coupon->value;
     }

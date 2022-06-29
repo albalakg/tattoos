@@ -1,12 +1,11 @@
 <?php
-namespace App\Domain\Orders\Services;
+namespace App\Domain\Policies\Services;
 
-use Exception;
 use App\Domain\Helpers\LogService;
 use App\Domain\Users\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
-use App\Domain\Orders\Models\PolicyUserVerification;
-use App\Domain\Orders\Models\PolicyTermsAndCondition;
+use App\Domain\Policies\Models\PolicyUserVerification;
+use App\Domain\Policies\Models\PolicyTermsAndCondition;
 
 class PoliciesService
 {

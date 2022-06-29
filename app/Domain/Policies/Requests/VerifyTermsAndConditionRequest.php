@@ -4,7 +4,7 @@ namespace App\Domain\Policies\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateTermsAndConditionsRequest extends FormRequest
+class VerifyTermsAndConditionRequest extends FormRequest
 {
     public function authorize()
     {
@@ -14,7 +14,7 @@ class CreateTermsAndConditionsRequest extends FormRequest
     public function rules()
     {
         return [
-            'content'  => ['required', 'string', 'between:1,100000'],
+            'tnc_id'  => 'required|int|min:1|bail|exists:policies_terms_and_conditions.id',
         ];
     }
 }
