@@ -108,6 +108,10 @@ class RouteServiceProvider extends ServiceProvider
         Route::prefix('api/content')
             ->namespace($this->namespace)
             ->group(base_path("routes/groups/app/content.php"));
+            
+        Route::prefix('api/policies')
+            ->namespace($this->namespace)
+            ->group(base_path("routes/groups/app/policies.php"));
     }
     
     /**
