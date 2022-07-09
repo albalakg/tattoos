@@ -14,6 +14,10 @@ class MailService
   const MAIL_LOG_DRIVER = 'mail';
   const DEFAULT_DELAY = 1; // Seconds
 
+  const SYSTEM_EMAILS = [
+    'gal.blacky@gmail.com'
+  ];
+
   /**
    * @var array
    */
@@ -119,7 +123,7 @@ class MailService
       
       return true;
     } catch (Exception $ex) {
-      $this->email_service->updateStatus($email_sent->id, StatusService::INACTIVE);
+        $this->email_service->updateStatus($email_sent->id, StatusService::INACTIVE);
       $this->error($ex->__toString());
       return false;
     }

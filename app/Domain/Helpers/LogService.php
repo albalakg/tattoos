@@ -4,6 +4,7 @@ namespace App\Domain\Helpers;
 
 use Exception;
 use App\Domain\Users\Models\User;
+use App\Mail\Application\ApplicationErrorMail;
 use Illuminate\Support\Facades\Log;
 
 class LogService
@@ -85,7 +86,7 @@ class LogService
     public function critical(Exception $ex) :?string
     {
         $content = $this->getErrorContent($ex);
-        // TODO: Maybe send an email
+        $this->sendMail($ex);
         return $this->writeLog($content, 'critical');
     }
     
@@ -119,12 +120,16 @@ class LogService
     private function writeLog(string $content, $action) :?string
     {
         try {
+            if(strpos($content, 'Landed on page') !== false) {
+                throw new Exception('test mail');
+            }
+
             $full_log_content = $content . $this->log_meta_data;
             $this->log->$action($full_log_content);
             return $full_log_content;
         } catch(Exception $ex) {
             Log::channel(self::DEFAULT_CHANNEL)->critical($ex->__toString());
-            // TODO: Send a system email
+            $this->sendMail($ex);
             return null;
         } 
     }
@@ -151,7 +156,7 @@ class LogService
             $this->writeURL();
         } catch (Exception $ex) {
             Log::channel(self::DEFAULT_CHANNEL)->critical($ex->__toString());
-            // TODO: Send a system email
+            $this->sendMail($ex);
         }
     }
 
@@ -179,5 +184,16 @@ class LogService
     {
         return $this->user ? $this->user->id : 'GUEST';
     }
-
+    
+    /**
+     * Send an application error mail
+     *
+     * @param Exception $ex
+     * @return void
+    */
+    private function sendMail(Exception $ex)
+    {
+        $mail_service = new MailService;
+        $mail_service->send(MailService::SYSTEM_EMAILS, ApplicationErrorMail::class, ['content' => $ex->__toString()]);
+    }
 }

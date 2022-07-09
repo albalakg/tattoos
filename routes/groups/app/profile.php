@@ -7,19 +7,20 @@ Route::post('delete-response', [UserController::class, 'deleteResponse']);
 
 Route::group(['middleware' => 'auth:api'], function () {
 
-    Route::get('', [UserController::class, 'getProfile']);
-    Route::get('courses', [UserController::class, 'getUserActiveCourses']);
-    Route::get('favorites', [UserController::class, 'getUserFavoriteContent']);
-    Route::get('progress', [UserController::class, 'getUserProgress']);
-    Route::get('orders', [UserController::class, 'getUserOrders']);
-    Route::get('support-tickets', [UserController::class, 'getUserSupportTickets']);
+    Route::get('',                          [UserController::class, 'getProfile']);
+    Route::get('courses',                   [UserController::class, 'getUserActiveCourses']);
+    Route::get('favorites',                 [UserController::class, 'getUserFavoriteContent']);
+    Route::get('progress',                  [UserController::class, 'getUserProgress']);
+    Route::get('orders',                    [UserController::class, 'getUserOrders']);
+    Route::get('support-tickets',           [UserController::class, 'getUserSupportTickets']);
+    Route::get('landed-on-page-not-found',  [UserController::class, 'landedOnPageNotFound']);
     
-    Route::post('logout', [UserController::class, 'logout']);
-    Route::post('change-password', [UserController::class, 'changePassword'])->middleware('throttle:3,10');
-    Route::post('email', [UserController::class, 'updateEmail']);
-    Route::post('update', [UserController::class, 'updateProfile']);
-    Route::post('favorites/add', [UserController::class, 'addToFavorite']);
-    Route::post('favorites/remove', [UserController::class, 'removeFromFavorite']);
-    Route::post('lesson/progress', [UserController::class, 'setLessonProgress']);
+    Route::post('logout',                   [UserController::class, 'logout']);
+    Route::post('change-password',          [UserController::class, 'changePassword'])->middleware('throttle:3,10');
+    Route::post('email',                    [UserController::class, 'updateEmail'])->middleware('throttle:3,10');
+    Route::post('update',                   [UserController::class, 'updateProfile'])->middleware('throttle:3,10');
+    Route::post('favorites/add',            [UserController::class, 'addToFavorite']);
+    Route::post('favorites/remove',         [UserController::class, 'removeFromFavorite']);
+    Route::post('lesson/progress',          [UserController::class, 'setLessonProgress']);
     
 });

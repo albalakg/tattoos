@@ -3,6 +3,7 @@
 namespace App\Domain\Users\Controllers;
 
 use Exception;
+use App\Domain\Helpers\LogService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Helpers\StatusService;
@@ -22,6 +23,7 @@ use App\Domain\Users\Requests\UpdateUserEmailRequest;
 use App\Domain\Support\Services\SupportCategoryService;
 use App\Domain\Users\Requests\UpdateUserPasswordRequest;
 use App\Domain\Users\Requests\UserLessonProgressRequest;
+use App\Domain\Users\Requests\LandedOnPageNotFoundRequest;
 
 class UserController extends Controller
 {
@@ -276,6 +278,17 @@ class UserController extends Controller
       return $this->successResponse('An email as been sent for verification');
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function landedOnPageNotFound(LandedOnPageNotFoundRequest $request)
+  {
+    try {
+      $log_service = new LogService('users');
+      $log_service->error('Landed on page not found with url: ' . $request->path);
+      return $this->successResponse('Registered successfully');
+    } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
   }
