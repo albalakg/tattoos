@@ -362,7 +362,7 @@ class GenerateCourseService
           'image'           => $this->getCourseImage(),
           'video_id'        => $this->video_service->getRandomVideo()->id,
           'status'          => StatusService::ACTIVE,
-          'content'         => $this->getLessonContent(),
+          'content'         => ContentFaker::getLessonContent(),
           'description'     => ContentFaker::getDescription(),
           'view_order'      => $this->course_lesson_service->getNextViewOrder(),
         ];
@@ -389,14 +389,6 @@ class GenerateCourseService
   private function getPrice(): int
   {
     return random_int(500, 2000);
-  }
-  
-  /**
-   * @return string
-   */
-  private function getLessonContent(): string
-  {
-    return Str::random(random_int(10, 1000));
   }
   
   /**
