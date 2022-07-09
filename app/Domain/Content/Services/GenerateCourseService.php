@@ -231,8 +231,8 @@ class GenerateCourseService
   private function buildCourseCategoryMetaData()
   {
     $this->course_meta_data = [
-      'name'        => 'Fake course category name ' . Str::random(5),
-      'description' => $this->getDescription(),
+      'name'        => ContentFaker::getCourseCategoryName(),
+      'description' => ContentFaker::getDescription(),
       'status'      => StatusService::ACTIVE,
       'image'       => $this->getCourseImage(),
     ];
@@ -247,9 +247,9 @@ class GenerateCourseService
   {
     $this->course_meta_data = [
       'category_id' => $this->course_category_service->getRandomCategory()->id,
-      'name'        => ContentFaker::getRandomCourseName(),
-      'description' => $this->getDescription(),
-      'price'       => $this->getRandomPrice(),
+      'name'        => ContentFaker::getCourseName(),
+      'description' => ContentFaker::getDescription(),
+      'price'       => $this->getPrice(),
       'discount'    => $this->getDiscount(),
       'view_order'  => $this->course_service->getNextViewOrder(),
       'status'      => StatusService::ACTIVE,
@@ -265,18 +265,17 @@ class GenerateCourseService
 
   private function buildCourseAreasMetaData()
   {
-    $token = Str::random(5);
     for($index = 0; $index < $this->total_course_areas; $index++) {
       try {
         $this->course_areas_meta_data[] = [
           'course_id'   => $this->created_course->id,
           'trainer_id'  => $this->trainer_service->getRandomTrainer()->id ?? 0,
-          'name'        => ContentFaker::getRandomCourseAreaName(),
+          'name'        => ContentFaker::getCourseAreaName(),
           'image'       => $this->getCourseImage(),
           'trailer'     => NULL,
           'status'      => StatusService::ACTIVE,
-          'price'       => $this->getRandomPrice(),
-          'description' => $this->getDescription(),
+          'price'       => $this->getPrice(),
+          'description' => ContentFaker::getDescription(),
           'view_order'  => $this->course_area_service->getNextViewOrder(),
         ];
       } catch(Exception $ex) {
@@ -298,12 +297,11 @@ class GenerateCourseService
 
   private function buildVideosMetaData()
   {
-    $token = Str::random(5);
     for($index = 0; $index < $this->total_videos; $index++) {
       try {
         $this->videos_meta_data[] = [
-          'name'          => 'Fake video name ' . $token . '-' . + $index,
-          'description'   => $this->getDescription(),
+          'name'          => ContentFaker::getVideoName() . ' | ' . Str::random(5),
+          'description'   => ContentFaker::getDescription(),
           'status'        => StatusService::ACTIVE,
           'video_length'  => 8,
           'file'          => $this->getVideo(),
@@ -327,14 +325,13 @@ class GenerateCourseService
 
   private function buildTrainersMetaData()
   {
-    $token = Str::random(5);
     for($index = 0; $index < $this->total_trainers; $index++) {
       try {
         $this->trainers_meta_data[] = [
-          'name'          => 'Fake trainer name ' . $token . '-' . + $index,
-          'title'         => 'Fake Title',
-          'description'   => $this->getDescription(),
-          'image'          => $this->getCourseImage(),
+          'name'          => ContentFaker::getTrainerName(),
+          'title'         => ContentFaker::getTitle(),
+          'description'   => ContentFaker::getDescription(),
+          'image'         => $this->getCourseImage(),
           'status'        => StatusService::ACTIVE,
         ];
       } catch(Exception $ex) {
@@ -356,18 +353,17 @@ class GenerateCourseService
 
   private function buildCourseLessonsMetaData()
   {
-    $token = Str::random(5);
     for($index = 0; $index < $this->total_lessons; $index++) {
       try {
         $this->lessons_meta_data[] = [
           'course_id'       => $this->created_course->id,
           'course_area_id'  => $this->getCourseAreaId(),
-          'name'            => ContentFaker::getRandomCourseAreaName(),
+          'name'            => ContentFaker::getCourseAreaName(),
           'image'           => $this->getCourseImage(),
           'video_id'        => $this->video_service->getRandomVideo()->id,
           'status'          => StatusService::ACTIVE,
           'content'         => $this->getLessonContent(),
-          'description'     => $this->getDescription(),
+          'description'     => ContentFaker::getDescription(),
           'view_order'      => $this->course_lesson_service->getNextViewOrder(),
         ];
       } catch(Exception $ex) {
@@ -390,17 +386,9 @@ class GenerateCourseService
   /**
    * @return int
   */
-  private function getRandomPrice(): int
+  private function getPrice(): int
   {
     return random_int(500, 2000);
-  }
-  
-  /**
-   * @return string
-   */
-  private function getDescription(): string
-  {
-    return 'Fake description';
   }
   
   /**
