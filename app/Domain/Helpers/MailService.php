@@ -53,7 +53,7 @@ class MailService
   }
   
   /**
-   * Send the mail in queue
+   * Send the mail in queue, the default is 1 second
    *
    * @param int $seconds
    * @return self

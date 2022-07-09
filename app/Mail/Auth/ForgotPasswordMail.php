@@ -7,7 +7,6 @@ use Illuminate\Mail\Mailable;
 use App\Domain\Interfaces\IMails;
 use Illuminate\Queue\SerializesModels;
 use App\Domain\Emails\Models\LuEmailType;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ForgotPasswordMail extends Mailable implements IMails
 {

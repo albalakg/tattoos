@@ -3,11 +3,12 @@
 namespace App\Mail\User;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use App\Domain\Interfaces\IMails;
 use Illuminate\Queue\SerializesModels;
+use App\Domain\Emails\Models\LuEmailType;
 
-class AddCourseToUserMail extends Mailable
+class AddCourseToUserMail extends Mailable implements IMails
 {
     use Queueable, SerializesModels;
 
@@ -31,5 +32,13 @@ class AddCourseToUserMail extends Mailable
     public function build()
     {
         return $this->subject('New Course')->view('mails.user.newCourse');
+    }
+        
+    /**
+     * @return int
+    */
+    static public function getTypeId(): int
+    {
+        return LuEmailType::ADD_COURSE_TO_USER_EMAIL;
     }
 }

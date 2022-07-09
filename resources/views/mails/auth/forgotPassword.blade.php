@@ -71,7 +71,6 @@
                 border-spacing: unset;
             }
         }
-
     </style>
 </head>
 <body>

@@ -530,8 +530,7 @@ class UserService
     $this->log_service->info("Submitted a forgot password request for user $user->id");
 
     $mail_service = new MailService;
-    $mail_service->send($email, ForgotPasswordMail::class, $forgot_password_request);
-    // event(new UserResetPasswordEvent($forgot_password_request));
+    $mail_service->delay(5)->send($email, ForgotPasswordMail::class, $forgot_password_request);
   }
   
   /**

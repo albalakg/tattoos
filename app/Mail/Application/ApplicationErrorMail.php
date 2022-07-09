@@ -3,11 +3,12 @@
 namespace App\Mail\Application;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use App\Domain\Interfaces\IMails;
 use Illuminate\Queue\SerializesModels;
+use App\Domain\Emails\Models\LuEmailType;
 
-class ApplicationErrorMail extends Mailable
+class ApplicationErrorMail extends Mailable implements IMails
 {
     use Queueable, SerializesModels;
 
@@ -31,5 +32,13 @@ class ApplicationErrorMail extends Mailable
     public function build()
     {
         return $this->subject('Application Critical Error')->view('mails.app.applicationError');
+    }
+    
+    /**
+     * @return int
+    */
+    static public function getTypeId(): int
+    {
+        return LuEmailType::APPLICATION_ERROR_EMAIL;
     }
 }

@@ -3,11 +3,12 @@
 namespace App\Mail\Auth;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use App\Domain\Interfaces\IMails;
 use Illuminate\Queue\SerializesModels;
+use App\Domain\Emails\Models\LuEmailType;
 
-class EmailVerificationMail extends Mailable
+class EmailVerificationMail extends Mailable implements IMails
 {
     use Queueable, SerializesModels;
 
@@ -31,5 +32,13 @@ class EmailVerificationMail extends Mailable
     public function build()
     {
         return $this->subject('Email Confirmation')->view('mails.auth.emailConfirmation');
+    }
+    
+    /**
+     * @return int
+    */
+    static public function getTypeId(): int
+    {
+        return LuEmailType::EMAIL_VERIFICATION_EMAIL;
     }
 }

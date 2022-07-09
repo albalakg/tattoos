@@ -3,11 +3,13 @@
 namespace App\Mail\User;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use App\Domain\Interfaces\IMails;
 use Illuminate\Queue\SerializesModels;
+use App\Domain\Emails\Models\LuEmailType;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class DeleteUserRequestMail extends Mailable
+class DeleteUserRequestMail extends Mailable implements IMails
 {
     use Queueable, SerializesModels;
 
@@ -31,5 +33,13 @@ class DeleteUserRequestMail extends Mailable
     public function build()
     {
         return $this->subject('Delete Account Request')->view('mails.profile.deleteAccountRequest');
+    }
+            
+    /**
+     * @return int
+    */
+    static public function getTypeId(): int
+    {
+        return LuEmailType::DELETE_USER_REQUEST_EMAIL;
     }
 }

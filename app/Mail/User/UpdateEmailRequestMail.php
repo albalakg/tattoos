@@ -3,11 +3,12 @@
 namespace App\Mail\User;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use App\Domain\Interfaces\IMails;
 use Illuminate\Queue\SerializesModels;
+use App\Domain\Emails\Models\LuEmailType;
 
-class UpdateEmailRequestMail extends Mailable
+class UpdateEmailRequestMail extends Mailable implements IMails
 {
     use Queueable, SerializesModels;
 
@@ -31,5 +32,13 @@ class UpdateEmailRequestMail extends Mailable
     public function build()
     {
         return $this->subject('Update Email Request')->view('mails.profile.updateEmailRequest');
+    }
+                
+    /**
+     * @return int
+    */
+    static public function getTypeId(): int
+    {
+        return LuEmailType::UPDATE_EMAIL_REQUEST_EMAIL;
     }
 }
