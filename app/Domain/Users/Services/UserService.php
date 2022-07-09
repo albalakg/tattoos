@@ -8,6 +8,9 @@ use Illuminate\Support\Str;
 use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
+use App\Domain\Helpers\MailService;
+use App\Domain\Users\Models\LuCity;
+use App\Domain\Users\Models\LuTeam;
 use Illuminate\Support\Facades\Hash;
 use App\Domain\Helpers\StatusService;
 use App\Events\Users\UserCreatedEvent;
@@ -21,10 +24,9 @@ use App\Domain\Users\Models\UserCourseLesson;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Support\Services\SupportService;
-use App\Domain\Users\Models\LuCity;
-use App\Domain\Users\Models\LuTeam;
-use App\Domain\Users\Models\UserEmailVerification;
 use App\Domain\Users\Models\UserCourseLessonWatch;
+use App\Domain\Users\Models\UserEmailVerification;
+use App\Mail\Auth\ForgotPasswordMail;
 
 class UserService
 {  
@@ -506,7 +508,7 @@ class UserService
       $this->log_service->error('Email does not exists');
       return;
     }
-    
+
     if(!$this->canResetPassword($email)) {
       $this->log_service->error("Email $email have reached maximum forgot reset attempts");
       return;
@@ -520,11 +522,16 @@ class UserService
       'status'    => StatusService::PENDING,
       'created_at' => now()
     ]);
+
+    // TODO: REMOVE!!
+    UserResetPassword::truncate();
     
     $forgot_password_request->user_name = $user->details->first_name;
     $this->log_service->info("Submitted a forgot password request for user $user->id");
 
-    event(new UserResetPasswordEvent($forgot_password_request));
+    $mail_service = new MailService;
+    $mail_service->send($email, ForgotPasswordMail::class, $forgot_password_request);
+    // event(new UserResetPasswordEvent($forgot_password_request));
   }
   
   /**

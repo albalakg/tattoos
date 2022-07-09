@@ -69,7 +69,7 @@ class CourseGenerator extends Command
 
             $this->info('Generated the course successfully with the following details: ' . $course_generator->getGenerationDetails());
         } catch(Exception $ex) {
-            $this->error('Failed generating the course: ' . $ex->getMessage());
+            $this->error('Failed generating the course: ' . $ex->__toString());
         }
     }
 }

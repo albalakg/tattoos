@@ -3,6 +3,7 @@
 namespace App\Domain\Helpers;
 
 use Exception;
+use Illuminate\Support\Str;
 use Illuminate\Mail\Mailable;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Mail;
@@ -16,27 +17,39 @@ class MailService
   /**
    * @var array
    */
-  private $receivers;
+  private array $receivers;
 
   /**
    * @var int
    */
-  private $delay;
+  private int $delay_time = 0;
+
+  /**
+   * @var string
+   */
+  private string $mail_track_id;
+
+  /**
+   * @var Boolean
+   */
+  private bool $isMock = false;
 
   /**
    * @var LogService
    */
-  private $log_service;
+  private LogService $log_service;
 
   /**
    * @var EmailService
    */
-  private $emailService;
+  private EmailService $email_service;
 
   public function __construct()
   {
-    $this->emailService = new EmailService;
-    $this->log_service = new LogService('mail');
+    $this->email_service  = new EmailService;
+    $this->log_service    = new LogService('mail');
+    $this->mail_track_id  = Str::uuid();
+    $this->info('Mail service triggered');
   }
   
   /**
@@ -47,7 +60,21 @@ class MailService
   */
   public function delay(int $seconds = self::DEFAULT_DELAY): self
   {
-    $this->delay = now()->addSeconds($seconds);
+    $this->delay_time_time = now()->addSeconds($seconds);
+    $this->info('Delay triggered with: ' . $seconds . ' seconds');
+    return $this;
+  }
+  
+  /**
+   * Change the mail server non functional
+   * for tests and mocks
+   *
+   * @return self
+  */
+  public function mock(): self
+  {
+    $this->isMock = true;
+    $this->info('Mock triggered');
     return $this;
   }
   
@@ -62,8 +89,11 @@ class MailService
   public function send($emails, string $email_class, $data): bool
   {
     try {
+      $this->info('Sending ' . $email_class . ' mail');
+
       // If mail service is off skip
-      if(!config('mail.status')) {
+      if(!config('mail.status') || $this->isMock) {
+        $this->info('Mail service is not active');
         return true;
       }
 
@@ -72,24 +102,25 @@ class MailService
         throw new Exception('No receivers found');
       }
 
-      $email_sent = $this->emailService->create(
+      $email_sent = $this->email_service->create(
         $this->receivers,
         $email_class,
         $data
       );
 
-      if($this->delay) {
-        Mail::to($this->receivers)->later($this->delay, new $email_class($data));
+      if($this->delay_time) {
+        Mail::to($this->receivers)->later($this->delay_time, new $email_class($data));
       } else {
         Mail::to($this->receivers)->send(new $email_class($data));
       }
 
-      $this->emailService->updateStatus($email_sent->id, StatusService::ACTIVE);
+      $this->info('Mail sent successfully');
+      $this->email_service->updateStatus($email_sent->id, StatusService::ACTIVE);
       
       return true;
     } catch (Exception $ex) {
-      $this->emailService->updateStatus($email_sent->id, StatusService::INACTIVE);
-      $this->log_service->error($ex);
+      $this->email_service->updateStatus($email_sent->id, StatusService::INACTIVE);
+      $this->error($ex->__toString());
       return false;
     }
   }
@@ -109,5 +140,23 @@ class MailService
     if(is_array($emails)) {
       $this->receivers = $emails;
     }
+  }
+  
+  /**
+   * @param string $content
+   * @return void
+  */
+  private function info(string $content)
+  {
+    $this->log_service->info(LogService::TRACK_ID . $this->mail_track_id . LogService::SEPARATOR . LogService::MESSAGE . $content);
+  }
+  
+  /**
+   * @param string $content
+   * @return void
+  */
+  private function error(string $content)
+  {
+    $this->log_service->error(LogService::TRACK_ID . $this->mail_track_id . LogService::SEPARATOR . LogService::MESSAGE . $content);
   }
 }

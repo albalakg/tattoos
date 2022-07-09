@@ -63,7 +63,7 @@ return [
 
         'mail' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/mail.log'),
+            'path' => storage_path('logs/mail/mail.log'),
             'level' => 'debug',
             'days' => 14,
         ],

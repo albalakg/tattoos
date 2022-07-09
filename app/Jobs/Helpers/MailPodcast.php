@@ -47,6 +47,6 @@ class MailPodcast implements ShouldQueue
 
     public function failed($exception)
     {
-        LogService::critical($exception->getMessage(), 'mail');
+        LogService::critical($exception->__toString(), 'mail');
     }
 }

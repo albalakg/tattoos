@@ -247,7 +247,7 @@ class GenerateCourseService
   {
     $this->course_meta_data = [
       'category_id' => $this->course_category_service->getRandomCategory()->id,
-      'name'        => 'Fake course name ' . Str::random(5),
+      'name'        => ContentFaker::getRandomCourseName(),
       'description' => $this->getDescription(),
       'price'       => $this->getRandomPrice(),
       'discount'    => $this->getDiscount(),
@@ -271,7 +271,7 @@ class GenerateCourseService
         $this->course_areas_meta_data[] = [
           'course_id'   => $this->created_course->id,
           'trainer_id'  => $this->trainer_service->getRandomTrainer()->id ?? 0,
-          'name'        => 'Fake course area name ' . $token . '-' . + $index,
+          'name'        => ContentFaker::getRandomCourseAreaName(),
           'image'       => $this->getCourseImage(),
           'trailer'     => NULL,
           'status'      => StatusService::ACTIVE,
@@ -280,7 +280,7 @@ class GenerateCourseService
           'view_order'  => $this->course_area_service->getNextViewOrder(),
         ];
       } catch(Exception $ex) {
-        $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
       }
     }
   }
@@ -291,7 +291,7 @@ class GenerateCourseService
       try {
         $this->created_course_areas[] = $this->course_area_service->create($course_area, 0);
       } catch(Exception $ex) {
-        $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
       }
     }
   }
@@ -309,7 +309,7 @@ class GenerateCourseService
           'file'          => $this->getVideo(),
         ];
       } catch(Exception $ex) {
-        $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
       }
     }
   }
@@ -320,7 +320,7 @@ class GenerateCourseService
       try {
         $this->created_videos[] = $this->video_service->create($video, 0);
       } catch(Exception $ex) {
-        $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
       }
     }
   }
@@ -338,7 +338,7 @@ class GenerateCourseService
           'status'        => StatusService::ACTIVE,
         ];
       } catch(Exception $ex) {
-        $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
       }
     }
   }
@@ -349,7 +349,7 @@ class GenerateCourseService
       try {
         $this->created_trainers[] = $this->trainer_service->create($trainer, 0);
       } catch(Exception $ex) {
-        $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
       }
     }
   }
@@ -362,7 +362,7 @@ class GenerateCourseService
         $this->lessons_meta_data[] = [
           'course_id'       => $this->created_course->id,
           'course_area_id'  => $this->getCourseAreaId(),
-          'name'            => 'Fake lesson name ' . $token . '-' . + $index,
+          'name'            => ContentFaker::getRandomCourseAreaName(),
           'image'           => $this->getCourseImage(),
           'video_id'        => $this->video_service->getRandomVideo()->id,
           'status'          => StatusService::ACTIVE,
@@ -371,7 +371,7 @@ class GenerateCourseService
           'view_order'      => $this->course_lesson_service->getNextViewOrder(),
         ];
       } catch(Exception $ex) {
-        $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
       }
     }
   }
@@ -382,7 +382,7 @@ class GenerateCourseService
       try {
         $this->created_course_lessons[] = $this->course_lesson_service->create($course_area, 0);
       } catch(Exception $ex) {
-        $this->errors[] = __METHOD__ . ': ' . $ex->getMessage();
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
       }
     }
   }

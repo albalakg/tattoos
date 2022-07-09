@@ -8,8 +8,11 @@ use Illuminate\Support\Facades\Log;
 
 class LogService
 {    
-    const SEPARATOR       = ' | ',
-          DEFAULT_CHANNEL = 'custom';
+    const SEPARATOR         = ' | ',
+          DEFAULT_CHANNEL   = 'custom',
+          MESSAGE           = 'MESSAGE: ',
+          TRACK_ID          = 'TRACK_ID: ',
+          error             = 'ERROR: ';
 
     /**
      * Log object
@@ -120,7 +123,7 @@ class LogService
             $this->log->$action($full_log_content);
             return $full_log_content;
         } catch(Exception $ex) {
-            Log::channel(self::DEFAULT_CHANNEL)->critical($ex->getMessage());
+            Log::channel(self::DEFAULT_CHANNEL)->critical($ex->__toString());
             // TODO: Send a system email
             return null;
         } 
@@ -133,7 +136,7 @@ class LogService
     private function getErrorContent(Exception $ex): string
     {
         $content  = '';
-        $content .= 'Message: ' . $ex->getMessage() . self::SEPARATOR;
+        $content .= 'Message: ' . $ex->__toString() . self::SEPARATOR;
         $content .= 'File: '    . $ex->getFile()    . self::SEPARATOR;
         $content .= 'Line: '    . $ex->getLine()    . self::SEPARATOR;
         return $content;
@@ -147,7 +150,7 @@ class LogService
             $this->writeBrowser();
             $this->writeURL();
         } catch (Exception $ex) {
-            Log::channel(self::DEFAULT_CHANNEL)->critical($ex->getMessage());
+            Log::channel(self::DEFAULT_CHANNEL)->critical($ex->__toString());
             // TODO: Send a system email
         }
     }

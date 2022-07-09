@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class LuEmailType extends Model
 {
-    const SUPPORT_TICKET_MESSAGE_EMAIL = 1;
-    const SUPPORT_TICKET_EMAIL = 2;
+    const SUPPORT_TICKET_MESSAGE_EMAIL  = 1;
+    const SUPPORT_TICKET_EMAIL          = 2;
+    const FORGOT_PASSWORD_EMAIL         = 3;
 
     public function emails()
     {

@@ -3,11 +3,13 @@
 namespace App\Mail\Auth;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use App\Domain\Interfaces\IMails;
 use Illuminate\Queue\SerializesModels;
+use App\Domain\Emails\Models\LuEmailType;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ForgotPasswordMail extends Mailable
+class ForgotPasswordMail extends Mailable implements IMails
 {
     use Queueable, SerializesModels;
 
@@ -31,5 +33,13 @@ class ForgotPasswordMail extends Mailable
     public function build()
     {
         return $this->subject('Have you forgot your password?')->view('mails.auth.forgotPassword');
+    }
+    
+    /**
+     * @return int
+    */
+    static public function getTypeId(): int
+    {
+        return LuEmailType::FORGOT_PASSWORD_EMAIL;
     }
 }

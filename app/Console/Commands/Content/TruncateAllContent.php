@@ -63,7 +63,7 @@ class TruncateAllContent extends Command
             try {
                 $content_service->truncate();
             } catch(Exception $ex) {
-                $this->error($ex->getMessage());
+                $this->error($ex->__toString());
             }
             $bar->advance();
         }
