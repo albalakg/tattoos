@@ -140,6 +140,8 @@ class MailService
     if(is_array($emails)) {
       $this->receivers = $emails;
     }
+
+    $this->info('Receivers are: ' . json_encode($this->receivers));
   }
   
   /**

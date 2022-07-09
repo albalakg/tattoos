@@ -523,9 +523,6 @@ class UserService
       'created_at' => now()
     ]);
 
-    // TODO: REMOVE!!
-    UserResetPassword::truncate();
-    
     $forgot_password_request->user_name = $user->details->first_name;
     $this->log_service->info("Submitted a forgot password request for user $user->id");
 
