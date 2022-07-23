@@ -3,49 +3,58 @@
 namespace App\Domain\Helpers;
 
 use Exception;
-use App\Domain\Helpers\BaseService;
+use Illuminate\Http\UploadedFile;
+use App\Domain\Helpers\LogService;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
-class FileService extends BaseService
+class FileService
 {    
-  /**
-   * The file disk
-   *
-   * @var string
-   */
-  private $disk;
-  
-  /**
-   * Set the file service variables
-   *
-   * @param string $disk
-   * @return void
-   */
-  public function __construct(string $disk = '')
-  {
-    $this->log_file = 'files';
-    $this->disk = $disk ?? 'public';
-  }
+  const DEFAULT_DISK = 'pub';
+
   /**
    * Create a file
    *
-   * @param mixed $file
+   * @param string|UploadedFile $file
    * @param string $path
+   * @param string $disk
    * @param string $name
    * @return string
-   */
-  public function create(mixed $file, string $path, string $name = '') :string
+  */
+  static public function create($file, string $path, string $disk = self::DEFAULT_DISK) :string
   {
     try {
-      LogService::info("Attempting to create a file in path \"$path\", with name \"$name\"", $this->log_file);
-
-      if($name) {
-        return Storage::disk($this->disk)->putFileAs($path, $file, $name);
-      } else {
-        return Storage::disk($this->disk)->putFile($path, $file);
+      if(!$file) {
+        throw new Exception('File is invalid');
       }
+
+      if(is_string($file)) {
+        return self::copy($file, $path, 'local');
+      } else {
+        return Storage::disk($disk)->putFile($path, $file);
+      }
+
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      self::writeErrorLog($ex);
+      return '';
+    }
+  }
+
+  /**
+   * Create a file
+   *
+   * @param string|UploadedFile $file
+   * @param string $path
+   * @param string $disk
+   * @param string $name
+   * @return string
+  */
+  static public function createWithName(mixed $file, string $path, string $name, string $disk = self::DEFAULT_DISK) :string
+  {
+    try {
+      return Storage::disk($disk)->putFileAs($path, $file, $name);
+    } catch(Exception $ex) {
+      self::writeErrorLog($ex);
       return '';
     }
   }
@@ -54,21 +63,20 @@ class FileService extends BaseService
    * Delete a file
    *
    * @param string $path
+   * @param string $disk
    * @return bool
    */
-  private function delete(string $path) :bool
+  static public function delete(string $path, string $disk = self::DEFAULT_DISK) :bool
   {
     try {
-      LogService::info("Attempting to delete a file in path \"$path\"", $this->log_file);
-
-      if( !Storage::disk($this->disk)->exists($path) ) {
+      if( !Storage::disk($disk)->exists($path) ) {
         throw new Exception("File $path not found");
       }
       
-      Storage::disk($this->disk)->delete($path);
+      Storage::disk($disk)->delete($path);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      self::writeErrorLog($ex);
       return false;
     }
   }
@@ -78,21 +86,20 @@ class FileService extends BaseService
    *
    * @param string $path_from
    * @param string $path_to
+   * @param string $disk
    * @return bool
    */
-  public function move(string $path_from, string $path_to):bool
+  static public function move(string $path_from, string $path_to, string $disk = self::DEFAULT_DISK):bool
   {
     try {
-      LogService::info("Attempting to move a file from \"$path\" to \"$path_to\"", $this->log_file);
-
-      if( !Storage::disk($this->disk)->exists($path_from) ) {
+      if( !Storage::disk($disk)->exists($path_from) ) {
         throw new Exception("File $path_from not found");
       }
       
-      Storage::disk($this->disk)->move($path_from, $path_to);
+      Storage::disk($disk)->move($path_from, $path_to);
       return true;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      self::writeErrorLog($ex);
       return false;
     }
   }
@@ -102,90 +109,62 @@ class FileService extends BaseService
    *
    * @param string $path_from
    * @param string $path_to
-   * @return bool
-   */
-  public function copy(string $path_from, string $path_to) :bool
-  {
-    try {
-      LogService::info("Attempting to copy a file from \"$path\" to \"$path_to\"", $this->log_file);
-      if( !Storage::disk($this->disk)->exists($path_from) ) {
-        throw new Exception("File $path_from not found");
-      }
-      
-      Storage::disk($this->disk)->copy($path_from, $path_to);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-  
-  /**
-   * Rename a file
-   *
-   * @param string $path
-   * @param string $new_name
-   * @return bool
-   */
-  public function rename(string $path, string $new_name) :bool
-  {
-    try {
-      LogService::info("Attempting to rename the file \"$path\" to \"$new_name\"", $this->log_file);
-      if( !Storage::disk($this->disk)->exists($path) ) {
-        throw new Exception("File $path not found");
-      } 
-      
-      $new_path = $this->changeFileName($path, $new_name);
-      if(!$new_path) {
-        throw new Exception("Failed to rename the file from: $path, to the new name: $new_name");
-      }
-
-      Storage::disk($this->disk)->move($path, $new_path);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-  
-  /**
-   * Change the file name in the full path to the new name
-   *
-   * @param string $path
-   * @param string $new_name
+   * @param string $from_disk
+   * @param string $to_disk
    * @return string
    */
-  private function changeFileName(string $path, string $new_name) :string
+  static public function copy(string $path_from, string $path_to, string $from_disk = self::DEFAULT_DISK, string $to_disk = self::DEFAULT_DISK) :string
   {
     try {
-      $path_array = explode('/', $path);
-      $last_element_index = count($path_array) - 1;
-      $path_array[$last_element_index] = $new_name;
-      return implode('/', $path);
+      if( !Storage::disk($from_disk)->exists($path_from) ) {
+        throw new Exception("File $path_from not found");
+      }
+
+      $file = Storage::disk($from_disk)->path($path_from);
+      return Storage::disk($to_disk)->putFile($path_to , $file);
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      self::writeErrorLog($ex);
       return '';
     }
   }
-   
+  
   /**
    * Get the content of a file
    *
    * @param string $path
+   * @param string $disk
    * @return string
    */
-  public function get(string $path) :string
+  static public function get(string $path, string $disk = self::DEFAULT_DISK) :string
   {
     try {
-      LogService::info("Attempting to get the file \"$path\"", $this->log_file);
-      if( !Storage::disk($this->disk)->exists($path) ) {
+      if( !Storage::disk($disk)->exists($path) ) {
         throw new Exception("File $path not found");
       } 
 
-      return Storage::disk($this->disk)->get($path);
+      return Storage::disk($disk)->get($path);
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      self::writeErrorLog($ex);
       return '';
     }
+  }
+  
+  /**
+   * Extract the file extension from the uploaded file
+   *
+   * @param object $file
+   * @return string
+  */
+  static public function getUploadedFileExtension(object $file): string
+  {
+    $file_name          = $file->getClientOriginalName();
+    $file_name_array    = explode('.', $file_name);
+    return $file_name_array[count($file_name_array) - 1];
+  }
+
+  static private function writeErrorLog(Exception $ex)
+  {
+    $logger_service = new LogService('files');
+    $logger_service->critical($ex);
   }
 }

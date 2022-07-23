@@ -54,6 +54,20 @@ return [
             'days' => 14,
         ],
 
+        'login' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/login/login.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
+
+        'mail' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mail/mail.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
+
         'users' => [
             'driver' => 'daily',
             'path' => storage_path('logs/users/users.log'),
@@ -61,30 +75,149 @@ return [
             'days' => 1,
         ],
 
-        'tattoos' => [
+        'files' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/tattoos/tattoos.log'),
+            'path' => storage_path('logs/files/files.log'),
             'level' => 'debug',
             'days' => 1,
         ],
 
-        'tattoo_comments' => [
+        'custom' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/tattoo_comments/tattoo_comments.log'),
+            'path' => storage_path('logs/custom/custom.log'),
             'level' => 'debug',
             'days' => 1,
         ],
 
-        'studios' => [
+        'videos' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/studios/studios.log'),
+            'path' => storage_path('logs/content/videos/videos.log'),
             'level' => 'debug',
             'days' => 1,
         ],
 
-        'studio_comments' => [
+        'courseCategories' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/studio_comments/studio_comments.log'),
+            'path' => storage_path('logs/content/courseCategories/courseCategories.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'courseAreas' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/courseAreas/courseAreas.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'trainers' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/trainers/trainers.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'courseLessons' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/courseLessons/courseLessons.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'marketingToken' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/marketingToken/marketingToken.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'userfavorites' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/userfavorites/userfavorites.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'userCourses' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/userCourses/userCourses.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'coupons' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/coupons/coupons.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'orders' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/orders/orders.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'policies' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/policies/policies.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'payment' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/payment/payment.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'support' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/support/support.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'courses' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/courses/courses.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'tests' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/tests/tests.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'files' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/files/files.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'auth' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/auth/auth.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'mail' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mails/mail.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'global' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/global/global.log'),
             'level' => 'debug',
             'days' => 1,
         ],

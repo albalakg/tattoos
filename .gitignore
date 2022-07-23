@@ -1,7 +1,9 @@
 /node_modules
 /public/hot
 /public/storage
+/public/files/content
 /storage/*.key
+!/storage/app/FakerContent/
 /vendor
 .env
 .phpunit.result.cache

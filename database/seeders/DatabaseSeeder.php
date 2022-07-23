@@ -1,21 +1,32 @@
 <?php
 
-namespace Database\Seeders;
-
 use Illuminate\Database\Seeder;
-use Database\Seeders\TagTypesSeeder;
+use Illuminate\Database\Eloquent\Model;
+use App\Domain\Users\Seeders\RoleSeeder;
+use App\Domain\Users\Seeders\UserSeeder;
+use App\Domain\Users\Seeders\LuEmailsTypesSeeder;
+use App\Domain\Content\Seeders\LuContentTypeSeeder;
+use App\Domain\Payment\Seeders\LuSupplierTypeSeeder;
+use App\Domain\Support\Seeders\SupportCategorySeeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Run the database seeds.
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
-        $this->call([
-            TagTypesSeeder::class,
-        ]);
+        Model::unguard();
+
+        $this->call(RoleSeeder::class);
+        $this->call(UserSeeder::class);
+        $this->call(LuContentTypeSeeder::class);
+        $this->call(LuSupplierTypeSeeder::class);
+        $this->call(LuEmailsTypesSeeder::class);
+        $this->call(SupportCategorySeeder::class);
+
+        Model::reguard();
     }
 }

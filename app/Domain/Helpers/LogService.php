@@ -3,143 +3,197 @@
 namespace App\Domain\Helpers;
 
 use Exception;
-use App\Domain\Helpers\FileService;
+use App\Domain\Users\Models\User;
+use App\Mail\Application\ApplicationErrorMail;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 
 class LogService
-{  
-  /**
-   * Create a new error log
-   *
-   * @param string $content
-   * @param string $logger
-   * @return bool
-  */
-  static public function error(string $content, string $logger)
-  {
-    try {
-      $full_log_content = self::prepareLog($content);
-      self::setLog($full_log_content, 'error', $logger);
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
-    }
-  }
+{    
+    const SEPARATOR         = ' | ',
+          DEFAULT_CHANNEL   = 'custom',
+          MESSAGE           = 'MESSAGE: ',
+          TRACK_ID          = 'TRACK_ID: ',
+          error             = 'ERROR: ';
 
-  /**
-   * Create a new info log
-   *
-   * @param string $content
-   * @param string $logger
-   * @return bool
-  */
-  static public function info(string $content, string $logger)
-  {
-    try {
-      $full_log_content = self::prepareLog($content);
-      self::setLog($full_log_content, 'info', $logger);
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
-    }
-  }
+    /**
+     * Log object
+     *
+     * @var Log
+    */
+    private $log;
 
-  /**
-   * Create a new critical log
-   *
-   * @param string $content
-   * @param string $logger
-   * @return bool
-  */
-  static public function critical(string $content, string $logger)
-  {
-    try {
-      $full_log_content = self::prepareLog($content);
-      self::setLog($full_log_content, 'critical', $logger);
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
+    /**
+     * User object
+     *
+     * @var User
+    */
+    private $user;
+    
+    /**
+     * Log content
+     *
+     * @var string
+    */
+    private $log_meta_data = self::SEPARATOR;
+    
+    /**
+     * Start a logger channel
+     *
+     * @param string $channel
+     * @return void
+    */ 
+    public function __construct(string $channel = self::DEFAULT_CHANNEL, User $user = null)
+    {
+        $this->log = Log::channel($channel);
+        $this->user = $user;
+        $this->setMetaData();
     }
-  }
-  
-  /**
-   * Prepare log content
-   *
-   * @param string $content
-   * @return string
-   */
-  static public function prepareLog(string $content)
-  {
-    try {
-      $content  = "ACTION: $content, ";
-      $content .= 'BROWSER: ' . request()->header('user-agent') . ', ';
-      $content .= 'IP: ' . request()->ip() . ', ';
-      $content .= 'USER: ' . Auth::user() ? Auth::user()->id : 'unknown' . ', ';
-      $content .= 'URL: ' . request()->server('HTTP_REFERER');
+    
+    /**
+     * Create an info log
+     *
+     * @param string $content
+     * @return string|null
+    */
+    public function info(string $content) :?string
+    {
+       return $this->writeLog($content, 'info');
+    }
+    
+    /**
+     * Create an error log
+     *
+     * @param Exception|String $ex
+     * @return string|null
+    */
+    public function error($ex) :?string
+    {
+        if(!is_string($ex)) {
+            $content = $this->getErrorContent($ex);
+        } else {
+            $content = $ex;
+        }
+        
+        return $this->writeLog($content, 'error');
+    }
+    
+    /**
+     * Create a critical log
+     *
+     * @param Exception $ex
+     * @return string|null
+    */
+    public function critical(Exception $ex) :?string
+    {
+        $content = $this->getErrorContent($ex);
+        $this->sendMail($ex);
+        return $this->writeLog($content, 'critical');
+    }
+    
+    /**
+     * Create a warning log
+     *
+     * @param string $content
+     * @return string|null
+    */
+    public function warning(string $content) :?string
+    {
+       return $this->writeLog($content, 'warning');
+    }
+    
+    /**
+     * Create a debug log
+     *
+     * @param string $content
+     * @return string|null
+    */
+    public function debug(string $content) :?string
+    {
+       return $this->writeLog($content, 'debug');
+    }
+    
+    /**
+     * @param string $content
+     * @param string $action
+     * @return string|null
+    */
+    private function writeLog(string $content, $action) :?string
+    {
+        try {
+            if(strpos($content, 'Landed on page') !== false) {
+                throw new Exception('test mail');
+            }
 
-      return $content;
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
-      return '';
+            $full_log_content = $content . $this->log_meta_data;
+            $this->log->$action($full_log_content);
+            return $full_log_content;
+        } catch(Exception $ex) {
+            Log::channel(self::DEFAULT_CHANNEL)->critical($ex->__toString());
+            $this->sendMail($ex);
+            return null;
+        } 
     }
-  }
-  
-  /**
-   * Create a new log
-   *
-   * @param string $content
-   * @param string $type
-   * @param string $logger
-   * @return void
-   */
-  static public function setLog(string $content, string $type, string $logger)
-  {
-    try {
-      Log::channel($logger)->$type($content);
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
+    
+    /**
+     * @param Exception $ex
+     * @return string
+    */ 
+    private function getErrorContent(Exception $ex): string
+    {
+        $content  = '';
+        $content .= 'Message: ' . $ex->__toString() . self::SEPARATOR;
+        $content .= 'File: '    . $ex->getFile()    . self::SEPARATOR;
+        $content .= 'Line: '    . $ex->getLine()    . self::SEPARATOR;
+        return $content;
     }
-  }
-  
-  /**
-   * Get the log
-   *
-   * @param string $log_name
-   * @return string
-   */
-  static public function getLog(string $log_name)
-  {
-    try {
-      $fileService = new FileService();
-      $log_path = 'logs/' . $log_name;
-      if(!$log_content = $fileService->get($log_path)) {
-        throw new Exception('Failed to get the log content');
-      }
-      
-      return $log_content;
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
-      return '';
-    }
-  }
-  
-  /**
-   * Search a key inside a log
-   *
-   * @param string $log_name
-   * @param string $search_key
-   * @return string
-   */
-  static public function searchInLog(string $log_name, string $search_key)
-  {
-    try {
-      if(!$log_content = self::getLog($log_name)) {
-        return '';
-      }
 
-      // TODO: search in a log
-
-    } catch (Exception $ex) {
-      Log::critical($ex->getMessage());
-      return '';
+    private function setMetaData()
+    {
+        try {
+            $this->writeUser();
+            $this->writeIpAddress();
+            $this->writeBrowser();
+            $this->writeURL();
+        } catch (Exception $ex) {
+            Log::channel(self::DEFAULT_CHANNEL)->critical($ex->__toString());
+            $this->sendMail($ex);
+        }
     }
-  }
+
+    private function writeUser()
+    {
+        $this->log_meta_data .= 'USER: ' . $this->getUser() . self::SEPARATOR;
+    }
+
+    private function writeIpAddress()
+    {
+        $this->log_meta_data .= 'IP: ' . request()->ip() . self::SEPARATOR;
+    }
+
+    private function writeBrowser()
+    {
+        $this->log_meta_data .= 'BROWSER: ' . request()->header('user-agent') . self::SEPARATOR;
+    }
+
+    private function writeURL()
+    {
+        $this->log_meta_data .= 'URL: ' . request()->url() . self::SEPARATOR;
+    }
+
+    private function getUser()
+    {
+        return $this->user ? $this->user->id : 'GUEST';
+    }
+    
+    /**
+     * Send an application error mail
+     *
+     * @param Exception $ex
+     * @return void
+    */
+    private function sendMail(Exception $ex)
+    {
+        $mail_service = new MailService;
+        $mail_service->send(MailService::SYSTEM_EMAILS, ApplicationErrorMail::class, ['content' => $ex->__toString()]);
+    }
 }

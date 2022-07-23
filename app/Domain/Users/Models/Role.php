@@ -6,26 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-  const VIEWER = 10,
-        ARTIST = 20,
-        OWNER  = 30,
-        WORKER  = 40,
-        ADMIN  = 50;
+  const NORMAL = 10,
+        ADMIN  = 20;
 
-  const ROLES = [
-    'viewer' => self::VIEWER,
-    'artist' => self::ARTIST,
-    'owner' => self::OWNER,
-    'worker' => self::WORKER,
+  const IDS = [self::NORMAL, self::ADMIN];
+  const NAMES = ['normal', 'admin'];
+
+  const ROLES_LIST = [
+    'normal' => self::NORMAL,
     'admin' => self::ADMIN,
   ];
 
-  const NAMES_LIST = [
-    'viewer',
-    'artist',
-    'owner',
-    'worker',
-    'admin',
+  const IDS_LIST = [
+    self::NORMAL => 'normal',
+    self::ADMIN => 'admin',
   ];
 
   /**
@@ -36,6 +30,17 @@ class Role extends Model
   */
   static public function getRoleId(string $role_name) :int
   {
-    return self::ROLES[$role_name];
+    return self::ROLES_LIST[$role_name];
+  }     
+
+  /**
+   * Get the role name by the id
+   *
+   * @param int $role_id
+   * @return string
+  */
+  static public function getRoleName(int $role_id) :string
+  {
+    return self::IDS_LIST[$role_id];
   }     
 }

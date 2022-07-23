@@ -7,13 +7,26 @@ return [
     | Default Mailer
     |--------------------------------------------------------------------------
     |
-    | This option controls the default mailer that is used to send any email
+    | This option controls the default mailer that is being used to send any email
     | messages sent by your application. Alternative mailers may be setup
     | and used as needed; however, this mailer will be used by default.
     |
     */
 
     'default' => env('MAIL_MAILER', 'smtp'),
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mail Service Status
+    |--------------------------------------------------------------------------
+    |
+    | The status declares if the mail service is enabled or not.
+    |
+    */
+
+    'status' => env('MAIL_STATUS', true),
+
 
     /*
     |--------------------------------------------------------------------------

@@ -2,42 +2,167 @@
 
 namespace App\Domain\Helpers;
 
+use Exception;
+use Illuminate\Support\Str;
+use Illuminate\Mail\Mailable;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Mail;
+use App\Domain\Emails\Services\EmailService;
 
 class MailService
-{  
-  /**
-   * Send mail
-   *
-   * @param  string $mail
-   * @param  mixed $data
-   * @param  mixed $recievers
-   * 
-   * @return void
-   */
-  static public function send(string $mail, mixed $data, mixed $recievers)
-  {
-    try{
-      self::setLog($mail, $recievers);
+{
+  const MAIL_LOG_DRIVER = 'mail';
+  const DEFAULT_DELAY = 1; // Seconds
 
-      // TODO: enter to queue
-      Mail::to($recievers)->send($mail, $data);
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), 'mail');
+  const SYSTEM_EMAILS = [
+    'gal.blacky@gmail.com'
+  ];
+
+  /**
+   * @var array
+   */
+  private array $receivers;
+
+  /**
+   * @var int
+   */
+  private int $delay_time = 0;
+
+  /**
+   * @var string
+   */
+  private string $mail_track_id;
+
+  /**
+   * @var Boolean
+   */
+  private bool $isMock = false;
+
+  /**
+   * @var LogService
+   */
+  private LogService $log_service;
+
+  /**
+   * @var EmailService
+   */
+  private EmailService $email_service;
+
+  public function __construct()
+  {
+    $this->email_service  = new EmailService;
+    $this->log_service    = new LogService('mail');
+    $this->mail_track_id  = Str::uuid();
+    $this->info('Mail service triggered');
+  }
+  
+  /**
+   * Send the mail in queue, the default is 1 second
+   *
+   * @param int $seconds
+   * @return self
+  */
+  public function delay(int $seconds = self::DEFAULT_DELAY): self
+  {
+    $this->delay_time_time = now()->addSeconds($seconds);
+    $this->info('Delay triggered with: ' . $seconds . ' seconds');
+    return $this;
+  }
+  
+  /**
+   * Change the mail server non functional
+   * for tests and mocks
+   *
+   * @return self
+  */
+  public function mock(): self
+  {
+    $this->isMock = true;
+    $this->info('Mock triggered');
+    return $this;
+  }
+  
+  /**
+   * Send the email to the receivers
+   *
+   * @param string|array $emails
+   * @param string $email_class
+   * @param object|array $data
+   * @return bool
+  */
+  public function send($emails, string $email_class, $data): bool
+  {
+    try {
+      $this->info('Sending ' . $email_class . ' mail');
+
+      // If mail service is off skip
+      if(!config('mail.status') || $this->isMock) {
+        $this->info('Mail service is not active');
+        return true;
+      }
+
+      $this->setReceivers($emails);
+      if(!$this->receivers) {
+        throw new Exception('No receivers found');
+      }
+
+      $email_sent = $this->email_service->create(
+        $this->receivers,
+        $email_class,
+        $data
+      );
+
+      if($this->delay_time) {
+        Mail::to($this->receivers)->later($this->delay_time, new $email_class($data));
+      } else {
+        Mail::to($this->receivers)->send(new $email_class($data));
+      }
+
+      $this->info('Mail sent successfully');
+      $this->email_service->updateStatus($email_sent->id, StatusService::ACTIVE);
+      
+      return true;
+    } catch (Exception $ex) {
+        $this->email_service->updateStatus($email_sent->id, StatusService::INACTIVE);
+      $this->error($ex->__toString());
+      return false;
     }
   }
   
   /**
-   * Create a log for attempting to send an email
+   * Set the receivers if single or multiple
    *
-   * @param  string $mail
-   * @param  mixed $recievers
+   * @param mixed $emails
    * @return void
-   */
-  static private function setLog(string $mail, mixed $recievers)
+  */
+  private function setReceivers($emails)
   {
-    $recievers = is_string($recievers) ? $recievers : json_encode($recievers);
-    LogService::info("Attempt to send mail: $mail to: $recievers", 'mail');
+    if(is_string($emails)) {
+      $this->receivers = [$emails];
+    }
+
+    if(is_array($emails)) {
+      $this->receivers = $emails;
+    }
+
+    $this->info('Receivers are: ' . json_encode($this->receivers));
+  }
+  
+  /**
+   * @param string $content
+   * @return void
+  */
+  private function info(string $content)
+  {
+    $this->log_service->info(LogService::TRACK_ID . $this->mail_track_id . LogService::SEPARATOR . LogService::MESSAGE . $content);
+  }
+  
+  /**
+   * @param string $content
+   * @return void
+  */
+  private function error(string $content)
+  {
+    $this->log_service->error(LogService::TRACK_ID . $this->mail_track_id . LogService::SEPARATOR . LogService::MESSAGE . $content);
   }
 }

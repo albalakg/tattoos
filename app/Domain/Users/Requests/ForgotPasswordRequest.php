@@ -14,7 +14,7 @@ class ForgotPasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'password' => 'required|string|regex:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/i',
+            'email' => 'required|email',
         ];
     }
 }

@@ -2,68 +2,104 @@
 
 namespace App\Domain\Users\Models;
 
+use App\Domain\Helpers\StatusService;
 use App\Domain\Users\Models\Role;
+use Laravel\Passport\HasApiTokens;
 use App\Domain\Users\Models\UserDetail;
-use App\Domain\Users\Models\UserFriend;
-use Illuminate\Database\Eloquent\Model;
-use App\Domain\Users\Models\UserSavedTattoo;
-use App\Domain\Users\Models\UserFollowStudio;
-use App\Domain\Users\Models\UserWatchedTattoo;
+use App\Domain\Users\Models\UserFavorite;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Model
+class User extends Authenticatable
 {
+  use HasFactory, HasApiTokens, SoftDeletes;
+
+  protected $hidden = [
+    'password', 'role_id'
+  ];
+
+  protected $casts = [
+    'created_at' => 'datetime:Y-m-d H:i:s',
+    'updated_at' => 'datetime:Y-m-d H:i:s',
+    'deleted_at' => 'datetime:Y-m-d H:i:s',
+  ];
+
+  protected $guarded = [];
+
   public function role()
   {
-    return $this->hasOne(Role::class);
+    return $this->hasOne(Role::class, 'id', 'role_id');
   }
   
   public function details()
   {
-    return $this->hasOne(UserDetail::class, 'user_id', 'id');
+    return $this->hasOne(UserDetail::class, 'user_id', 'id')
+                ->with('city', 'team');
+  }
+  
+  public function favorites()
+  {
+    return $this->hasMany(UserFavorite::class, 'user_id', 'id');
+  }
+  
+  public function courses()
+  {
+    return $this->hasMany(UserCourse::class, 'user_id', 'id');
+  }
+  
+  public function activeCourses()
+  {
+    return $this->hasMany(UserCourse::class, 'user_id', 'id')
+                ->where('status', StatusService::ACTIVE);
+  }
+  
+  public function inactiveCourses()
+  {
+    return $this->hasMany(UserCourse::class, 'user_id', 'id')
+                ->where('status', StatusService::INACTIVE);
+  }
+  
+  public function finishedCourses()
+  {
+    return $this->hasMany(UserCourse::class, 'user_id', 'id')
+                ->where('progress', UserCourse::DONE);
+  }
+  
+  public function lastActiveLesson()
+  {
+    return $this->hasOne(UserCourseLessonWatch::class, 'user_id', 'id')
+                ->with('userCourse')
+                ->orderBy('id', 'desc');
+  }
+  
+  public function logAttempts()
+  {
+    return $this->hasOne(UserLogAttempt::class, 'email', 'email');
   }
 
-  public function likedTattoos()
+  public function isNormalUser()
   {
-    return $this->hasMany(UserLikedTattoo::class, 'user_id', 'id');
-  }
-
-  public function watchedTattoos()
-  {
-    return $this->hasMany(UserWatchedTattoo::class, 'user_id', 'id');
-  }
-
-  public function savedTattoos()
-  {
-    return $this->hasMany(UserSavedTattoo::class, 'user_id', 'id');
-  }
-
-  public function friends()
-  {
-    return $this->hasMany(UserFriend::class, 'user_id', 'id');
-  }
-
-  public function followingStudios()
-  {
-    return $this->hasMany(UserFollowStudio::class, 'user_id', 'id');
+    return $this->role_id === Role::NORMAL;
   }
 
   public function isAdmin()
   {
-    return $this->role->id === Role::ADMIN;
-  }
-  
-  public function isOwner()
-  {
-    return $this->role->id === Role::OWNER;
+    return $this->role_id === Role::ADMIN;
   }
 
-  public function isArtist()
+  public function isActive()
   {
-    return $this->role->id === Role::ARTIST;
+    return $this->status === StatusService::ACTIVE;
   }
 
-  public function isViewer()
+  public function isInactive()
   {
-    return $this->role->id === Role::VIEWER;
+    return $this->status === StatusService::INACTIVE;
+  }
+
+  public function isWaitingForConfirmation()
+  {
+    return $this->status === StatusService::PENDING;
   }
 }

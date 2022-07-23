@@ -3,883 +3,971 @@
 namespace App\Domain\Users\Services;
 
 use Exception;
-use phpseclib\Crypt\Hash;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use App\Domain\Users\Models\Role;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
-use Illuminate\Support\Facades\DB;
-use App\Domain\Helpers\BaseService;
 use App\Domain\Helpers\MailService;
-use App\Domain\Helpers\TokenService;
-use Illuminate\Support\Facades\Auth;
+use App\Domain\Users\Models\LuCity;
+use App\Domain\Users\Models\LuTeam;
+use Illuminate\Support\Facades\Hash;
 use App\Domain\Helpers\StatusService;
-use App\Domain\Tattoos\Models\Tattoo;
-use App\Domain\Helpers\ResponseService;
-use App\Domain\Users\Models\ResetEmail;
-use App\Domain\Users\Models\UserFriend;
-use App\Domain\Helpers\PaginationService;
-use App\Domain\Tattoos\Models\TattooLike;
-use App\Domain\Tattoos\Models\TattooSave;
-use App\Domain\Studios\Models\StudioWatch;
-use App\Domain\Tattoos\Models\TattooWatch;
-use App\Domain\Users\Models\ResetPassword;
-use App\Domain\Users\Services\UserResponse;
-use App\Domain\Users\Models\UserFollowStudio;
-use App\Domain\Users\Models\DeleteUserRequest;
+use App\Events\Users\UserCreatedEvent;
+use App\Events\Users\UserDeletedEvent;
+use App\Domain\Users\Models\UserCourse;
+use App\Domain\Users\Models\UserDetail;
+use App\Domain\Orders\Services\OrderService;
+use App\Events\Users\UserResetPasswordEvent;
+use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Users\Models\UserCourseLesson;
+use App\Domain\Users\Models\UserResetPassword;
+use App\Domain\Content\Services\ContentService;
+use App\Domain\Support\Services\SupportService;
+use App\Domain\Users\Models\UserCourseLessonWatch;
+use App\Domain\Users\Models\UserEmailVerification;
+use App\Mail\Auth\ForgotPasswordMail;
 
-class UserService extends BaseService
-{
-  public function __construct()
-  {
-    $this->setLogFile('users');
-  }
-
+class UserService
+{  
   /**
-   * Login a user
-   *
+   * @var ContentService
+  */
+  private $content_service;
+  
+  /**
+   * @var SupportService
+  */
+  private $support_service;
+  
+  /**
+   * @var OrderService
+  */
+  private $order_service;
+  
+  /**
+   * @var LogService
+  */
+  private $log_service;
+  
+  /**
+   * @var UserCours|null
+  */
+  private $user_course;
+    
+  /**
+   * @param ContentService $content_service
+   * @param SupportService $support_service
+   * @param OrderService $order_service
+   * @return void
+  */
+  public function __construct(ContentService $content_service = null, SupportService $support_service = null, OrderService $order_service = null)
+  {
+    $this->content_service  = $content_service;
+    $this->support_service  = $support_service;
+    $this->order_service    = $order_service;
+    $this->log_service      = new LogService('users');
+  }
+  
+  /**
+   * @return object
+  */
+  public function getAll(): object
+  {
+    return User::join('roles', 'roles.id', 'users.role_id')
+              ->join('user_details', 'user_details.user_id', 'users.id')
+              ->leftJoin('lu_teams', 'lu_teams.id', 'user_details.team_id')
+              ->leftJoin('lu_cities', 'lu_cities.id', 'user_details.city_id')
+              ->select(
+                'users.id',
+                'users.status',
+                'users.created_at',
+                'users.email',
+                'user_details.phone',
+                'user_details.first_name',
+                'user_details.last_name',
+                'user_details.gender',
+                'user_details.birth_date',
+                'lu_teams.name AS team',
+                'lu_cities.name AS city',
+                'roles.name AS role'
+              )
+              ->orderBy('users.created_at', 'desc')
+              ->get();
+  }
+  
+  /**
+   * @param int $user_id
+   * @return User|null
+  */
+  public function getUserByID(int $user_id): ?User
+  {
+    return User::find($user_id);
+  }
+  
+  /**
    * @param string $email
-   * @param string $password
-   * @return object|null
+   * @return null|User
   */
-  public function login(string $email, string $password)
+  public function getUserByEmail(string $email): ?User
   {
-    try {
-      $attempt = Auth::attempt(['email' => $email, 'password' => $password]);
-      if(!$attempt) {
-        $this->validation('Email or password is incorrect');
-      }
+    return User::where('email', $email)->first();
+  } 
 
-      if(!$this->userIsActive(Auth::user())) {
-        $this->unauthorized('User is unauthorized');
-      }
-
-      $token = $this->createUserToken(Auth::user());
-      if(!$token) {
-        throw new Exception('Failed to create a user token');
-      }
-      $user_id = Auth::user()->id;
-
-      LogService::info("User $user_id logged in successfully", $this->log_file);
-      return $token;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return null;
-    }
-  }
-  
-  /**
-   * Create token
-   *
-   * @param object $user
-   * @return array|null
-  */
-  private function createUserToken(object $user)
-  {
-    try {
-      return [
-        'token' => $this->createToken($user),
-        'first_name' => $user->first_name,
-        'last_name' => $user->last_name,
-        'role' => $user->role->role,
-      ];
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return null;
-    }
-  }
-  
-  /**
-   * Create token
-   *
-   * @param object $user
-   * @return string
-  */
-  private function createToken(object $user)
-  {
-    return $user->createToken('MiToo')->accessToken;
-  }
-  
   /**
    * Check if a user is active
    *
    * @param object $user
    * @return bool
   */
-  private function userIsActive(object $user)
+  public function isActive(object $user) :bool
   {
     return $user->status === StatusService::ACTIVE;
   }
-
-  /**
-   * Signup a user
-   *
-   * @param object $user
-   * @return object|null
-  */
-  public function signup(object $user)
-  {
-    try {
-      $user = User::create([
-        'first_name' => $user->first_name,
-        'last_name' => $user->last_name,
-        'email' => $user->email,
-        'role_id' => Role::VIEWER,
-        'password' => $user->password,
-        'status' => StatusService::INACTIVE,
-      ]);
-
-      LogService::info("User $user->id signup successfully", $this->log_file);
-      return $user;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return null;
-    }
-  }
-
-  /**
-   * Update a user's email reqeuest
-   * This requires an email confirmation
-   *
-   * @param int $user_id
-   * @param string $new_email
-   * @return bool
-  */
-  public function updateEmailRequest(int $user_id, string $new_email)
-  {
-    try {
-      ResetEmail::create([
-        'user_id' => $user_id,
-        'new_email' => $new_email,
-        'token' => TokenService::getToken(),
-        'status' => StatusService::PENDING,
-      ]);
-
-      // MailService::send();
-
-      LogService::info("User $user_id request to update email", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-
   
   /**
-   * Update a user's email confirmation
-   *
-   * @param int $user_id
-   * @param string $new_email
-   * @param string $token
-   * @return object|null
+   * @param Object $user
+   * @return string
   */
-  public function updateEmailConfirmed(int $user_id, string $new_email, string $token)
+  public function getFullName(Object $user): string
   {
-    try {
-      if(!$user = $this->getUserByField('id', $user_id)) {
-        throw new Exception('User not found');
-      }
-
-      $reset_email_is_valid = ResetEmail::where('token', $token)
-                                        ->where('new_email', $new_email)
-                                        ->first();
-
-      if(!$reset_email_is_valid) {
-        $this->validation('Email confirmation is invalid');
-      }
-
-      ResetEmail::where('id', $reset_email_is_valid->id)
-                ->update([
-                  'status' => StatusService::ACTIVE
-                ]);
-
-      $this->updateEmail($user->id, $new_email);
-      
-      LogService::info("User $user_id has confirmed the email update request", $this->log_file);
-      return $reset_email_is_valid;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return null;
-    }
+    return $user->first_name . ' ' . $user->last_name;
   }
-
+  
   /**
-   * Update the user's email
-   *
-   * @param int $user_id
-   * @param string $email
-   * @return bool
-  */
-  private function updateEmail(int $user_id, string $email)
-  {
-    try {
-      User::where('id', $user_id)
-          ->update([
-            'email' => $email
-          ]);
-
-      LogService::info("User $user_id has updated the email", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-
-  /**
-   * Update the user's status
-   *
-   * @param int $user_id
+   * @param Object $user
    * @param int $status
-   * @return bool
+   * @return Collection|null
   */
-  private function updateStatus(int $user_id, int $status)
+  public function getUserCourses(Object $user, int $status = null): ?Collection
   {
-    try {
-      if(!$this->isUserExists($user_id)) {
-        throw new Exception('User not found');
-      }
-
-      User::where('id', $user_id)
-          ->update([
-            'status' => $status
-          ]);
-
-      LogService::info("User $user_id has updated the status", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
+    $user_courses = UserCourse::where('user_id', $user->id);
+    if(!is_null($status)) {
+      $user_courses = $user_courses->where('status', $status);
     }
-  }
-
-  /**
-   * Get a single user
-   *
-   * @param int $user_id
-   * @return object
-  */
-  public function getUser(int $user_id)
-  {
-
-  }
-  
-  /**
-   * Get mulitple users
-   *
-   * @param int $records
-   * @return object
-  */
-  public function getUsers(int $records = PaginationService::SMALL)
-  {
-
-  }
-
-  /**
-   * Set user role
-   *
-   * @param int $user_id
-   * @param string $role
-   * @return bool
-   */
-  public function setUserRole(int $user_id, string $role)
-  {
-    try {
-      if(!$this->isUserExists($user_id)) {
-        return false;
-      }
-
-      User::where('id', $user_id)->update([
-        'role_id', Role::getRoleId($role)
-      ]);
-
-      LogService::info("User $user_id has updated the role", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-
-  /**
-   * Get a single user by a dynamic field
-   *
-   * @param string $type
-   * @param string $value
-   * @return object|null
-  */
-  public function getUserByField(string $type, string $value)
-  {
-    return User::where($type, $value)->first();
-  }
-  
-  /**
-   * Create a user
-   *
-   * @param object $user
-   * @param int $created_by
-   * @return object|null
-  */
-  public function createUser(object $user, int $created_by)
-  {
-    try {
-      $user = User::create([
-        'first_name' => $user->first_name,
-        'last_name' => $user->last_name,
-        'email' => $user->email,
-        'role_id' => Role::getRoleId($user->role),
-        'password' => $user->password,
-        'status' => $user->status,
-        'created_by' => $created_by
-      ]);
-
-      LogService::info("User $user->id has created by $created_by", $this->log_file);
-      return $user;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      $this->deleteUser($user->id);
-      return null;
-    }
-  }
-
-  /**
-   * Delete users
-   *
-   * @param array $user_ids
-   * @return bool
-  */
-  public function deleteUsers(array $user_ids)
-  {
-    try {
-      foreach($user_ids AS $user_id) {
-        $this->deleteUser($user_id);
-      }
-
-      LogService::info('Finished to delete mulitple users', $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-
-  /**
-   * Delete a single user
-   * This is a soft delete, changing the user status to deleted
-   *
-   * @param int $user_id
-   * @return bool
-  */
-  public function deleteUserRequest(int $user_id)
-  {
-    try {
-      if(!$this->isUserExists($user_id)) {
-        throw new Exception('User not found');
-      }
-  
-      User::where('id', $user_id)->delete();
-
-      $delete_user_request = DeleteUserRequest::create([
-        'user_id' => $user_id,
-        'status' => StatusService::PENDING,
-        'token' => TokenService::getToken()
-      ]);
-      
-      // MailService::send();
-      LogService::info("User $user_id requested to delete account", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-  
-  /**
-   * Fully deleting the user from the application
-   *
-   * @param string $email
-   * @param string $token
-   * @return bool
-  */
-  public function deleteUserConfirmed(string $email, string $token)
-  {
-    try {
-      $user = $this->getUserByField('email', $email);
-      if(!$user) {
-        throw new Exception('User not found');
-      }
-
-      $delete_user_request_is_valid = DeleteUserRequest::where('email', $email)
-                                                       ->where('token', $token)
-                                                       ->exists();
-  
-      if(!$delete_user_request_is_valid) {
-        return $this->validation('User delete request is not confirmed succesfully');
-      }
-
-      DeleteUserRequest::where('email', $email)
-                       ->where('token', $token)
-                       ->update([
-                         'status' => StatusService::ACTIVE,
-                       ]);
-        
-      // MailService::send();
-
-      $this->deleteUser($user->id);
-
-      LogService::info("The request to delete user $user->id is confirmed", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-  
-  /**
-   * Fully delete user from the application
-   * Leave no trace for the user
-   *
-   * @param int $user_id
-   * @return bool
-   */
-  private function deleteUser(int $user_id)
-  {
-    try {
-      User::where('id', $user_id)->forceDelete();
-
-      LogService::info("User $user_id is deleted successfully", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-
-  /**
-   * Checks if the user exists
-   *
-   * @param int $user_id
-   * @return bool
-  */
-  public function isUserExists(int $user_id)
-  {
-    return User::where('id', $user_id)->exists();
-  }
-  
-  /**
-   * Get the user friends
-   * Can be filtered by status
-   *
-   * @param int $user_id
-   * @param int $records
-   * @param int $status
-   * @return object
-  */
-  public function getUserFriends(int $user_id, int $records = PaginationService::SMALL, int $status = StatusService::ACTIVE)
-  {
-    try {
-      $user_friends = UserFriend::where('id', $user_id)
-                                ->where('status', $status)
-                                ->with('user')
-                                ->simplePaginate($records);
     
-      return $user_friends;
+    $user_courses = $user_courses->select('id', 'course_id', 'progress')->pluck('course_id');
+    $courses      = $this->content_service->getCoursesFullContent($user_courses->toArray());
+
+    return $courses;
+  }
+  
+  /**
+   * @param Object $user
+   * @return User
+  */
+  public function getProfile(Object $user): User
+  {
+    $user = $user->load('details');
+
+    unset($user->status);
+    unset($user->updated_at);
+    unset($user->created_at);
+    unset($user->created_by);
+    unset($user->deleted_at);
+
+    return $user;
+  }
+  
+  /**
+   * @param int $user_id
+   * @param int $content_id
+   * @return UserCourse|null
+  */
+  public function assignCourseToUser(int $user_id, int $content_id): ?UserCourse
+  {
+    try {
+      $user_course_service = new UserCourseService();
+      return $user_course_service->assignCourseToUser($user_id, $content_id);
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      $this->log_service->error($ex);
       return null;
     }
   }
   
   /**
-   * Send a user a friend request
-   *
-   * @param int $user_id
-   * @param int $friend_id
-   * @return object
+   * @param Object $user
+   * @return Collection
   */
-  public function sendFriendRequest(int $user_id, int $friend_id)
+  public function getUserSupportTickets(Object $user): Collection
   {
-    try {
-      $user_friend = UserFriend::create([
-        'user_id' => $user_id,
-        'friend_id' => $friend_id,
-        'status' => StatusService::PENDING
-      ]);
-
-      LogService::info("User $user_id sent a friend request to user $friend_id", $this->log_file);
-      return $user_friend;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return null;
+    return $this->support_service->getTicketsByUsers($user->id);
+  }
+  
+  /**
+   * @param array $data
+   * @param int $user_id
+   * @return Collection
+  */
+  public function setLessonProgress(array $data, int $user_id)
+  {
+    if(!$this->hasAccessToLesson($user_id, $data['lesson_id'])) {
+      throw new Exception('User doesn\'t have access to the lesson: ' . $data['lesson_id']);
     }
+
+    $video = $this->content_service->getVideoByLessonId($data['lesson_id']);
+    $end_time = $data['end_time'] > $video->video_length ? $video->video_length : $data['end_time'];
+    $progress = $this->calcVideoProgress($video->video_length, $end_time);
+
+    if($user_lesson = $this->getUserLesson($user_id, $data['lesson_id'])) {
+      $user_lesson = $this->updateLessonProgress($user_lesson, $progress, $user_id);
+    } else {
+      $user_lesson = $this->createLessonProgress($data['lesson_id'], $user_id, $progress);
+    }
+
+    $this->setLessonWatchRecord($user_lesson, $data['start_time'], $end_time);
+
+    $course_id = $this->content_service->getLessonCourseId($data['lesson_id']);
+    $user_lesson->course_progress = $this->updateUserCourseProgress($course_id, $user_lesson->user_course_id);
+
+    return $user_lesson;
+  }
+  
+  /**
+   * @param int $user_id
+   * @param int $lesson_id
+   * @return UserCourseLesson|null
+  */
+  public function getUserLesson(int $user_id, int $lesson_id): ?UserCourseLesson
+  {
+    $user_course = $this->getUserActiveCourseByLesson($user_id, $lesson_id);
+    return UserCourseLesson::where('course_lesson_id', $lesson_id)
+                          ->where('user_id', $user_id)
+                          ->where('user_course_id', $user_course->id)
+                          ->first();
   }
 
   /**
-   * Update the status of a friend request
-   *
-   * @param int $id
-   * @param int $status
    * @param int $user_id
-   * @return object|null
+   * @param int $lesson_id
+   * @return UserCourse|null
   */
-  public function updateFriendRequest(int $id, int $status, int $user_id)
+  public function getUserActiveCourseByLesson(int $user_id, int $lesson_id): ?UserCourse
+  {
+    return UserCourse::where('user_id', $user_id)
+                      ->where('user_courses.status', StatusService::ACTIVE)
+                      ->join('course_lessons', 'course_lessons.course_id', 'user_courses.course_id')
+                      ->where('course_lessons.id', $lesson_id)
+                      ->select('user_courses.*')
+                      ->first();
+  }
+  
+  /**
+   * @param Object $user
+   * @return Array
+  */
+  public function getUserProgress(Object $user): array
+  {
+    $user_progress = [];
+    $user_progress['courses'] = UserCourse::where('user_id', $user->id)
+                    ->where('status', StatusService::ACTIVE)
+                    ->with('lessonsProgress')
+                    ->select('id', 'course_id', 'progress')
+                    ->get();
+                    
+    // $user_progress['last_active_lesson'] = $this->getUserLastActiveLesson($user_progress['courses']);
+    $user_progress['last_active_lesson'] = $user->load('lastActiveLesson')->lastActiveLesson;
+
+    return $user_progress;
+  }
+  
+  /**
+   * @param Object $user
+   * @return Collection
+  */
+  public function getUserOrders(Object $user): Collection
+  {
+    $orders = $this->order_service->getOrdersByUsers($user->id);
+    $courses = $this->content_service->getCoursesFullContent($orders->pluck('content_id')->toArray());
+    
+    foreach($orders AS $order)
+    {
+      $order->course = $courses->where('id', $order->content_id)->first();
+    }
+
+    return $orders;
+  }
+
+  /**
+   * @param User $user
+   * @return void
+  */
+  public function logout(User $user)
+  {
+    $user->token()->revoke();
+    $this->log_service->info('User ' . $user->id . ' logged out successfully');
+  }
+  
+  /**
+   * @param array $data
+   * @return User|null
+  */
+  public function signup(array $data): ?User
   {
     try {
-      $friend_request = UserFriend::find($id);
-      if(!$friend_request) {
-        throw new Exception('Friend request not found');
+      $user             = new User();
+      $user->role_id    = Role::NORMAL;
+      $user->status     = StatusService::PENDING;
+      $user->email      = $data['email'];
+      $user->password   = bcrypt($data['password']);
+      $user->save();
+
+      $this->log_service->info('User ' . $user->id . 'completed sign up, part 1');
+      $data['user_id'] = $user->id;
+      $this->createUserDetails($data);
+      $this->log_service->info('User ' . $user->id . 'completed sign up, part 2');
+      $this->saveEmailVerification($user, $user->email);
+      $this->log_service->info('User ' . $user->id . 'completed sign up, part 3');
+      return $user;
+    } catch(Exception $ex) {
+      if(isset($user) && $user) {
+        $this->deleteUser($user->id);
+      }
+      throw $ex;
+    }
+  }
+    
+  /**
+   * Create user by an admin
+   *
+   * @param array $data
+   * @param int|null $created_by
+   * @return User|null
+  */
+  public function createUserByAdmin(array $data, ?int $created_by): ?User
+  {
+    try {
+      $user             = new User();
+      $user->role_id    = $data['role_id'];
+      $user->status     = StatusService::PENDING;
+      $user->email      = $data['email'];
+      $user->password   = bcrypt($data['password']);
+      $user->created_by = $created_by;
+      $user->save();
+
+      $data['user_id']    = $user->id;
+      $this->log_service->info('User ' . $user['id'] . ' has been created by ' . $created_by);
+      $this->createUserDetails($data, $created_by);
+
+      return $user;
+    } catch(Exception $ex) {
+      if(isset($user) && $user) {
+        $this->deleteUser($user->id);
       }
 
-      $friend_request->status = $status;
-      $friend_request->updated_at = now();
-      $friend_request->save();
-
-      LogService::info("User $user_id updated the friend request $id to status $status", $this->log_file);
-      return $friend_request;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return null;
+      throw $ex;
     }
   }
-
+    
   /**
-   * Update users status
-   *
-   * @param array $user_ids
-   * @param int $status
-   * @param int $created_by
-   * @return bool
-  */
-  public function updateUsersStatus(array $user_ids, int $status, int $created_by)
-  {
-    try {
-      User::whereIn('id', $user_ids)
-        ->update([
-          'status', $status
-        ]);
-
-      LogService::info("User $created_by updated the users " . json_encode($user_ids) . " status to $status", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-
-  /**
-   * Update a user's password
-   *
    * @param int $user_id
-   * @param string $new_password
-   * @param int $created_by
-   * @return bool
+   * @param int|null $updated_by
+   * @return User|null
   */
-  public function updateUserPassword(int $user_id, string $new_password, int $created_by)
+  public function activateUser(int $user_id, ?int $updated_by = null)
   {
-    try {
-      if(!$this->isUserExists($user_id)) {
-        throw new Exception('User not found');
-      }
+    return $this->saveStatus($user_id, StatusService::ACTIVE);
+  }
+    
+  /**
+   * Update user by an admin
+   *
+   * @param array $data
+   * @param int|null $updated_by
+   * @return User|null
+  */
+  public function updateUser(array $data, ?int $updated_by)
+  {
+    $user             = User::find($data['id']);
+    $user->role_id    = Role::ROLES_LIST[strtolower($data['role'])];
+    $user->status     = StatusService::PENDING;
+    $user->email      = $data['email'];
+    $user->password   = bcrypt($data['password']);
+    $user->updated_by = $data['updated_by'];
+    $user->save();
 
-      $password_set_successfully = $this->setUserPassword($user_id, $new_password);
-      if(!$password_set_successfully) {
-        throw new Exception('Failed to update the password');
-      }
+    $this->log_service->info('User ' . $data['id'] . ', main data was updated by ' . $updated_by);
 
-      LogService::info("User $created_by updated the user $user_id password", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
+    $this->updateUserDetails($data, $updated_by);
+
+    return $data;
+  }
+    
+  /**
+   * @param array $data
+   * @param null $user_id
+   * @return User|null
+  */
+  public function updateProfile(array $data, int $user_id)
+  {
+    $user = UserDetail::where('user_id', $user_id)->first();
+    $user->first_name = $data['first_name'];
+    $user->last_name  = $data['last_name'];
+    $user->phone      = $data['phone'];
+    $user->gender     = $data['gender'];
+    $user->team_id    = $this->getTeamId($data['team'] ?? null, $user->id);
+    $user->city_id    = $this->getCityId($data['city'] ?? null, $user->id);
+
+    $user->save();
+
+    $this->log_service->info('User ' . $user_id . ', updated his profile');
+    
+    $user->team = $data['team'] ?? null;
+    $user->city = $data['city'] ?? null;
+
+    return $user;
+  }
+  
+  /**
+   * @param array $ids
+   * @param int $deleted_by
+   * @return void
+  */
+  public function deleteUsers(array $ids, int $deleted_by)
+  {
+    foreach($ids AS $id) {
+      $this->deleteUser($id);
     }
   }
-
+  
   /**
-   * Update users status
+   * @param int $user_id
+   * @return void
+  */
+  public function deleteUser(int $user_id)
+  {
+    $user = User::find($user_id);
+    $user->update([
+      'email' => null,
+      'password' => null,
+    ]);
+    
+    $user->delete();
+    UserDetail::where('user_id', $user_id)->delete();
+    event(new UserDeletedEvent($user));
+  }
+  
+  /**
+   * Create a record for the user's details
    *
+   * @param array $data
+   * @param int $updated_by
+   * @return UserDetail|null
+   */
+  public function updateUserDetails(array $data, int $updated_by): ?UserDetail
+  {
+    if(!$user_details = UserDetail::where('user_id', $data['user_id'])->first()) {
+      throw new Exception('Failed to find user');
+    }
+
+    $this->saveUserDetails($user_details, $data);
+    $this->log_service->info('User ' . $data['user_id'] . ', details were updated by ' . $updated_by);
+    
+    return $user_details;
+  }
+    
+  /**
+   * @param string $email
+   * @param string $token
+   * @param string $password
+   * @return void
+  */
+  public function resetPassword(string $email, string $token, string $password) 
+  {
+    $reset_password_request = UserResetPassword::where('email', $email)
+                                     ->where('token', $token)
+                                     ->where('status', StatusService::PENDING)
+                                     ->where('created_at', '>=', Carbon::now()->subDay()->toDateTimeString())
+                                     ->first();
+  
+    if(!$reset_password_request) {
+      throw new Exception('Reset Password request not found');
+    }
+    
+    $user = $this->getUserByEmail($email);
+    if(!$user) {
+      throw new Exception('User not found');
+    }
+    
+    $this->savePassword($user, $password);
+    
+    $this->log_service->info('User has reset his password successfully');
+    $reset_password_request->update([
+      'status' => StatusService::ACTIVE,
+      'verified_at' => now()
+    ]);
+  }
+    
+  /**
+   * @param string $email
+   * @return void
+  */
+  public function forgotPassword(string $email) 
+  {
+    if(!$user = $this->getUserByEmail($email)) {
+      $this->log_service->error('Email does not exists');
+      return;
+    }
+
+    if(!$this->canResetPassword($email)) {
+      $this->log_service->error("Email $email have reached maximum forgot reset attempts");
+      return;
+    }
+
+    $this->deactivateUsersResetPasswords($email);
+
+    $forgot_password_request = UserResetPassword::create([
+      'token'     => Str::random(50),
+      'email'     => $email,
+      'status'    => StatusService::PENDING,
+      'created_at' => now()
+    ]);
+
+    $forgot_password_request->user_name = $user->details->first_name;
+    $this->log_service->info("Submitted a forgot password request for user $user->id");
+
+    $mail_service = new MailService;
+    $mail_service->delay(5)->send($email, ForgotPasswordMail::class, $forgot_password_request);
+  }
+  
+  /**
+   * @param string $email
+   * @return int
+  */
+  public function deactivateUsersResetPasswords(string $email): int
+  {
+    $records_updated =  UserResetPassword::where('email', $email)
+                                         ->where('status', StatusService::PENDING)
+                                         ->update(['status' => StatusService::INACTIVE]);
+
+    $this->log_service->info("Deactivate $records_updated reset passwords");
+    return $records_updated;
+  }
+  
+  /**
+   * @param User $user
    * @param string $old_password
    * @param string $new_password
-   * @param object $user
-   * @return bool
+   * @return void
   */
-  public function changeSelfPassword(string $old_password, string $new_password, object $user)
+  public function changePassword(User $user, string $old_password, string $new_password)
   {
-    try {
-      if (!Hash::check($old_password, $user->password)) {
-        return $this->validation('Old password is incorrect');
-      }
-  
-      $password_set_successfully = $this->setUserPassword($user->id, $new_password);
-      if(!$password_set_successfully) {
-        throw new Exception('Failed to update the password');
-      }
-
-      LogService::info("User $user->id updated the his password", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
+    if (!Hash::check($old_password, $user->password)) {
+      throw new Exception('Old password is incorrect');
     }
+
+    $this->savePassword($user, $new_password);
+    $this->log_service->info('Password has been changed successfully');
   }
   
   /**
-   * Set a user password
-   *
+   * @param array $data
+   * @param int $updated_by
+   * @return bool
+  */
+  public function updateUserEmail(array $data, int $updated_by): bool
+  {
+    $user = User::where('id', $data['id'])->update(['email' => $data['email']]);
+    $this->log_service->info("User $updated_by updated the email of user " . $data['id']);
+    return $user;
+  } 
+  
+  /**
+   * @param array $data
+   * @param int $updated_by
+   * @return bool
+  */
+  public function updateUserPassword(array $data, int $updated_by): bool
+  {
+    $result = $this->savePassword($this->getUserById($data['id']), $data['password']);
+    $this->log_service->info("User $updated_by updated the password of user " . $data['id']);
+    return $result;
+  } 
+   
+  /**
+   * @param User $user
+   * @param string $email
+   * @return void
+  */
+  public function changeEmail(User $user, string $email)
+  {
+    if($user->email === $email) {
+      $this->log_service->info('User failed to change email, attempted his current email');
+      return;
+    }
+    
+    if(User::where('email', $email)->exists()) {
+      $this->log_service->info('User failed to change email, attempted an existing email');
+      return;
+    }
+
+    if($this->userHasOpenEmailVerificationRequest($user->id)) {
+      $this->log_service->info('User already has an open email verification request');
+      return;
+    }
+
+    $this->saveEmailVerification($user, $email);
+  }
+  
+  /**
    * @param int $user_id
+   * @return bool
+  */
+  public function userHasOpenEmailVerificationRequest(int $user_id): bool
+  {
+    return UserEmailVerification::where('user_id', $user_id)->whereNull('verified_at')->exists();
+  }
+  
+  /**
+   * Get team ID if exists or creates a new one and retrieve its ID
+   *
+   * @param string|null $team_name
+   * @return int|null
+  */
+  public function getTeamId(?string $team_name, ?int $user_id = null): ?int
+  {
+    if(!$team_name) {
+      return null;
+    }
+
+    if($team_id = LuTeam::where('name', $team_name)->value('id')) {
+      return $team_id;
+    }  
+
+    return $this->createTeam($team_name, $user_id)->id;
+  }
+  
+  /**
+   * @param string $team_name
+   * @param int|null $user_id
+   * @return LuTeam
+  */
+  public function createTeam(string $team_name, ?int $user_id = null): LuTeam
+  {
+    return LuTeam::create(['name' => $team_name, 'created_by' => $user_id, 'created_at' => now()]);
+  }
+
+  /**
+   * Get city ID if exists or creates a new one and retrieve its ID
+   *
+   * @param string|null $city_name
+   * @return int|null
+  */
+  public function getCityId(?string $city_name, ?int $user_id = null): ?int
+  {
+    if(!$city_name) {
+      return null;
+    }
+
+    if($city_id = LuCity::where('name', $city_name)->value('id')) {
+      return $city_id;
+    }  
+
+    return $this->createCity($city_name, $user_id)->id;
+  }
+  
+  /**
+   * @param string $city_name
+   * @return LuCity
+  */
+  public function createCity(string $city_name, ?int $user_id = null): LuCity
+  {
+    return LuCity::create(['name' => $city_name, 'created_by' => $user_id, 'created_at' => now()]);
+  }
+
+  /**
+   * @param string $email
+   * @param string $token
+   * @return Void
+  */
+  public function verifyEmail(string $email, string $token)
+  {
+    $verification = UserEmailVerification::where('email', $email)
+                                        ->where('token', $token)
+                                        ->first();
+    if(!$verification) {
+      $this->log_service->info("Failed to verify the email with the token: $token");
+      throw new Exception('Failed to verify email');
+    }
+
+    if($verification->verified_at) {
+      return;
+    }
+    
+    $user = $this->getUserByEmail($email);
+    
+    $this->log_service->info('User ' . $user->id . ' has verified his email');
+    $verification->update(['verified_at' => now()]);
+    $this->updateUserEmail([
+      'id'    => $verification->user_id,
+      'email' => $email 
+    ], $verification->user_id);
+    $this->saveStatus($verification->user_id, StatusService::ACTIVE);
+  }
+  
+  /**
+   * @param User $user
+   * @param string $email
+   * @return UserEmailVerification
+  */
+  private function saveEmailVerification(User $user, string $email): UserEmailVerification
+  {
+    $email_verification = UserEmailVerification::create([
+      'user_id' => $user->id,
+      'email' => $email,
+      'token' => Str::random(50),
+      'created_at' => now()
+    ]);
+
+    $this->log_service->info('Sent verification mail for changing the email');
+
+    event(new UserCreatedEvent($user));
+    return $email_verification;
+  }
+
+  /**
+   * @param int $user_id
+   * @param int $status
+   * @return bool
+  */
+  private function saveStatus(int $user_id, int $status): bool
+  {
+    $result = User::where('id', $user_id)->update(['status' => $status]);
+    $this->log_service->info('User ' . $user_id . ' status has been updated to ' . $status);
+    return $result;
+  }
+  
+  /**
+   * @param User $user
+   * @param string $password
+   * @return bool
+  */
+  private function savePassword(User $user, string $password): bool
+  {
+    if($this->isNewPasswordMatchesOldPassword($user->password, $password)) {
+      throw new Exception('Can\'t update new password that matches the old password');
+    }
+    
+    return User::where('id', $user->id)->update(['password' => bcrypt($password)]);
+  }
+  
+  /**
+   * @param string $current_password
    * @param string $new_password
    * @return bool
   */
-  private function setUserPassword(int $user_id, string $new_password)
+  private function isNewPasswordMatchesOldPassword(string $current_password, string $new_password): bool
   {
-    try {
-      User::where('id', $user_id)->update([
-        'password' => bcrypt($new_password)
-      ]);
-
-      LogService::info("User $user_id password has updated", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
+    return Hash::check($new_password, $current_password);
   }
   
   /**
-   * Get the user tattoos
-   *
-   * @param int $user_id
-   * @param int $records
-   * @param object $tattooService
-   * @return object|null
-  */
-  public function getUserTattoos(int $user_id, int $records = PaginationService::SMALL, object $tattooService)
-  {
-    try {
-      $user_tattoos = $tattooService->getTattoosByUser($user_id, $records, StatusService::ACTIVE);
-
-      return $user_tattoos;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return null;
-    }
-  }
-  
-  /**
-   * Get the user followed studios
-   *
-   * @param int $user_id
-   * @param int $records
-   * @return object|null
-  */
-  public function getUserFollowedStudios(int $user_id, int $records = PaginationService::SMALL)
-  {
-    try {
-      $user_followed_studios = UserFollowStudio::where('user_id', $user_id)
-                                               ->with('studio')
-                                               ->simplePaginate($records);
-
-      return $user_followed_studios;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return null;
-    }
-  }
-  
-  /**
-   * Check if the user saved the tattoo
-   *
-   * @param int $user_id
-   * @param int $tattoo_id
-   * @return bool
-   */
-  public function isUserSavedTattoo(int $user_id, int $tattoo_id)
-  {
-    try {
-      return TattooSave::where('user_id', $user_id)
-                      ->where('tattoo_id', $tattoo_id)
-                      ->exists();
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-
-  /**
-   * Get the user saved tattoos
-   *
-   * @param int $user_id
-   * @param int $records
-   * @return object|null
-  */
-  public function getUserSavedTattoos(int $user_id, int $records)
-  {
-    try {
-      $user_saved_tattoos = TattooSave::where('user_id', $user_id)
-                                      ->with('tattoo')
-                                      ->simplePaginate($records);
-
-      return $user_saved_tattoos;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return null;
-    }
-  }
-  
-  /**
-   * User forgot a password
-   * Sends an email to reset password
-   *
-   * @param string $email
-   * @return bool
-  */
-  public function userForgotPassword(string $email)
-  {
-    try {
-      $reset_password = ResetPassword::create([
-        'email' => $email,
-        'token' => TokenService::getToken()
-      ]);
-
-      // TODO: send mail
-
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-  
-  /**
-   * Reset the user password after forgot
+   * Check if user has requested to reset his password less then 3 times
+   * in the last 24 hours 
    * 
-   * @param string $password
-   * @param string $token
    * @param string $email
    * @return bool
   */
-  public function resetUserPassword(string $password, string $token, string $email)
+  private function canResetPassword(string $email): bool
   {
-    try {
-      $reset_is_valid = ResetPassword::where('token', $token)
-                                     ->where('email', $email)
-                                     ->where('created_at', '>', Carbon::now()->subMinutes(ResetPassword::RESET_TIME)->toDateTimeString())
-                                     ->exists();
+    return UserResetPassword::where('email', $email)
+                            ->where('created_at', '>', Carbon::now()->subMinutes(1440))
+                            ->count() < 3;
+  }
+  
+  /**
+   * @param array $data
+   * @param int|null $created_by
+   * @return UserDetail
+  */
+  private function createUserDetails(array $data, ?int $created_by = null): UserDetail
+  {
+    $user_details             = new UserDetail();
+    $user_details->user_id    = $data['user_id'];
+    $this->saveUserDetails($user_details, $data);
+    $this->log_service->info('User ' . $data['user_id'] . ', details were created by ' . $created_by ?? $data['user_id']);
+    
+    return $user_details;
+  }
+  
+  /**
+   * @param UserDetail $user_details
+   * @param array $data
+   * @return UserDetail
+  */
+  private function saveUserDetails(UserDetail $user_details, array $data): UserDetail
+  {
+    $user_details->first_name = $data['first_name'];
+    $user_details->last_name  = $data['last_name'];
+    $user_details->phone      = $data['phone']      ?? null;
+    $user_details->gender     = $data['gender']     ?? null;
+    $user_details->birth_date = $data['birth_date'] ?? null;
+    $user_details->team_id    = $this->getTeamId($data['team'] ?? null, $user_details->user_id);
+    $user_details->city_id    = $this->getCityId($data['city'] ?? null, $user_details->user_id);
 
-      if(!$reset_is_valid) {
-        return $this->validation('Unabled to reset user password');
-      }
+    $user_details->save();
+    return $user_details;
+  }
+  
+  /**
+   * @param int $user_id
+   * @param int $lesson_id
+   * @return bool
+  */
+  private function hasAccessToLesson(int $user_id, int $lesson_id): bool
+  {
+    $course_ID = $this->content_service->getLessonCourseId($lesson_id);
 
-      $user = $this->getUserByField('email', $email);
-      if(!$user) {
-        throw new Exception('User not found');
-      }
-      $this->setUserPassword($user->id, $password);
+    $this->user_course = UserCourse::query()
+                        ->where('user_id', $user_id)
+                        ->where('course_id', $course_ID)
+                        ->where('status', StatusService::ACTIVE)
+                        ->first();
+
+    return !!$this->user_course;
+  }
+  
+  /**
+   * @param UserCourseLesson $user_lesson
+   * @param int $progress
+   * @param int $user_id
+   * @return UserCourseLesson
+  */
+  private function updateLessonProgress(UserCourseLesson $user_lesson, int $progress, int $user_id): UserCourseLesson
+  {
+    if($user_lesson->progress >= $progress) {
+      return $user_lesson;
+    }
+
+    $user_lesson->update([
+      'progress'    => $progress,
+      'finished_at' => $progress === 100 ? now() : null,
       
-      LogService::error("User $user->id has reset his password", $this->log_file);
-      return true;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-  
-  /**
-   * Check if the user watched the tattoo
-   *
-   * @param int $user_id
-   * @param int $tattoo_id
-   * @return bool
-   */
-  public function isUserWatchedTattoo(int $user_id, int $tattoo_id)
-  {
-    try {
-      return TattooWatch::where('user_id', $user_id)
-                      ->where('tattoo_id', $tattoo_id)
-                      ->exists();
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-  
-  /**
-   * Check if the user watched the studio
-   *
-   * @param int $user_id
-   * @param int $studio_id
-   * @return bool
-   */
-  public function isUserWatchedStudio(int $user_id, int $studio_id)
-  {
-    try {
-      return StudioWatch::where('user_id', $user_id)
-                        ->where('studio_id', $studio_id)
-                        ->exists();
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
-  
-  /**
-   * Get the user watched tattoos
-   *
-   * @param int $user_id
-   * @param int $records
-   * @return object|null
-   */
-  public function getUserWatchedTattoos(int $user_id, int $records = PaginationService::SMALL)
-  {
-    try {
-      $watched_tattoos = TattooWatch::where('user_id', $user_id)
-                                    ->with('tattoo')
-                                    ->simplePaginate($records);
+    ]);
 
-      return $watched_tattoos;
+    return $user_lesson;
+  }
+
+  /**
+   * @param int $lesson_id
+   * @param int $user_id
+   * @param int $progress
+   * @return UserCourseLesson
+  */
+  private function createLessonProgress(int $lesson_id, int $user_id, int $progress): UserCourseLesson
+  {
+    $user_lesson                    = new UserCourseLesson;
+    $user_lesson->user_course_id    = $this->user_course->id;
+    $user_lesson->course_lesson_id  = $lesson_id;
+    $user_lesson->user_id           = $user_id;
+    $user_lesson->progress          = $progress;
+    $user_lesson->created_at        = now();
+
+    if($progress === 100) {
+      $user_lesson->finished_at     = now();
+    }
+    
+    $user_lesson->save();  
+
+    return $user_lesson;
+  }
+  
+  /**
+   * write a record for the user watching time in a lesson
+   * with that we can analyze the most popular time each lesson
+   *
+   * @param UserCourseLesson $user_lesson
+   * @return void
+  */
+  private function setLessonWatchRecord(UserCourseLesson $user_lesson, float $start_time, float $end_time)
+  {
+    UserCourseLessonWatch::create([
+      'user_course_lesson_id' => $user_lesson->id,
+      'course_lesson_id'      => $user_lesson->course_lesson_id,
+      'user_id'               => $user_lesson->user_id,
+      'start_time'            => $start_time,
+      'end_time'              => $end_time,
+      'created_at'            => now()
+    ]);
+  }
+  
+  /**
+   * @param float $video_length
+   * @param float $end_time
+   * @return int
+  */
+  private function calcVideoProgress(float $video_length, float $end_time): int
+  {
+    $progress = (int) ($end_time * 100) / $video_length;
+    if($progress > 100 || $progress >= 95) {
+      return 100;
+    }
+
+    return $progress;
+  }
+  
+  /**
+   * @param int $course_id
+   * @param int $user_course_id
+   * @return ?float
+  */
+  private function updateUserCourseProgress(int $course_id, int $user_course_id): ?float
+  {
+    try {
+      $lessons                = $this->content_service->getLessonsDurationByCourseId($course_id);
+      $lessons_durations      = $lessons->pluck('video_length')->toArray();
+      $total_course_duration  = array_sum($lessons_durations);
+      $user_total_viewed_time = 0;
+      
+      $user_lessons_progress = UserCourseLesson::where('user_course_id', $user_course_id)
+                                                ->select('course_lesson_id', 'progress')
+                                                ->get();
+      for($course_lesson_index = 0; $course_lesson_index < count($lessons); $course_lesson_index++) {
+        $lesson = $lessons[$course_lesson_index];
+        
+        for($user_lesson_index = 0; $user_lesson_index < count($user_lessons_progress); $user_lesson_index++) {
+          $user_lesson = $user_lessons_progress[$user_lesson_index];
+          
+          if($lesson->id === $user_lesson->course_lesson_id) {
+            // calc the user progress in that lesson
+            $user_total_viewed_time += $lesson->video_length * ( $user_lesson->progress / 100 );
+            break;
+          }
+          
+        }
+        
+      }
+      $user_course_progress = $user_total_viewed_time * 100 / $total_course_duration;
+      UserCourse::where('id', $user_course_id)->update([
+        'progress' => $user_course_progress
+      ]);
+
+      return $user_course_progress;
     } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
+      $this->log_service->error($ex);
       return null;
     }
   }
-
-  /**
-   * Check if the user liked the tattoo
-   *
-   * @param int $user_id
-   * @param int $tattoo_id
-   * @return bool
-   */
-  public function isUserLikedTattoo(int $user_id, int $tattoo_id)
-  {
-    try {
-      return TattooLike::where('user_id', $user_id)
-                        ->where('tattoo_id', $tattoo_id)
-                        ->exists();
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return false;
-    }
-  }
   
   /**
-   * Get the user liked tattoos
+   * Get the last unfinished lesson
    *
-   * @param int $user_id
-   * @param int $records
+   * @param Collection $courses
    * @return object|null
-   */
-  public function getUserLikedTattoo(int $user_id, int $records = PaginationService::SMALL)
+  */
+  private function getUserLastActiveLesson(Collection $courses): ?object
   {
-    try {
-      $liked_tattoos = TattooLike::where('user_id', $user_id)
-                                ->with('tattoo')
-                                ->simplePaginate($records);
+    $last_active_lesson = null;
 
-      return $liked_tattoos;
-    } catch(Exception $ex) {
-      LogService::error($ex->getMessage(), $this->log_file);
-      return null;
+    foreach($courses AS $course) {
+      foreach($course->lessonsProgress AS $lesson) {
+        if(!$last_active_lesson || ($lesson->finished_at > $last_active_lesson->finished_at)) {
+          $last_active_lesson = $lesson;
+        }
+      }
     }
+
+    return $last_active_lesson;
   }
+
 }
