@@ -6,7 +6,7 @@ namespace App\Domain\Helpers;
 class EnvService
 {
   const LOCAL = 'local',
-        PROD  = 'prod';
+        PROD  = 'production';
 
 
   static public function isProd()
