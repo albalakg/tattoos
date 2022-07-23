@@ -208,6 +208,13 @@ return [
             'days' => 1,
         ],
 
+        'scheduler' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/scheduler/scheduler.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'mail' => [
             'driver' => 'daily',
             'path' => storage_path('logs/mails/mail.log'),
