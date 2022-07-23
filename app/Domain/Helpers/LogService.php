@@ -151,6 +151,10 @@ class LogService
     private function setMetaData()
     {
         try {
+            if(request()->ip() === self::LOCAL_IP) {
+                return $this->setWorker();
+            }
+
             $this->writeUser();
             $this->writeIpAddress();
             $this->writeBrowser();
@@ -159,6 +163,11 @@ class LogService
             Log::channel(self::DEFAULT_CHANNEL)->critical($ex->__toString());
             $this->sendMail($ex);
         }
+    }
+
+    private function setWorker()
+    {
+        $this->log_meta_data .= 'USER: Worker';
     }
 
     private function writeUser()
@@ -183,13 +192,7 @@ class LogService
 
     private function getUser()
     {
-        $user = $this->user ? $this->user->id : 'GUEST';
-        
-        if(request()->ip() === self::LOCAL_IP) {
-            return 'Worker';
-        }
-
-        return $user;
+        return $this->user ? $this->user->id : 'GUEST';
     }
     
     /**
