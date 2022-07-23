@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Helpers\ThrottleService;
 use App\Domain\Users\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,9 +17,9 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('landed-on-page-not-found',  [UserController::class, 'landedOnPageNotFound']);
     
     Route::post('logout',                   [UserController::class, 'logout']);
-    Route::post('change-password',          [UserController::class, 'changePassword'])->middleware('throttle:3,10');
-    Route::post('email',                    [UserController::class, 'updateEmail'])->middleware('throttle:3,10');
-    Route::post('update',                   [UserController::class, 'updateProfile'])->middleware('throttle:3,10');
+    Route::post('change-password',          [UserController::class, 'changePassword'])->middleware(ThrottleService::getProfileThrottle());
+    Route::post('email',                    [UserController::class, 'updateEmail'])->middleware(ThrottleService::getProfileThrottle());
+    Route::post('update',                   [UserController::class, 'updateProfile'])->middleware(ThrottleService::getProfileThrottle());
     Route::post('favorites/add',            [UserController::class, 'addToFavorite']);
     Route::post('favorites/remove',         [UserController::class, 'removeFromFavorite']);
     Route::post('lesson/progress',          [UserController::class, 'setLessonProgress']);
