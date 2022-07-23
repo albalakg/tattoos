@@ -13,7 +13,8 @@ class LogService
           DEFAULT_CHANNEL   = 'custom',
           MESSAGE           = 'MESSAGE: ',
           TRACK_ID          = 'TRACK_ID: ',
-          error             = 'ERROR: ';
+          error             = 'ERROR: ',
+          LOCAL_IP          = '127.0.0.1';
 
     /**
      * Log object
@@ -182,7 +183,13 @@ class LogService
 
     private function getUser()
     {
-        return $this->user ? $this->user->id : 'GUEST';
+        $user = $this->user ? $this->user->id : 'GUEST';
+        
+        if(request()->ip() === self::LOCAL_IP) {
+            return 'Worker';
+        }
+
+        return $user;
     }
     
     /**
