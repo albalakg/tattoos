@@ -151,8 +151,8 @@ class LogService
     private function setMetaData()
     {
         try {
-            if(request()->ip() === self::LOCAL_IP) {
-                return $this->setWorker();
+            if($this->isLocalIp()) {
+                return $this->setUserAsWorker();
             }
 
             $this->writeUser();
@@ -165,7 +165,7 @@ class LogService
         }
     }
 
-    private function setWorker()
+    private function setUserAsWorker()
     {
         $this->log_meta_data .= 'USER: Worker';
     }
@@ -193,6 +193,11 @@ class LogService
     private function getUser()
     {
         return $this->user ? $this->user->id : 'GUEST';
+    }
+    
+    private function isLocalIp()
+    {
+        return request()->ip() === self::LOCAL_IP;
     }
     
     /**
