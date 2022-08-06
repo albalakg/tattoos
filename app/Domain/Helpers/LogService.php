@@ -121,10 +121,6 @@ class LogService
     private function writeLog(string $content, $action) :?string
     {
         try {
-            if(strpos($content, 'Landed on page') !== false) {
-                throw new Exception('test mail');
-            }
-
             $full_log_content = $content . $this->log_meta_data;
             $this->log->$action($full_log_content);
             return $full_log_content;

@@ -25,6 +25,8 @@ class LuEmailType extends Model
     const DELETE_USER_REQUEST_EMAIL_TEXT        = 'Delete User Request Created';
     const UPDATE_EMAIL_REQUEST_EMAIL            = 9;
     const UPDATE_EMAIL_REQUEST_EMAIL_TEXT       = 'Update Email Request Created';
+    const COURSE_HAS_BEEN_EXPIRED_EMAIL         = 10;
+    const COURSE_HAS_BEEN_EXPIRED_EMAIL_TEXT    = 'Course Has been Expired';
 
     public function emails()
     {

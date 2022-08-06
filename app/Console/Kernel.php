@@ -3,8 +3,10 @@
 namespace App\Console;
 
 use App\Domain\Helpers\LogService;
+use App\Domain\Users\Services\UserService;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Domain\Users\Services\DisableExpiredUserCoursesService;
 
 class Kernel extends ConsoleKernel
 {
@@ -17,6 +19,8 @@ class Kernel extends ConsoleKernel
         //
     ];
 
+    private LogService  $log_service;
+
     /**
      * Define the application's command schedule.
      *
@@ -25,8 +29,20 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $log_service = new LogService('scheduler');
-        $log_service->info('Scheduler is running');
+        $this->log_service  = new LogService('scheduler');
+
+        $this->checkForExpiredCourses();
+    }
+
+    private function checkForExpiredCourses()
+    {
+        try {
+            $service = new DisableExpiredUserCoursesService;
+            $service->handler();
+            $this->log_service->info('checkForExpiredCourses ran successfully');            
+        } catch (\Exception $ex) {
+            $this->log_service->error($ex);
+        }
     }
 
     /**
