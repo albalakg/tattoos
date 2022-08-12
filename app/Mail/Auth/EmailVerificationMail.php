@@ -31,7 +31,7 @@ class EmailVerificationMail extends Mailable implements IMails
      */
     public function build()
     {
-        return $this->subject('Email Confirmation')->view('mails.auth.emailConfirmation');
+        return $this->subject('אימות התחברות')->view('mails.auth.emailConfirmation');
     }
     
     /**

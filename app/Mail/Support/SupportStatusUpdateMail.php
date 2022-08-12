@@ -32,7 +32,7 @@ class SupportStatusUpdateMail extends Mailable implements IMails
      */
     public function build()
     {
-        return $this->subject('Support Ticket Updated')->view('mails.support.updateSupportStatus');
+        return $this->subject('עדכון בקשת תמיכה ' . $this->data['support_number'])->view('mails.support.updateSupportStatus');
     }
     
     /**

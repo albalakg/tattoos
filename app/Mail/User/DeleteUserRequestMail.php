@@ -32,7 +32,7 @@ class DeleteUserRequestMail extends Mailable implements IMails
      */
     public function build()
     {
-        return $this->subject('Delete Account Request')->view('mails.profile.deleteAccountRequest');
+        return $this->subject('אימות בקשת מחיקת משתמש')->view('mails.profile.deleteAccountRequest');
     }
             
     /**

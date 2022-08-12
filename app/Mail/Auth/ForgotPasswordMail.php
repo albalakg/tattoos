@@ -31,7 +31,7 @@ class ForgotPasswordMail extends Mailable implements IMails
      */
     public function build()
     {
-        return $this->subject('Have you forgot your password?')->view('mails.auth.forgotPassword');
+        return $this->subject('האם שכחת את הסיסמה?')->view('mails.auth.forgotPassword');
     }
     
     /**

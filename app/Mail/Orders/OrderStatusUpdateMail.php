@@ -31,7 +31,7 @@ class OrderStatusUpdateMail extends Mailable implements IMails
      */
     public function build()
     {
-        return $this->subject('Order Updated')->view('mails.order.updateOrderStatus');
+        return $this->subject('עדכון הזמנה ' . $this->data['order_number'])->view('mails.order.updateOrderStatus');
     }
     
     /**

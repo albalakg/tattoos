@@ -32,7 +32,7 @@ class SupportTicketMessageMail extends Mailable implements IMails
      */
     public function build()
     {
-        return $this->subject('Support Ticket Message')->view('mails.support.newSupportTicketMessage');
+        return $this->subject('עדכון בקשת תמיכה ' . $this->data['support_number'])->view('mails.support.newSupportTicketMessage');
     }
     
     /**

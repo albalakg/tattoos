@@ -31,7 +31,7 @@ class UpdateEmailRequestMail extends Mailable implements IMails
      */
     public function build()
     {
-        return $this->subject('Update Email Request')->view('mails.profile.updateEmailRequest');
+        return $this->subject('בקשת עריכת עדכון כתובת המייל')->view('mails.profile.updateEmailRequest');
     }
                 
     /**
