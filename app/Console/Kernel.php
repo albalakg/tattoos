@@ -5,7 +5,6 @@ namespace App\Console;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\MailService;
-use App\Domain\Users\Services\UserService;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Domain\Users\Services\DisableExpiredUserCoursesService;

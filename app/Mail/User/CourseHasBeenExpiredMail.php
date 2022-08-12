@@ -31,7 +31,7 @@ class CourseHasBeenExpiredMail extends Mailable implements IMails
      */
     public function build()
     {
-        return $this->subject('Course Has Been Expired')->view('mails.user.courseHasBeenExpired');
+        return $this->subject('נגמר הקורס ' . $this->data['course_name'])->view('mails.user.courseHasBeenExpired');
     }
         
     /**
