@@ -6,10 +6,11 @@ use Exception;
 use Illuminate\Console\Command;
 use App\Domain\Content\Services\VideoService;
 use App\Domain\Content\Services\CourseService;
+use App\Domain\Content\Services\TrainerService;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Services\CourseLessonService;
 use App\Domain\Content\Services\CourseCategoryService;
-use App\Domain\Content\Services\TrainerService;
+use App\Domain\Content\Services\CourseRecommendationService;
 
 class TruncateAllContent extends Command
 {
@@ -50,6 +51,7 @@ class TruncateAllContent extends Command
     {
         $content_list = [
             new CourseLessonService,
+            new CourseRecommendationService,
             new CourseAreaService(new CourseLessonService),
             new CourseService(new CourseAreaService),
             new CourseCategoryService(new CourseService),

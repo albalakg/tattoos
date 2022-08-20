@@ -54,6 +54,7 @@ class CourseService implements IContentService
   public function getAll(): Collection
   {
     return  $this->baseQueryBuilder()
+              ->with('recommendations')
               ->orderBy('courses.id', 'desc')
               ->get();
   }
@@ -78,7 +79,7 @@ class CourseService implements IContentService
   */
   public function getGuestActiveCourses(): Collection
   {
-    return  Course::with('guestActiveAreasWithActiveLessons', 'category', 'details')
+    return  Course::with('guestActiveAreasWithActiveLessons', 'category', 'details', 'recommendations')
                   ->where('status', StatusService::ACTIVE)
                   ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order', 'price')
                   ->get();

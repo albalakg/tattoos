@@ -41,6 +41,11 @@ class Course extends Model
         return $this->hasMany(CourseArea::class, 'course_id', 'id');
     }
 
+    public function recommendations()
+    {
+        return $this->hasMany(CourseRecommendation::class, 'course_id', 'id');
+    }
+
     public function tags()
     {
         return $this->hasMany(CourseTag::class, 'course_id', 'id')

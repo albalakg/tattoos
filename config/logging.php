@@ -194,6 +194,13 @@ return [
             'days' => 1,
         ],
 
+        'courseRecommendations' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/courseRecommendations/courseRecommendations.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'tests' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/tests/tests.log'),
