@@ -16,22 +16,11 @@ class CourseService implements IContentService
 {
   const FILES_PATH = 'content/courses';
 
-  /**
-   * @var LogService
-  */
-  private $log_service;
-
-  /**
-   * @var CourseAreaService|null
-  */
-  private $course_area_service;
+  private Course|null $course;
   
-  /**
-   * Contain the error data
-   *
-   * @var mixed
-  */
-  public $error_data;
+  private LogService $log_service;
+
+  private CourseAreaService|null $course_area_service;
   
   public function __construct(CourseAreaService $course_area_service = null)
   {
@@ -230,11 +219,9 @@ class CourseService implements IContentService
   */
   public function delete(int $course_id, int $deleted_by): bool
   {
-    if(!$course = $this->canDelete($course_id)) {
-      return false;
-    }
+    $this->validateIfCanDelete($course_id);
 
-    $result = $course->delete();
+    $result = $this->course->delete();
     $this->log_service->info('Course ' . $course_id . ' has been deleted');
     return $result;
   }
@@ -246,14 +233,12 @@ class CourseService implements IContentService
   */
   public function forceDelete(int $course_id, int $deleted_by): bool
   {
-    if(!$course = $this->canDelete($course_id)) {
-      return false;
-    }
+    $this->validateIfCanDelete($course_id);
     
-    FileService::delete($course->image);
-    FileService::delete($course->trailer);
+    FileService::delete($this->course->image);
+    FileService::delete($this->course->trailer);
 
-    $result = $course->forceDelete();
+    $result = $this->course->forceDelete();
     $this->log_service->info('Course ' . $course_id . ' has been forced deleted');
     return $result;
   }
@@ -271,20 +256,19 @@ class CourseService implements IContentService
    
   /**
    * @param int $course_id
-   * @return Course
+   * @return void
   */
-  private function canDelete(int $course_id): Course
+  private function validateIfCanDelete(int $course_id)
   {
     if(!$course = Course::find($course_id)) {
       throw new Exception('Course not found');
     }
 
     if($this->isCourseInUsed($course_id)) {
-      $this->error_data = $this->course_area_service->getCourseAreasOfCourse($course_id);
       throw new Exception('Cannot delete Course that is being used');
     }
 
-    return $course;
+    $this->course = $course;
   }
 
   /**

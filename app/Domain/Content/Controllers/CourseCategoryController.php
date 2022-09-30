@@ -74,7 +74,6 @@ public function delete(DeleteRequest $request)
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,
-        $this->course_category_service->error_data
       );
     }
   }

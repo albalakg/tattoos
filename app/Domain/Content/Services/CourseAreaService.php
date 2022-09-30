@@ -15,22 +15,11 @@ class CourseAreaService implements IContentService
 {
   const FILES_PATH = 'content/courses-areas';
 
-  /**
-   * @var LogService
-  */
-  private $log_service;
+  private CourseArea|null $course_area;
+
+  private LogService $log_service;
   
-  /**
-   * @var CourseLessonService|null
-  */
-  private $course_lesson_service;
-    
-  /**
-   * Contain the error data
-   *
-   * @var mixed
-  */
-  public $error_data;
+  private CourseLessonService|null $course_lesson_service;
   
   public function __construct(CourseLessonService $course_lesson_service = null)
   {
@@ -240,11 +229,9 @@ class CourseAreaService implements IContentService
   */
   public function delete(int $course_area_id, int $deleted_by): bool
   {
-    if(!$course_area = $this->canDelete($course_area_id)) {
-      return false;
-    }
+    $this->validateIfCanDelete($course_area_id);
     
-    $result = $course_area->delete();
+    $result = $this->course_area->delete();
     $this->log_service->info('Course area ' . $course_area_id . ' has been deleted');
     return $result;
   }
@@ -256,34 +243,31 @@ class CourseAreaService implements IContentService
   */
   public function forceDelete(int $course_area_id, int $deleted_by): bool
   {
-    if(!$course_area = $this->canDelete($course_area_id)) {
-      return false;
-    }
+    $this->validateIfCanDelete($course_area_id);
 
-    FileService::delete($course_area->image);
-    FileService::delete($course_area->trailer);
+    FileService::delete($this->course_area->image);
+    FileService::delete($this->course_area->trailer);
 
-    $result = $course_area->forceDelete();
+    $result = $this->course_area->forceDelete();
     $this->log_service->info('Course area ' . $course_area_id . ' has been force deleted');
     return $result;
   }
   
   /**
    * @param int $course_area_id
-   * @return CourseArea
+   * @return void
   */
-  private function canDelete(int $course_area_id): CourseArea
+  private function validateIfCanDelete(int $course_area_id)
   {
     if(!$course_area = CourseArea::find($course_area_id)) {
       throw new Exception('Course Area not found');
     }
 
     if($this->isCourseAreaInUsed($course_area_id)) {
-      $this->error_data = $this->course_lesson_service->getLessonsOfCourseArea($course_area_id);
       throw new Exception('Cannot delete Course Area that is being used');
     }
 
-    return $course_area;
+    return $this->course_area = $course_area;
   }
   
   /**

@@ -86,7 +86,6 @@ class CouponController extends Controller
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,
-        $this->coupon_service->error_data
       );
     }
   }

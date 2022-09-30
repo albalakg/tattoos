@@ -12,20 +12,17 @@ use App\Domain\Interfaces\IContentService;
 use App\Domain\Content\Models\CourseLesson;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Helpers\DataManipulationService;
+use App\Domain\Content\Models\CourseLessonSkill;
 
 class CourseLessonService implements IContentService
 {
   const FILES_PATH = 'content/lessons';
 
-  /**
-   * @var LogService
-  */
-  private $log_service;
+  private CourseLesson|null $lesson;
+ 
+  private LogService $log_service;
 
-  /**
-   * @var CourseAreaService|null
-  */
-  private $course_area_service;
+  private CourseAreaService|null $course_area_service;
   
   public function __construct(CourseAreaService $course_area_service = null)
   {
@@ -110,6 +107,15 @@ class CourseLessonService implements IContentService
   public function isVideoInUsed(int $video_id): bool
   {
     return CourseLesson::where('video_id', $video_id)->exists();
+  }
+
+  /**
+   * @param int $skill_id
+   * @return bool
+  */
+  public function isSkillInUsed(int $skill_id): bool
+  {
+    return CourseLessonSkill::where('skill_id', $skill_id)->exists();
   }
 
   /**
@@ -326,11 +332,11 @@ class CourseLessonService implements IContentService
   */
   public function delete(int $lesson_id, int $deleted_by): bool
   {
-    if($lesson = $this->canDelete($lesson_id)) {
-      $result = $lesson->delete();
-      $this->log_service->info('Lesson ' . $lesson_id . ' has been deleted');
-      return $result;
-    }
+    $this->validateIfCanDelete($lesson_id);
+
+    $result = $this->lesson->delete();
+    $this->log_service->info('Lesson ' . $lesson_id . ' has been deleted');
+    return $result;
   }
   
   /**
@@ -340,25 +346,25 @@ class CourseLessonService implements IContentService
   */
   public function forceDelete(int $lesson_id, int $deleted_by): bool
   {
-    if($lesson = $this->canDelete($lesson_id)) {
-      FileService::delete($lesson->image);
-      $result = $lesson->forceDelete();
-      $this->log_service->info('Lesson ' . $lesson_id . ' has been forced deleted');
-      return $result;
-    }
+    $this->validateIfCanDelete($lesson_id);
+
+    FileService::delete($this->lesson->image);
+    $result = $this->lesson->forceDelete();
+    $this->log_service->info('Lesson ' . $lesson_id . ' has been forced deleted');
+    return $result;
   }
     
   /**
    * @param int $lesson_id
-   * @return CourseLesson
+   * @return void
   */
-  private function canDelete(int $lesson_id): CourseLesson
+  private function validateIfCanDelete(int $lesson_id)
   {
     if(!$lesson = CourseLesson::find($lesson_id)) {
       throw new Exception('Course Lesson not found');
     }
 
-    return $lesson;
+    $this->lesson = $lesson;
   }
 
   /**

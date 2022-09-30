@@ -208,6 +208,13 @@ return [
             'days' => 1,
         ],
 
+        'skills' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/skills/skills.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'files' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/files/files.log'),

@@ -24,13 +24,6 @@ class CourseCategoryService implements IContentService
    * @var CourseService|null
   */
   private $course_service;
-  
-  /**
-   * Contain the error data
-   *
-   * @var mixed
-  */
-  public $error_data;
 
   public function __construct(CourseService $course_service = null)
   {
@@ -157,11 +150,9 @@ class CourseCategoryService implements IContentService
   */
   public function delete(int $course_category_id, int $deleted_by): bool
   {
-    if(!$course_category = $this->canDelete($course_category_id)) {
-      return false;
-    }
+    $this->validateIfCanDelete($course_category_id);
 
-    $result = $course_category->delete();
+    $result = $this->course_category->delete();
     $this->log_service->info('Course Category ' . $course_category_id . ' has been deleted');
     return $result;
   }
@@ -173,33 +164,30 @@ class CourseCategoryService implements IContentService
   */
   public function forceDelete(int $course_category_id, int $deleted_by): bool
   {
-    if(!$course_category = $this->canDelete($course_category_id)) {
-      return false;
-    }
+    $this->validateIfCanDelete($course_category_id);
 
-    FileService::delete($course_category->image);
+    FileService::delete($this->course_category->image);
     
-    $result = $course_category->forceDelete();
+    $result = $this->course_category->forceDelete();
     $this->log_service->info('Course Category ' . $course_category_id . ' has been forced deleted');
     return $result;
   }
   
   /**
    * @param int $course_category_id
-   * @return CourseCategory
+   * @return void
   */
-  private function canDelete(int $course_category_id): CourseCategory
+  private function validateIfCanDelete(int $course_category_id)
   {
     if(!$course_category = CourseCategory::find($course_category_id)) {
       throw new Exception('Course Category not found');
     }
 
     if($this->isInUsed($course_category_id)) {
-      $this->error_data = $this->course_service->getCoursesOfCategory($course_category_id);
       throw new Exception('Cannot delete Course Category that is being used');
     }
 
-    return $course_category;
+    return $this->course_category = $course_category;
   }
 
   /**

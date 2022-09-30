@@ -6,6 +6,7 @@ use App\Domain\Helpers\LogService;
 use App\Domain\Orders\Models\Order;
 use App\Domain\Payment\Services\Providers\PayPlusProvider;
 use App\Domain\Payment\Interfaces\IPaymentProvider;
+use Exception;
 
 class PaymentService
 {
@@ -69,8 +70,12 @@ class PaymentService
     */
     private function setProvider(string $provider)
     {
-        $provider_class = self::PROVIDERS[$provider];
-        $this->payment_provider = new $provider_class;
+        try {
+            $provider_class = self::PROVIDERS[$provider];
+            $this->payment_provider = new $provider_class;
+        } catch(Exception $ex) {
+            throw new Exception('Failed to set provider with: ' . $provider)
+        }
     }
     
     /**
@@ -81,7 +86,7 @@ class PaymentService
     private function startPayment()
     {
         $this->log_service->info(('Order ' . $this->order->id . ' starting payment'));
-        $this->order->supplier_id   = $this->payment_provider->getProviderID();
+        $this->order->supplier_id = $this->payment_provider->getProviderID();
         $this->order->save();
     }
     

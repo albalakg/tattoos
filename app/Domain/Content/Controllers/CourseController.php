@@ -73,7 +73,6 @@ class CourseController extends Controller
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,
-        $this->course_service->error_data
       );
     }
   }

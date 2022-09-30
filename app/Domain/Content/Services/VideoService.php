@@ -14,15 +14,11 @@ class VideoService implements IContentService
 {
   const FILES_PATH = 'content/videos';
 
-  /**
-   * @var LogService
-  */
-  private $log_service;
+  private Video|null $video;
 
-  /**
-   * @var CourseLessonService|null
-  */
-  private $course_lesson_service;
+  private LogService $log_service;
+
+  private CourseLessonService|null $course_lesson_service;
   
   public function __construct(CourseLessonService $course_lesson_service = null)
   {
@@ -142,11 +138,9 @@ class VideoService implements IContentService
   */
   public function delete(int $video_id, int $deleted_by): bool
   {
-    if(!$video = $this->canDelete($video_id)) {
-      return false;
-    }
+    $this->validateIfCanDelete($video_id);
 
-    $result = $video->delete();
+    $result = $this->video->delete();
     $this->log_service->info('Video ' . $video_id . ' has been deleted');
     return $result;
   }
@@ -158,32 +152,29 @@ class VideoService implements IContentService
   */
   public function forceDelete(int $video_id, int $deleted_by): bool
   {
-    if(!$video = $this->canDelete($video_id)) {
-      return false;
-    }
+    $this->validateIfCanDelete($video_id);
 
-    FileService::delete($video->video_path);
-    $result = $video->forceDelete();
+    FileService::delete($this->video->video_path);
+    $result = $this->video->forceDelete();
     $this->log_service->info('Video ' . $video_id . ' has been forced deleted');
     return $result;
   }
   
   /**
    * @param int $video_id
-   * @return Video
+   * @return void
   */
-  private function canDelete(int $video_id): Video
+  private function validateIfCanDelete(int $video_id)
   {
     if(!$video = Video::find($video_id)) {
       throw new Exception('Video not found');
     }
 
     if($this->isVideoInUsed($video_id)) {
-      $this->error_data = $this->course_lesson_service->getLessonsWithVideo($video_id);
       throw new Exception('Cannot delete video that is being used');
     }
 
-    return $video;
+    $this->video = $video;
   }
 
   /**

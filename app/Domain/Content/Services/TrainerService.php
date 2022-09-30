@@ -16,15 +16,11 @@ class TrainerService implements IContentService
 {
   const FILES_PATH = 'content/trainers';
 
-  /**
-   * @var LogService
-  */
-  private $log_service;
+  private Trainer|null $trainer;
+ 
+  private  LogService$log_service;
   
-  /**
-   * @var CourseAreaService|null
-  */
-  private $course_area_service;
+  private CourseAreaService|null $course_area_service;
     
   /**
    * Contain the error data
@@ -164,11 +160,9 @@ class TrainerService implements IContentService
   */
   public function delete(int $trainer_id, int $deleted_by): bool
   {
-    if(!$trainer = $this->canDelete($trainer_id)) {
-      return false;
-    }
+    $this->validateIfCanDelete($trainer_id);
     
-    $result = $trainer->delete();
+    $result = $this->trainer->delete();
     $this->log_service->info('Trainer ' . $trainer_id . ' has been deleted');
     return $result;
   }
@@ -180,22 +174,20 @@ class TrainerService implements IContentService
   */
   public function forceDelete(int $trainer_id, int $deleted_by): bool
   {
-    if(!$trainer = $this->canDelete($trainer_id)) {
-      return false;
-    }
+    $this->validateIfCanDelete($trainer_id);
 
-    FileService::delete($trainer->image);
+    FileService::delete($this->trainer->image);
 
-    $result = $trainer->forceDelete();
+    $result = $this->trainer->forceDelete();
     $this->log_service->info('Trainer ' . $trainer_id . ' has been forced deleted');
     return $result;
   }
   
   /**
    * @param int $trainer_id
-   * @return Trainer
+   * @return void
   */
-  private function canDelete(int $trainer_id): Trainer
+  private function validateIfCanDelete(int $trainer_id)
   {
     if(!$trainer = Trainer::where('id', $trainer_id)->withTrashed()->first()) {
       throw new Exception('Trainer not found');
@@ -205,7 +197,7 @@ class TrainerService implements IContentService
       throw new Exception('Cannot delete Trainer that is being used');
     }
 
-    return $trainer;
+    $this->trainer = $trainer;
   }
   
   /**

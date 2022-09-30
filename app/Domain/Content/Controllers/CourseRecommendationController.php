@@ -53,7 +53,6 @@ class CourseRecommendationController extends Controller
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,
-        $this->course_recommendation_service->error_data
       );
     }
   }

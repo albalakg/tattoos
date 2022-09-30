@@ -64,7 +64,6 @@ public function delete(DeleteRequest $request)
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,
-        $this->course_area_service->error_data
       );
     }
   }
