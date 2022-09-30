@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Domain\Content\Requests;
+namespace App\Domain\Content\Requests\Course;
 
 use App\Rules\NameRule;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\DescriptionRule;
 use App\Rules\IDRule;
 
-class CreateCourseAreaRequest extends FormRequest
+class CreateCourseRequest extends FormRequest
 {
     public function authorize()
     {
@@ -17,16 +17,13 @@ class CreateCourseAreaRequest extends FormRequest
     public function rules()
     {
         return [
+            'category_id'   => ['required', 'bail', new IDRule, 'exists:course_categories,id'],
             'name'          => ['required', new NameRule],
-            'course_id'     => ['required', new IDRule],
-            'trainer_id'    => ['required', new IDRule],
             'description'   => ['nullable', new DescriptionRule],
             'image'         => ['required', 'file', 'max:5000'],
             'trailer'       => ['required', 'file', 'max:10000'],
             'price'         => 'nullable|numeric|min:1',
             'discount'      => 'nullable|numeric|min:1',
-            'lessons'       => 'nullable|array|between:0,100',
-            'lessons.*'     => 'nullable|numeric|min:1|max:' . PHP_INT_MAX
         ];
     }
 }

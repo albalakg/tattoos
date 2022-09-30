@@ -9,8 +9,8 @@ use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Requests\OrderContentRequest;
 use App\Domain\Content\Services\CourseLessonService;
-use App\Domain\Content\Requests\CreateCourseLessonRequest;
-use App\Domain\Content\Requests\UpdateCourseLessonRequest;
+use App\Domain\Content\Requests\CourseLesson\CreateCourseLessonRequest;
+use App\Domain\Content\Requests\CourseLesson\UpdateCourseLessonRequest;
 
 class CourseLessonController extends Controller
 {  

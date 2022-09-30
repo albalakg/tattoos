@@ -10,9 +10,11 @@ use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
 use App\Domain\Content\Models\CourseLesson;
+use App\Domain\Content\Models\CourseLessonEquipment;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Helpers\DataManipulationService;
 use App\Domain\Content\Models\CourseLessonSkill;
+use App\Domain\Content\Models\CourseLessonTerm;
 
 class CourseLessonService implements IContentService
 {
@@ -116,6 +118,24 @@ class CourseLessonService implements IContentService
   public function isSkillInUsed(int $skill_id): bool
   {
     return CourseLessonSkill::where('skill_id', $skill_id)->exists();
+  }
+
+  /**
+   * @param int $equipment_id
+   * @return bool
+  */
+  public function isEquipmentInUsed(int $equipment_id): bool
+  {
+    return CourseLessonEquipment::where('equipment_id', $equipment_id)->exists();
+  }
+
+  /**
+   * @param int $term_id
+   * @return bool
+  */
+  public function isTermInUsed(int $term_id): bool
+  {
+    return CourseLessonTerm::where('term_id', $term_id)->exists();
   }
 
   /**
@@ -229,10 +249,11 @@ class CourseLessonService implements IContentService
   public function create(array $data, int $created_by): ?CourseLesson
   {
     $lesson                   = new CourseLesson;
+    $lesson->image            = FileService::create($data['image'], self::FILES_PATH);
     $lesson->course_id        = $this->course_area_service->getById($data['course_area_id'])->course_id;
+    $lesson->view_order       = $this->getLessonViewOrder($data['course_area_id']);
     $lesson->course_area_id   = $data['course_area_id'];
     $lesson->video_id         = $data['video_id'];
-    $lesson->image            = FileService::create($data['image'], self::FILES_PATH);
     $lesson->name             = $data['name'];
     $lesson->content          = $data['content'];
     $lesson->description      = $data['description'];
@@ -240,9 +261,14 @@ class CourseLessonService implements IContentService
     $lesson->rest_time        = $data['rest_time']        ?? null;
     $lesson->activity_time    = $data['activity_time']    ?? null;
     $lesson->activity_period  = $data['activity_period']  ?? null;
-    $lesson->view_order       = $this->getLessonViewOrder($data['course_area_id']);
     $lesson->status           = $data['status']           ?? StatusService::PENDING;
-    $lesson->save();
+    
+    try {
+      $lesson->save();
+    } catch(Exception $ex) {
+      FileService::delete($lesson->image);
+      throw $ex;
+    }
 
     $this->log_service->info('Lesson ' . $lesson->id . ' has been created: ' . json_encode($lesson));
 
@@ -355,6 +381,8 @@ class CourseLessonService implements IContentService
   }
     
   /**
+   * Throws an error if failed the validation and cannot delete
+   * If it can be deleted, stores the content in the class state
    * @param int $lesson_id
    * @return void
   */

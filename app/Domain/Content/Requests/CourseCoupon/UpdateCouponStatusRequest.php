@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Content\Requests;
+namespace App\Domain\Content\Requests\CourseCoupon;
 
 use App\Domain\Content\Rules\StatusRule;
 use App\Rules\NameRule;

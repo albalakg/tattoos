@@ -7,9 +7,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CourseService;
-use App\Domain\Content\Requests\UpdateCourseRequest;
+use App\Domain\Content\Requests\Course\UpdateCourseRequest;
 use App\Domain\Content\Services\CourseRecommendationService;
-use App\Domain\Content\Requests\CreateCourseRecommendationsRequest;
+use App\Domain\Content\Requests\Course\CreateCourseRecommendationsRequest;
 
 class CourseRecommendationController extends Controller
 {  

@@ -7,9 +7,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\TrainerService;
-use App\Domain\Content\Requests\CreateTrainerRequest;
+use App\Domain\Content\Requests\Trainer\CreateTrainerRequest;
 use App\Domain\Content\Services\CourseAreaService;
-use App\Domain\Content\Requests\UpdateTrainerRequest;
+use App\Domain\Content\Requests\Trainer\UpdateTrainerRequest;
 
 class TrainerController extends Controller
 {

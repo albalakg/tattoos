@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CourseService;
 use App\Domain\Content\Services\CourseCategoryService;
-use App\Domain\Content\Requests\CreateCourseCategoryRequest;
-use App\Domain\Content\Requests\UpdateCourseCategoryRequest;
+use App\Domain\Content\Requests\CourseCategory\CreateCourseCategoryRequest;
+use App\Domain\Content\Requests\CourseCategory\UpdateCourseCategoryRequest;
 
 class CourseCategoryController extends Controller
 {

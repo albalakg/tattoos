@@ -72,14 +72,13 @@ class SkillService implements IContentService
   */
   public function create(array $data, int $created_by): ?Skill
   {
-    $skill               = new Skill;
-    $skill->name         = $data['name'];
-    $skill->description  = $data['description'];
-    $skill->skill_length = $data['skill_length'];
-    $skill->status       = StatusService::ACTIVE;
-    $skill->image   = FileService::create($data['file'], self::FILES_PATH);
-    $skill->created_by   = $created_by;
-    $skill->status       = $data['status'] ?? StatusService::PENDING;
+    $skill                = new Skill;
+    $skill->name          = $data['name'];
+    $skill->description   = $data['description'];
+    $skill->status        = StatusService::ACTIVE;
+    $skill->image         = FileService::create($data['file'], self::FILES_PATH);
+    $skill->created_by    = $created_by;
+    $skill->status        = $data['status'] ?? StatusService::PENDING;
 
     $skill->save();
 
@@ -105,8 +104,7 @@ class SkillService implements IContentService
 
     if(!empty($data['file'])) {
       FileService::delete($skill->image);
-      $skill->image   = FileService::create($data['file'], self::FILES_PATH);
-      $skill->skill_length = $data['skill_length'];
+      $skill->image = FileService::create($data['file'], self::FILES_PATH);
     }
 
     $skill->save();
@@ -161,6 +159,8 @@ class SkillService implements IContentService
   }
   
   /**
+   * Throws an error if failed the validation and cannot delete
+   * If it can be deleted, stores the content in the class state
    * @param int $skill_id
    * @return void
   */

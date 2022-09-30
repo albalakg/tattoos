@@ -254,6 +254,8 @@ class CourseAreaService implements IContentService
   }
   
   /**
+   * Throws an error if failed the validation and cannot delete
+   * If it can be deleted, stores the content in the class state
    * @param int $course_area_id
    * @return void
   */

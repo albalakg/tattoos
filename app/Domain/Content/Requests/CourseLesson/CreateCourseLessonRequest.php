@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Content\Requests;
+namespace App\Domain\Content\Requests\CourseLesson;
 
 use App\Rules\NameRule;
 use Illuminate\Foundation\Http\FormRequest;

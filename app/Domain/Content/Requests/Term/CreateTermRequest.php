@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Domain\Content\Requests;
+namespace App\Domain\Content\Requests\Term;
 
 use App\Rules\NameRule;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\DescriptionRule;
 
-class CreateCourseCategoryRequest extends FormRequest
+class CreateTermRequest extends FormRequest
 {
     public function authorize()
     {
@@ -16,9 +16,9 @@ class CreateCourseCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'          => ['required', 'bail', new NameRule, 'unique:course_categories,name'],
+            'name'          => ['required', new NameRule],
             'description'   => ['nullable', new DescriptionRule],
-            'image'         => ['required', 'file', 'max:5000'],
+            'image'         => ['required', 'file', 'max:5000']
         ];
     }
 }

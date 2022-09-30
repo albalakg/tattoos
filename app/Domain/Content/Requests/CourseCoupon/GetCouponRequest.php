@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Content\Requests;
+namespace App\Domain\Content\Requests\CourseCoupon;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Domain\Content\Rules\CouponCodeRule;

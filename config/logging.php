@@ -215,6 +215,20 @@ return [
             'days' => 1,
         ],
 
+        'equipments' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/equipments/equipments.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'terms' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/terms/terms.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'files' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/files/files.log'),

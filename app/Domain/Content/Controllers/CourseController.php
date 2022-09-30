@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CourseService;
 use App\Domain\Content\Services\CourseAreaService;
-use App\Domain\Content\Requests\CreateCourseRequest;
-use App\Domain\Content\Requests\UpdateCourseRequest;
+use App\Domain\Content\Requests\Course\CreateCourseRequest;
+use App\Domain\Content\Requests\Course\UpdateCourseRequest;
 
 class CourseController extends Controller
 {  

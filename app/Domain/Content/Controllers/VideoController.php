@@ -6,8 +6,8 @@ use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Content\Services\VideoService;
-use App\Domain\Content\Requests\CreateVideoRequest;
-use App\Domain\Content\Requests\UpdateVideoRequest;
+use App\Domain\Content\Requests\Video\CreateVideoRequest;
+use App\Domain\Content\Requests\Video\UpdateVideoRequest;
 use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CourseLessonService;
 
