@@ -215,9 +215,9 @@ return [
             'days' => 1,
         ],
 
-        'equipments' => [
+        'equipment' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/content/equipments/equipments.log'),
+            'path' => storage_path('logs/content/equipment/equipment.log'),
             'level' => 'debug',
             'days' => 1,
         ],

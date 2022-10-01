@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCourseLessonEquipmentsTable extends Migration
+class CreateCourseLessonEquipmentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateCourseLessonEquipmentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('course_lesson_equipments', function (Blueprint $table) {
+        Schema::create('course_lesson_equipment', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('course_lesson_id')->index();
             $table->unsignedBigInteger('equipment_id')->index();
@@ -30,6 +30,6 @@ class CreateCourseLessonEquipmentsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('course_lesson_equipments');
+        Schema::dropIfExists('course_lesson_equipment');
     }
 }

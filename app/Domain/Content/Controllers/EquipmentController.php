@@ -27,7 +27,7 @@ class EquipmentController extends Controller
   {
     try {
       $response = $this->equipment_service->getAll();
-      return $this->successResponse('Equipments fetched', $response);
+      return $this->successResponse('Equipment fetched', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -58,7 +58,7 @@ public function delete(DeleteRequest $request)
     try {
       $equipment_service = new EquipmentService(new CourseLessonService);
       $response = $equipment_service->multipleDelete($request->ids, Auth::user()->id);
-      return $this->successResponse('Equipments deleted', $response);
+      return $this->successResponse('Equipment deleted', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

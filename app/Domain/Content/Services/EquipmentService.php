@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class EquipmentService implements IContentService
 {
-  const FILES_PATH = 'content/equipments';
+  const FILES_PATH = 'content/equipment';
 
   private Equipment|null $equipment;
 
@@ -23,7 +23,7 @@ class EquipmentService implements IContentService
   public function __construct(CourseLessonService $course_lesson_service = null)
   {
     $this->course_lesson_service = $course_lesson_service;
-    $this->log_service = new LogService('equipments');
+    $this->log_service = new LogService('equipment');
   }
     
   /**
@@ -58,8 +58,8 @@ class EquipmentService implements IContentService
   */
   public function truncate()
   {
-    $equipments_ids = Equipment::withTrashed()->pluck('id');
-    foreach($equipments_ids AS $equipment_id) {
+    $equipment_ids = Equipment::withTrashed()->pluck('id');
+    foreach($equipment_ids AS $equipment_id) {
       $this->forceDelete($equipment_id, 0);
     }
     Equipment::truncate();
