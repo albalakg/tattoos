@@ -76,7 +76,7 @@ class SkillService implements IContentService
     $skill->name          = $data['name'];
     $skill->description   = $data['description'];
     $skill->status        = StatusService::ACTIVE;
-    $skill->image         = FileService::create($data['file'], self::FILES_PATH);
+    $skill->image         = FileService::create($data['image'], self::FILES_PATH);
     $skill->created_by    = $created_by;
     $skill->status        = $data['status'] ?? StatusService::PENDING;
 
@@ -102,9 +102,9 @@ class SkillService implements IContentService
     $skill->description  = $data['description'];
     $skill->status       = $data['status'];
 
-    if(!empty($data['file'])) {
+    if(!empty($data['image'])) {
       FileService::delete($skill->image);
-      $skill->image = FileService::create($data['file'], self::FILES_PATH);
+      $skill->image = FileService::create($data['image'], self::FILES_PATH);
     }
 
     $skill->save();

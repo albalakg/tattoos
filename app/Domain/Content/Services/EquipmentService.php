@@ -76,7 +76,7 @@ class EquipmentService implements IContentService
     $equipment->name          = $data['name'];
     $equipment->description   = $data['description'];
     $equipment->status        = StatusService::ACTIVE;
-    $equipment->image         = FileService::create($data['file'], self::FILES_PATH);
+    $equipment->image         = FileService::create($data['image'], self::FILES_PATH);
     $equipment->created_by    = $created_by;
     $equipment->status        = $data['status'] ?? StatusService::PENDING;
 
@@ -102,9 +102,9 @@ class EquipmentService implements IContentService
     $equipment->description  = $data['description'];
     $equipment->status       = $data['status'];
 
-    if(!empty($data['file'])) {
+    if(!empty($data['image'])) {
       FileService::delete($equipment->image);
-      $equipment->image = FileService::create($data['file'], self::FILES_PATH);
+      $equipment->image = FileService::create($data['image'], self::FILES_PATH);
     }
 
     $equipment->save();

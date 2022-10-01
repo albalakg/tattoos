@@ -4,9 +4,12 @@ namespace App\Console\Commands\Content;
 
 use Exception;
 use Illuminate\Console\Command;
+use App\Domain\Content\Services\TermService;
+use App\Domain\Content\Services\SkillService;
 use App\Domain\Content\Services\VideoService;
 use App\Domain\Content\Services\CourseService;
 use App\Domain\Content\Services\TrainerService;
+use App\Domain\Content\Services\EquipmentService;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Services\CourseLessonService;
 use App\Domain\Content\Services\CourseCategoryService;
@@ -56,6 +59,9 @@ class TruncateAllContent extends Command
             new CourseService(new CourseAreaService),
             new CourseCategoryService(new CourseService),
             new VideoService(new CourseLessonService),
+            new SkillService(new CourseLessonService),
+            new TermService(new CourseLessonService),
+            new EquipmentService(new CourseLessonService),
             new TrainerService(new CourseAreaService),
         ];
 
