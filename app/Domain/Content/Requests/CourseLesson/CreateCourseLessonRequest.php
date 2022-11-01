@@ -26,6 +26,12 @@ class CreateCourseLessonRequest extends FormRequest
             'rest_time'         => ['nullable', 'numeric', 'between:1,100000'],
             'activity_time'     => ['nullable', 'numeric', 'between:1,100000'],
             'activity_period'   => ['nullable', 'numeric', 'between:1,100'],
+            'skills'            => ['required', 'array','max:50'],
+            'skills.*'          => [new IDRule()],
+            'terms'             => ['required', 'array','max:50'],
+            'terms.*'           => [new IDRule()],
+            'equipment'         => ['required', 'array','max:50'],
+            'equipment.*'       => [new IDRule()],
         ];
     }
 }

@@ -9,7 +9,11 @@ use App\Domain\Users\Models\UserCourseLesson;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Domain\Content\Models\CourseLessonTag;
 use App\Domain\Content\Models\CourseLessonRank;
+use App\Domain\Content\Models\CourseLessonTerm;
+use App\Domain\Content\Models\CourseLessonSkill;
 use App\Domain\Content\Models\CourseLessonComment;
+use App\Domain\Content\Models\CourseLessonEquipment;
+use App\Domain\Helpers\StatusService;
 
 class CourseLesson extends Model
 {
@@ -53,6 +57,30 @@ class CourseLesson extends Model
     public function ranks()
     {
         return $this->hasMany(CourseLessonRank::class, 'course_lesson_id', 'id');
+    }
+
+    public function terms()
+    {
+        return $this->hasMany(CourseLessonTerm::class, 'course_lesson_id', 'id')
+                    ->join('terms', 'terms.id', 'course_lesson_terms.term_id')
+                    ->where('terms.status', StatusService::ACTIVE)
+                    ->select('terms.id', 'terms.name', 'terms.description', 'course_lesson_id');
+    }
+
+    public function skills()
+    {
+        return $this->hasMany(CourseLessonSkill::class, 'course_lesson_id', 'id')
+                    ->join('skills', 'skills.id', 'course_lesson_skills.skill_id')
+                    ->where('skills.status', StatusService::ACTIVE)
+                    ->select('skills.id', 'skills.name', 'skills.description', 'course_lesson_id');
+    }
+
+    public function equipment()
+    {
+        return $this->hasMany(CourseLessonEquipment::class, 'course_lesson_id', 'id')
+                    ->join('equipment', 'equipment.id', 'course_lesson_equipment.equipment_id')
+                    ->where('equipment.status', StatusService::ACTIVE)
+                    ->select('equipment.id', 'equipment.name', 'equipment.description', 'course_lesson_id');
     }
 
     public function tags()

@@ -295,7 +295,7 @@ class GenerateCourseService
     for($index = 0; $index < $this->total_videos; $index++) {
       try {
         $this->videos_meta_data[] = [
-          'name'          => ContentFaker::getVideoName() . ' | ' . Str::random(5),
+          'name'          => ContentFaker::getVideoName() . ' ' . Str::random(5),
           'description'   => ContentFaker::getDescription(),
           'status'        => StatusService::ACTIVE,
           'video_length'  => 8,
@@ -323,7 +323,7 @@ class GenerateCourseService
     for($index = 0; $index < $this->total_skills; $index++) {
       try {
         $this->skills_meta_data[] = [
-          'name'          => ContentFaker::getSkillName() . ' | ' . Str::random(5),
+          'name'          => ContentFaker::getSkillName() . ' ' . Str::random(5),
           'description'   => ContentFaker::getDescription(),
           'status'        => StatusService::ACTIVE,
           'image'         => $this->getImage(),
@@ -350,7 +350,7 @@ class GenerateCourseService
     for($index = 0; $index < $this->total_terms; $index++) {
       try {
         $this->terms_meta_data[] = [
-          'name'          => ContentFaker::getTermName() . ' | ' . Str::random(5),
+          'name'          => ContentFaker::getTermName() . ' ' . Str::random(5),
           'description'   => ContentFaker::getDescription(),
           'status'        => StatusService::ACTIVE,
         ];
@@ -376,7 +376,7 @@ class GenerateCourseService
     for($index = 0; $index < $this->total_equipment; $index++) {
       try {
         $this->equipment_meta_data[] = [
-          'name'          => ContentFaker::getEquipmentName() . ' | ' . Str::random(5),
+          'name'          => ContentFaker::getEquipmentName() . ' ' . Str::random(5),
           'description'   => ContentFaker::getDescription(),
           'status'        => StatusService::ACTIVE,
           'image'         => $this->getImage(),

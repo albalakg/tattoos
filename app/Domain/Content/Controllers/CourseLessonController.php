@@ -5,7 +5,10 @@ namespace App\Domain\Content\Controllers;
 use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Domain\Content\Services\TermService;
+use App\Domain\Content\Services\SkillService;
 use App\Domain\Content\Requests\DeleteRequest;
+use App\Domain\Content\Services\EquipmentService;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Requests\OrderContentRequest;
 use App\Domain\Content\Services\CourseLessonService;
@@ -22,7 +25,10 @@ class CourseLessonController extends Controller
   public function __construct()
   {
     $this->lesson_service = new CourseLessonService(
-      new CourseAreaService
+      new CourseAreaService,
+      new SkillService,
+      new TermService,
+      new EquipmentService,
     );
   }
 

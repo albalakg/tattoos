@@ -113,7 +113,17 @@ class EquipmentService implements IContentService
 
     return $equipment;
   }
+      
+  /**
+   * @param array $ids
+   * @return true
+  */
+  public function equipmentExist(array $ids): bool
+  {
+    return Equipment::whereIn('id', $ids)->exists();    
+  } 
   
+
   /**
    * @param string $path
    * @param int $deleted_by
@@ -122,9 +132,7 @@ class EquipmentService implements IContentService
   public function multipleDelete(array $ids, int $deleted_by)
   {
     foreach($ids AS $equipment_id) {
-      if($error = $this->delete($equipment_id, $deleted_by)) {
-        return $error;
-      }
+      $this->delete($equipment_id, $deleted_by);
     }
   } 
   

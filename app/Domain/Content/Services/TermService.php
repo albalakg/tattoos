@@ -105,6 +105,15 @@ class TermService implements IContentService
 
     return $term;
   }
+    
+  /**
+   * @param array $ids
+   * @return true
+  */
+  public function termsExist(array $ids): bool
+  {
+    return Term::whereIn('id', $ids)->exists();    
+  } 
   
   /**
    * @param string $path
@@ -114,9 +123,7 @@ class TermService implements IContentService
   public function multipleDelete(array $ids, int $deleted_by)
   {
     foreach($ids AS $term_id) {
-      if($error = $this->delete($term_id, $deleted_by)) {
-        return $error;
-      }
+      $this->delete($term_id, $deleted_by);
     }
   } 
   

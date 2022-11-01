@@ -22,7 +22,6 @@ class UpdateTermRequest extends FormRequest
             'name'          => ['required', new NameRule],
             'description'   => ['nullable', new DescriptionRule],
             'status'        => ['required', new StatusRule],
-            'image'         => ['nullable', 'file', 'max:5000']
         ];
     }
 }

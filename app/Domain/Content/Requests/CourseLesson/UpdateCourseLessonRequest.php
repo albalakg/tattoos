@@ -29,6 +29,12 @@ class UpdateCourseLessonRequest extends FormRequest
             'activity_time'     => ['nullable', 'numeric', 'between:1,100000'],
             'activity_period'   => ['nullable', 'numeric', 'between:1,100'],
             'image'             => ['nullable', 'file', 'max:5000'],
+            'skills'            => ['required', 'array','max:50'],
+            'skills.*'          => [new IDRule()],
+            'terms'             => ['required', 'array','max:50'],
+            'terms.*'           => [new IDRule()],
+            'equipment'         => ['required', 'array','max:50'],
+            'equipment.*'       => [new IDRule()],
         ];
     }
 }

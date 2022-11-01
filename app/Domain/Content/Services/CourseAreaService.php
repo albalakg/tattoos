@@ -204,9 +204,7 @@ class CourseAreaService implements IContentService
   public function multipleDelete(array $ids, int $deleted_by)
   {
     foreach($ids AS $course_area_id) {
-      if($error = $this->delete($course_area_id, $deleted_by)) {
-        return $error;
-      }
+      $this->delete($course_area_id, $deleted_by);
     }
   } 
     

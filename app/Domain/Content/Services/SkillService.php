@@ -115,6 +115,15 @@ class SkillService implements IContentService
   }
   
   /**
+   * @param array $ids
+   * @return true
+  */
+  public function skillsExist(array $ids): bool
+  {
+    return Skill::whereIn('id', $ids)->exists();    
+  } 
+  
+  /**
    * @param string $path
    * @param int $deleted_by
    * @return void
@@ -122,9 +131,7 @@ class SkillService implements IContentService
   public function multipleDelete(array $ids, int $deleted_by)
   {
     foreach($ids AS $skill_id) {
-      if($error = $this->delete($skill_id, $deleted_by)) {
-        return $error;
-      }
+      $this->delete($skill_id, $deleted_by);
     }
   } 
   

@@ -146,9 +146,7 @@ class TrainerService implements IContentService
   public function multipleDelete(array $ids, int $deleted_by)
   {
     foreach($ids AS $trainer_id) {
-      if($error = $this->delete($trainer_id, $deleted_by)) {
-        return $error;
-      }
+      $this->delete($trainer_id, $deleted_by);
     }
   } 
   
