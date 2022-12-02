@@ -5,6 +5,7 @@ namespace App\Domain\Content\Controllers;
 use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Domain\Content\Services\TermService;
 use App\Domain\Content\Services\SkillService;
 use App\Domain\Content\Requests\DeleteRequest;
@@ -45,6 +46,7 @@ class CourseLessonController extends Controller
   public function getRandomActiveLessons()
   {
     try {
+      return response()->json(['data' => json_decode(Storage::get('test.json')), 'test' => 1]);
       $response = $this->lesson_service->getRandomActiveLessons();
       return $this->successResponse('Lessons fetched', $response);
     } catch (Exception $ex) {

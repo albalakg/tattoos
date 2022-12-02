@@ -52,7 +52,12 @@ class CourseGenerator extends Command
             $course_generator = new GenerateCourseService(
                 new CourseService,
                 new CourseAreaService,
-                new CourseLessonService(new CourseAreaService),
+                new CourseLessonService(
+                    new CourseAreaService,
+                    new SkillService(),
+                    new TermService(),
+                    new EquipmentService()
+                ),
                 new CourseCategoryService,
                 new VideoService,
                 new TrainerService,

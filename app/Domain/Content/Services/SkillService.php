@@ -50,6 +50,15 @@ class SkillService implements IContentService
   {
     return Skill::inRandomOrder()->first();
   }
+    
+  /**
+   * @param int $limit the amount of skills to fetch
+   * @return Collection
+  */
+  public function getRandomSkills(int $limit = 1): Collection
+  {
+    return Skill::inRandomOrder()->limit($limit)->get();
+  }
       
   /**
    * Fully deletes all of the content
@@ -62,7 +71,6 @@ class SkillService implements IContentService
     foreach($skills_ids AS $skill_id) {
       $this->forceDelete($skill_id, 0);
     }
-    Skill::truncate();
   }
 
   /**
@@ -158,11 +166,24 @@ class SkillService implements IContentService
   public function forceDelete(int $skill_id, int $deleted_by): bool
   {
     $this->validateIfCanDelete($skill_id);
-
-    FileService::delete($this->skill->image);
+    $this->deleteSkillFile($this->skill);
     $result = $this->skill->forceDelete();
     $this->log_service->info('Skill ' . $skill_id . ' has been forced deleted');
     return $result;
+  }
+  
+  /**
+   * @param Skill $skill
+   * @return bool
+  */
+  private function deleteSkillFile(Skill $skill): bool
+  {
+    try {
+      return FileService::delete($skill->image);
+    } catch (Exception $ex) {
+      $this->log_service->error('Failed to delete the skill file, reason: ' . $ex->getMessage());
+      return false;
+    }
   }
   
   /**
@@ -173,7 +194,7 @@ class SkillService implements IContentService
   */
   private function validateIfCanDelete(int $skill_id)
   {
-    if(!$skill = Skill::find($skill_id)) {
+    if(!$skill = Skill::withTrashed()->find($skill_id)) {
       throw new Exception('Skill not found');
     }
 

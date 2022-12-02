@@ -96,6 +96,19 @@ class CourseLessonService implements IContentService
                       ->select('id', 'course_id', 'course_area_id', 'name', 'status', 'image')
                       ->get();
   }
+  
+  /**
+   * @param array|int $courses_id
+   * @return Collection|null
+  */
+  public function getLessonsByCoursesId($courses_id): ?Collection
+  {
+    $lessons_ids = DataManipulationService::intToArray($courses_id);
+
+    return CourseLesson::whereIn('course_id', $lessons_ids)
+                      ->select('id')
+                      ->get();
+  }
 
   /**
    * @param int $course_id
@@ -279,7 +292,7 @@ class CourseLessonService implements IContentService
     $lesson->activity_time    = $data['activity_time']    ?? null;
     $lesson->activity_period  = $data['activity_period']  ?? null;
     $lesson->status           = $data['status']           ?? StatusService::PENDING;
-    
+
     try {
       $lesson->save();
       $this->assignSkills($lesson->id, $data['skills'], $created_by);
@@ -470,6 +483,16 @@ class CourseLessonService implements IContentService
   {
     return CourseLesson::where('course_area_id', $course_area_id)->exists();
   }
+    
+  /**
+   * @return void
+  */
+  public function truncateAllLessonAssignedContent()
+  {
+    $this->truncateLessonSkills();
+    $this->truncateLessonTerms();
+    $this->truncateLessonEquipment();
+  }
   
   /**
    * Throws an error if failed the validation and cannot delete
@@ -484,6 +507,30 @@ class CourseLessonService implements IContentService
     }
 
     $this->lesson = $lesson;
+  }
+  
+  /**
+   * @return void
+  */
+  private function truncateLessonSkills()
+  {
+    CourseLessonSkill::truncate();
+  }
+  
+  /**
+   * @return void
+  */
+  private function truncateLessonTerms()
+  {
+    CourseLessonTerm::truncate();
+  }
+  
+  /**
+   * @return void
+  */
+  private function truncateLessonEquipment()
+  {
+    CourseLessonEquipment::truncate();
   }
   
   /**

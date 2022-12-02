@@ -49,7 +49,16 @@ class TermService implements IContentService
   {
     return Term::inRandomOrder()->first();
   }
-      
+          
+  /**
+   * @param int $limit the amount of terms to fetch
+   * @return Collection
+  */
+  public function getRandomTerms(int $limit = 1): Collection
+  {
+    return Term::inRandomOrder()->limit($limit)->get();
+  }
+
   /**
    * Fully deletes all of the content
    *
@@ -164,7 +173,7 @@ class TermService implements IContentService
   */
   private function validateIfCanDelete(int $term_id)
   {
-    if(!$term = Term::find($term_id)) {
+    if(!$term = Term::withTrashed()->find($term_id)) {
       throw new Exception('Term not found');
     }
 

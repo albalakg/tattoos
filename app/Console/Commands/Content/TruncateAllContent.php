@@ -29,7 +29,7 @@ class TruncateAllContent extends Command
      *
      * @var string
      */
-    protected $description = 'Creates a fake course with course areas and lessons';
+    protected $description = 'Deletes all the content in the application';
 
     /**
      * Create a new command instance.
@@ -52,30 +52,42 @@ class TruncateAllContent extends Command
      */
     public function handle()
     {
-        $content_list = [
-            new CourseLessonService,
-            new CourseRecommendationService,
-            new CourseAreaService(new CourseLessonService),
-            new CourseService(new CourseAreaService),
-            new CourseCategoryService(new CourseService),
-            new VideoService(new CourseLessonService),
-            new SkillService(new CourseLessonService),
-            new TermService(new CourseLessonService),
-            new EquipmentService(new CourseLessonService),
-            new TrainerService(new CourseAreaService),
-        ];
-
-        $bar = $this->output->createProgressBar(count($content_list));
-
-        foreach($content_list AS $content_service) {
-            try {
-                $content_service->truncate();
-            } catch(Exception $ex) {
-                $this->error($ex->__toString());
-            }
-            $bar->advance();
+        if (!$this->confirm('Are you sure you want to delete all the content?')) {
+            return;
         }
 
-        $this->info('Content has been fully deleted');
+        try {
+            $content_list = [
+                new CourseLessonService,
+                new CourseRecommendationService,
+                new CourseAreaService(new CourseLessonService),
+                new CourseService(new CourseAreaService),
+                new CourseCategoryService(new CourseService),
+                new VideoService(new CourseLessonService),
+                new SkillService(new CourseLessonService),
+                new TermService(new CourseLessonService),
+                new EquipmentService(new CourseLessonService),
+                new TrainerService(new CourseAreaService),
+            ];
+    
+            $bar = $this->output->createProgressBar(count($content_list));
+    
+            $course_lesson_service = new CourseLessonService();
+            $course_lesson_service->truncateAllLessonAssignedContent();
+    
+            foreach($content_list AS $content_service) {
+                try {
+                    $content_service->truncate();
+                } catch(Exception $ex) {
+                    $this->error($ex->__toString());
+                }
+                $bar->advance();
+            }
+    
+            $this->info('');
+            $this->info('Content has been fully deleted');
+        } catch(Exception $ex) {
+            $this->error($ex->__toString());
+        }
     }
 }

@@ -152,6 +152,13 @@ return [
             'days' => 1,
         ],
 
+        'completeUserCourse' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/completeUserCourse/completeUserCourse.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'coupons' => [
             'driver' => 'daily',
             'path' => storage_path('logs/coupons/coupons.log'),

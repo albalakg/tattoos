@@ -226,7 +226,7 @@ class GenerateCourseService
   private function buildCourseCategoryMetaData()
   {
     $this->course_meta_data = [
-      'name'        => ContentFaker::getCourseCategoryName(),
+      'name'        => ContentFaker::getCourseCategoryName() . ' ' . Str::random(5),
       'description' => ContentFaker::getDescription(),
       'status'      => StatusService::ACTIVE,
       'image'       => $this->getImage(),
@@ -242,7 +242,7 @@ class GenerateCourseService
   {
     $this->course_meta_data = [
       'category_id' => $this->course_category_service->getRandomCategory()->id,
-      'name'        => ContentFaker::getCourseName(),
+      'name'        => ContentFaker::getCourseName() . ' ' . Str::random(5),
       'description' => ContentFaker::getDescription(),
       'price'       => $this->getPrice(),
       'discount'    => $this->getDiscount(),
@@ -440,6 +440,9 @@ class GenerateCourseService
           'content'         => ContentFaker::getLessonContent(),
           'description'     => ContentFaker::getDescription(),
           'view_order'      => $this->course_lesson_service->getNextViewOrder(),
+          'skills'          => $this->skill_service->getRandomSkills(random_int(1, 5))->pluck('id')->toArray(),
+          'terms'           => $this->term_service->getRandomTerms(random_int(1, 5))->pluck('id')->toArray(),
+          'equipment'       => $this->equipment_service->getRandomEquipments(random_int(1, 5))->pluck('id')->toArray(),
         ];
       } catch(Exception $ex) {
         $this->errors[] = __METHOD__ . ': ' . $ex->__toString();

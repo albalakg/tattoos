@@ -71,10 +71,7 @@ class TrainerController extends Controller
       $response = $this->trainer_service->multipleDelete($request->ids, Auth::user()->id);
       return $this->successResponse('Trainers deleted', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse(
-        $ex,
-        $this->trainer_service->error_data
-      );
+      return $this->errorResponse($ex);
     }
   }
 }

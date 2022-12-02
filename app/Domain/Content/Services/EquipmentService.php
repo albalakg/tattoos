@@ -50,7 +50,16 @@ class EquipmentService implements IContentService
   {
     return Equipment::inRandomOrder()->first();
   }
-      
+          
+  /**
+   * @param int $limit the amount of equipments to fetch
+   * @return Collection
+  */
+  public function getRandomEquipments(int $limit = 1): Collection
+  {
+    return Equipment::inRandomOrder()->limit($limit)->get();
+  }
+
   /**
    * Fully deletes all of the content
    *
@@ -62,7 +71,6 @@ class EquipmentService implements IContentService
     foreach($equipment_ids AS $equipment_id) {
       $this->forceDelete($equipment_id, 0);
     }
-    Equipment::truncate();
   }
 
   /**
@@ -174,7 +182,7 @@ class EquipmentService implements IContentService
   */
   private function validateIfCanDelete(int $equipment_id)
   {
-    if(!$equipment = Equipment::find($equipment_id)) {
+    if(!$equipment = Equipment::withTrashed()->find($equipment_id)) {
       throw new Exception('Equipment not found');
     }
 

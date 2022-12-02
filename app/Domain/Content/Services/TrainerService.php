@@ -21,13 +21,6 @@ class TrainerService implements IContentService
   private  LogService$log_service;
   
   private CourseAreaService|null $course_area_service;
-    
-  /**
-   * Contain the error data
-   *
-   * @var mixed
-  */
-  public $error_data;
   
   public function __construct(CourseAreaService $course_area_service = null)
   {

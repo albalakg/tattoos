@@ -135,6 +135,24 @@ class UserService
   }
   
   /**
+   * @param int $user_id
+   * @return bool
+  */
+  public function isUserExistsById(int $user_id): bool
+  {
+    return User::where('id', $user_id)->exists();
+  }
+  
+  /**
+   * @param string $email
+   * @return bool
+  */
+  public function isUserExistsByEmail(string $email): bool
+  {
+    return User::where('email', $email)->exists();
+  }
+  
+  /**
    * @param Object $user
    * @param int $status
    * @return Collection|null
@@ -596,7 +614,7 @@ class UserService
       return;
     }
     
-    if(User::where('email', $email)->exists()) {
+    if($this->isUserExistsByEmail($email)) {
       $this->log_service->info('User failed to change email, attempted an existing email');
       return;
     }
