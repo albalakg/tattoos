@@ -15,6 +15,7 @@ class CreateTrainingOptionsTable extends Migration
     {
         Schema::create('training_options', function (Blueprint $table) {
             $table->id();
+            $table->string('name', 100)->unique();
             $table->timestamps();
         });
     }
