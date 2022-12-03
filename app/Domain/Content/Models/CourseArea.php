@@ -64,7 +64,7 @@ class CourseArea extends Model
         return $this->hasMany(CourseLesson::class, 'course_area_id', 'id')
                     ->where('status', StatusService::ACTIVE)
                     ->with('video', 'terms', 'skills', 'equipment')
-                    ->select('id', 'course_id', 'course_area_id', 'video_id', 'name', 'description', 'content', 'image', 'rehearsals', 'rest_time', 'activity_time', 'activity_period');
+                    ->select('id', 'course_id', 'course_area_id', 'video_id', 'name', 'description', 'content', 'image');
     }
     
     public function inactiveLessons()

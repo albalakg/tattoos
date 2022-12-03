@@ -131,6 +131,13 @@ return [
             'days' => 1,
         ],
 
+        'trainingOptions' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/trainingOptions/trainingOptions.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'marketingToken' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/marketingToken/marketingToken.log'),

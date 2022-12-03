@@ -17,6 +17,8 @@ class CreateTrainingOptionsTable extends Migration
             $table->id();
             $table->string('name', 100)->unique();
             $table->timestamps();
+            $table->softDeletes();
+            $table->integer('created_by')->index()->unsigned()->nullable();
         });
     }
 

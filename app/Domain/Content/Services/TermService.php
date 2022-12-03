@@ -4,7 +4,6 @@ namespace App\Domain\Content\Services;
 
 use Exception;
 use App\Domain\Helpers\LogService;
-use App\Domain\Helpers\FileService;
 use App\Domain\Content\Models\Term;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Interfaces\IContentService;
@@ -12,8 +11,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TermService implements IContentService
 {
-  const FILES_PATH = 'content/terms';
-
   private Term|null $term;
 
   private LogService $log_service;

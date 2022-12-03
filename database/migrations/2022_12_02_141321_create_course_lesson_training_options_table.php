@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLessonTrainingOptionsTable extends Migration
+class CreateCourseLessonTrainingOptionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class CreateLessonTrainingOptionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('lesson_training_options', function (Blueprint $table) {
+        Schema::create('course_lesson_training_options', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('course_lesson_id')->index();
             $table->unsignedBigInteger('training_option_id')->index();
             $table->unsignedInteger('value')->index();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -29,6 +30,6 @@ class CreateLessonTrainingOptionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('lesson_training_options');
+        Schema::dropIfExists('course_lesson_training_options');
     }
 }

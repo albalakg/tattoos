@@ -17,6 +17,7 @@ use App\Domain\Content\Models\CourseLessonTerm;
 use App\Domain\Helpers\DataManipulationService;
 use App\Domain\Content\Models\CourseLessonSkill;
 use App\Domain\Content\Models\CourseLessonEquipment;
+use App\Domain\Content\Models\CourseLessonTrainingOption;
 
 class CourseLessonService implements IContentService
 {
@@ -168,6 +169,15 @@ class CourseLessonService implements IContentService
   }
 
   /**
+   * @param int $training_option_id
+   * @return bool
+  */
+  public function isTrainingOptionInUsed(int $training_option_id): bool
+  {
+    return CourseLessonTrainingOption::where('training_option_id', $training_option_id)->exists();
+  }
+
+  /**
    * @return Collection
   */
   public function getAll(): Collection
@@ -287,10 +297,6 @@ class CourseLessonService implements IContentService
     $lesson->name             = $data['name'];
     $lesson->content          = $data['content'];
     $lesson->description      = $data['description'];
-    $lesson->rehearsals       = $data['rehearsals']       ?? null;
-    $lesson->rest_time        = $data['rest_time']        ?? null;
-    $lesson->activity_time    = $data['activity_time']    ?? null;
-    $lesson->activity_period  = $data['activity_period']  ?? null;
     $lesson->status           = $data['status']           ?? StatusService::PENDING;
 
     try {
@@ -332,22 +338,6 @@ class CourseLessonService implements IContentService
     $lesson->content        = $data['content'];
     $lesson->description    = $data['description'];
     $lesson->status         = $data['status'];
-    
-    if(!empty($data['rehearsals'])) {
-      $lesson->rehearsals = $data['rehearsals'];
-    }
-    
-    if(!empty($data['rest_time'])) {
-      $lesson->rest_time = $data['rest_time'];
-    }
-
-    if(!empty($data['activity_time'])) {
-      $lesson->activity_time = $data['activity_time'];
-    }
-
-    if(!empty($data['activity_period'])) {
-      $lesson->activity_period = $data['activity_period'];
-    }
     
     $lesson->save();
 
@@ -644,10 +634,6 @@ class CourseLessonService implements IContentService
               'course_lessons.name',
               'course_lessons.content',
               'course_lessons.description',
-              'course_lessons.rehearsals',
-              'course_lessons.activity_time',
-              'course_lessons.activity_period',
-              'course_lessons.rest_time',
               'course_lessons.status',
               'course_lessons.view_order',
               'course_lessons.created_at',
