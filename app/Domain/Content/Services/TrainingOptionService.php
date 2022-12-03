@@ -109,7 +109,7 @@ class TrainingOptionService implements IContentService
    * @param array $ids
    * @return true
   */
-  public function training_optionsExist(array $ids): bool
+  public function trainingOptionsExist(array $ids): bool
   {
     return TrainingOption::whereIn('id', $ids)->exists();    
   } 

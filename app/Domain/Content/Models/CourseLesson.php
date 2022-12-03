@@ -83,6 +83,13 @@ class CourseLesson extends Model
                     ->select('equipment.id', 'equipment.name', 'equipment.description', 'course_lesson_id');
     }
 
+    public function trainingOptions()
+    {
+        return $this->hasMany(CourseLessonTrainingOption::class, 'course_lesson_id', 'id')
+                    ->join('training_options', 'training_options.id', 'course_lesson_training_options.training_option_id')
+                    ->select('training_options.id', 'training_options.name', 'course_lesson_training_options.value', 'course_lesson_id');
+    }
+
     public function tags()
     {
         return $this->hasMany(CourseLessonTag::class, 'course_lesson_tag_id', 'id')

@@ -20,6 +20,7 @@ class CreateCourseLessonTrainingOptionsTable extends Migration
             $table->unsignedInteger('value')->index();
             $table->timestamps();
             $table->softDeletes();
+            $table->integer('created_by')->index()->unsigned()->nullable();
         });
     }
 

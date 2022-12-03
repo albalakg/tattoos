@@ -13,6 +13,7 @@ use App\Domain\Content\Services\EquipmentService;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Requests\OrderContentRequest;
 use App\Domain\Content\Services\CourseLessonService;
+use App\Domain\Content\Services\TrainingOptionService;
 use App\Domain\Content\Requests\CourseLesson\CreateCourseLessonRequest;
 use App\Domain\Content\Requests\CourseLesson\UpdateCourseLessonRequest;
 
@@ -30,6 +31,7 @@ class CourseLessonController extends Controller
       new SkillService,
       new TermService,
       new EquipmentService,
+      new TrainingOptionService
     );
   }
 
