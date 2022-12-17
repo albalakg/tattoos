@@ -61,6 +61,7 @@ class LoginService
         $this->user = Auth::user();
         $this->log_service->info('User ' . $this->user->id . ' logged in');
         $this->isUserAuthorizedToAccess();
+        $this->revokeOldTokensForNonAdmins();
         $this->buildUserDetails();
 
         return $this;
@@ -94,6 +95,21 @@ class LoginService
         if($this->is_maintenance && !$this->user->isAdmin()) {
             $this->log_service->info('User ' . $this->user->id . ' can\'t access while in maintenance');
             throw new Exception('Sorry, Unauthorized to login during maintenance mode');
+        }
+    }
+    
+    /**
+     * At the moment it allowed to only have a single token per user
+     *
+     * @return void
+    */
+    private function revokeOldTokensForNonAdmins()
+    {
+        if($this->user->isNormalUser()) {
+            $userTokens = $this->user->tokens;
+            foreach($userTokens as $token) {
+                $token->revoke();   
+            }
         }
     }
     
