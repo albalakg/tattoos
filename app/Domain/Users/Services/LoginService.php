@@ -99,7 +99,8 @@ class LoginService
     }
     
     /**
-     * At the moment it allowed to only have a single token per user
+     * At the moment it allowed to only have a single token per normal user
+     * Admins can have multiple tokens
      *
      * @return void
     */
