@@ -96,6 +96,15 @@ class CourseService implements IContentService
   }
   
   /**
+   * @param int $course_id
+   * @return bool
+  */
+  public function isCourseExistsById(int $course_id): bool
+  {
+    return Course::where('id', $course_id)->exists();
+  }
+
+  /**
    * @param array $courses_ids
    * @return Collection
   */

@@ -144,6 +144,11 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace($this->namespace)
             ->group(base_path("routes/groups/cms/coupons.php"));
 
+        Route::prefix('api/cms/training-options')
+            ->middleware('auth:api', 'admin')
+            ->namespace($this->namespace)
+            ->group(base_path("routes/groups/cms/trainingOptions.php"));
+
         Route::prefix('api/cms/skills')
             ->middleware('auth:api', 'admin')
             ->namespace($this->namespace)
@@ -154,10 +159,10 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace($this->namespace)
             ->group(base_path("routes/groups/cms/terms.php"));
 
-        Route::prefix('api/cms/equipments')
+        Route::prefix('api/cms/equipment')
             ->middleware('auth:api', 'admin')
             ->namespace($this->namespace)
-            ->group(base_path("routes/groups/cms/equipments.php"));
+            ->group(base_path("routes/groups/cms/equipment.php"));
 
         Route::prefix('api/cms/user-courses')
             ->middleware('auth:api', 'admin')

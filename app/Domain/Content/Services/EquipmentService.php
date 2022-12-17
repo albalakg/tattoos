@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class EquipmentService implements IContentService
 {
-  const FILES_PATH = 'content/equipments';
+  const FILES_PATH = 'content/equipment';
 
   private Equipment|null $equipment;
 
@@ -23,7 +23,7 @@ class EquipmentService implements IContentService
   public function __construct(CourseLessonService $course_lesson_service = null)
   {
     $this->course_lesson_service = $course_lesson_service;
-    $this->log_service = new LogService('equipments');
+    $this->log_service = new LogService('equipment');
   }
     
   /**
@@ -50,7 +50,16 @@ class EquipmentService implements IContentService
   {
     return Equipment::inRandomOrder()->first();
   }
-      
+          
+  /**
+   * @param int $limit the amount of equipments to fetch
+   * @return Collection
+  */
+  public function getRandomEquipments(int $limit = 1): Collection
+  {
+    return Equipment::inRandomOrder()->limit($limit)->get();
+  }
+
   /**
    * Fully deletes all of the content
    *
@@ -58,11 +67,10 @@ class EquipmentService implements IContentService
   */
   public function truncate()
   {
-    $equipments_ids = Equipment::withTrashed()->pluck('id');
-    foreach($equipments_ids AS $equipment_id) {
+    $equipment_ids = Equipment::withTrashed()->pluck('id');
+    foreach($equipment_ids AS $equipment_id) {
       $this->forceDelete($equipment_id, 0);
     }
-    Equipment::truncate();
   }
 
   /**
@@ -76,7 +84,7 @@ class EquipmentService implements IContentService
     $equipment->name          = $data['name'];
     $equipment->description   = $data['description'];
     $equipment->status        = StatusService::ACTIVE;
-    $equipment->image         = FileService::create($data['file'], self::FILES_PATH);
+    $equipment->image         = FileService::create($data['image'], self::FILES_PATH);
     $equipment->created_by    = $created_by;
     $equipment->status        = $data['status'] ?? StatusService::PENDING;
 
@@ -102,9 +110,9 @@ class EquipmentService implements IContentService
     $equipment->description  = $data['description'];
     $equipment->status       = $data['status'];
 
-    if(!empty($data['file'])) {
+    if(!empty($data['image'])) {
       FileService::delete($equipment->image);
-      $equipment->image = FileService::create($data['file'], self::FILES_PATH);
+      $equipment->image = FileService::create($data['image'], self::FILES_PATH);
     }
 
     $equipment->save();
@@ -113,7 +121,17 @@ class EquipmentService implements IContentService
 
     return $equipment;
   }
+      
+  /**
+   * @param array $ids
+   * @return true
+  */
+  public function equipmentExist(array $ids): bool
+  {
+    return Equipment::whereIn('id', $ids)->exists();    
+  } 
   
+
   /**
    * @param string $path
    * @param int $deleted_by
@@ -122,9 +140,7 @@ class EquipmentService implements IContentService
   public function multipleDelete(array $ids, int $deleted_by)
   {
     foreach($ids AS $equipment_id) {
-      if($error = $this->delete($equipment_id, $deleted_by)) {
-        return $error;
-      }
+      $this->delete($equipment_id, $deleted_by);
     }
   } 
   
@@ -166,7 +182,7 @@ class EquipmentService implements IContentService
   */
   private function validateIfCanDelete(int $equipment_id)
   {
-    if(!$equipment = Equipment::find($equipment_id)) {
+    if(!$equipment = Equipment::withTrashed()->find($equipment_id)) {
       throw new Exception('Equipment not found');
     }
 

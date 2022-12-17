@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEquipmentTable extends Migration
+class CreateTrainingOptionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,12 @@ class CreateEquipmentTable extends Migration
      */
     public function up()
     {
-        Schema::create('equipment', function (Blueprint $table) {
+        Schema::create('training_options', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 120)->unique();
-            $table->string('image', 120);
-            $table->text('description');
-            $table->unsignedBigInteger('status')->index();
+            $table->string('name', 100)->unique();
             $table->timestamps();
-            $table->unsignedBigInteger('created_by')->index();
             $table->softDeletes();
+            $table->integer('created_by')->index()->unsigned()->nullable();
         });
     }
 
@@ -32,6 +29,6 @@ class CreateEquipmentTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('equipment');
+        Schema::dropIfExists('training_options');
     }
 }

@@ -131,6 +131,13 @@ return [
             'days' => 1,
         ],
 
+        'trainingOptions' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/trainingOptions/trainingOptions.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'marketingToken' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/marketingToken/marketingToken.log'),
@@ -148,6 +155,13 @@ return [
         'userCourses' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/userCourses/userCourses.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'completeUserCourse' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/completeUserCourse/completeUserCourse.log'),
             'level' => 'debug',
             'days' => 1,
         ],
@@ -215,9 +229,9 @@ return [
             'days' => 1,
         ],
 
-        'equipments' => [
+        'equipment' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/content/equipments/equipments.log'),
+            'path' => storage_path('logs/content/equipment/equipment.log'),
             'level' => 'debug',
             'days' => 1,
         ],

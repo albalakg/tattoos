@@ -3,23 +3,20 @@
 namespace App\Domain\Content\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Domain\Content\Models\CourseLesson;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Domain\Content\Models\CourseLessonTrainingOption;
 
-class CourseLessonTerm extends Model
+class TrainingOption extends Model
 {
     use SoftDeletes;
     
-    protected $guarded = [];
-    
-    public $timestamps = false;
-
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
 
-    public function lesson()
+    public function lessons()
     {
-        return $this->hasOne(CourseLesson::class, 'id', 'course_lesson_id');
+        return $this->hasMany(CourseLessonTrainingOption::class, 'training_option_id', 'id')
+                    ->with('lesson');
     }
 }

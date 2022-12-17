@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CourseLessonSkill extends Model
 {
     use SoftDeletes;
+
+    protected $guarded = [];
+
+    public $timestamps = false;
     
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i:s',

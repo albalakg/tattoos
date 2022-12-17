@@ -124,9 +124,7 @@ class VideoService implements IContentService
   public function multipleDelete(array $ids, int $deleted_by)
   {
     foreach($ids AS $video_id) {
-      if($error = $this->delete($video_id, $deleted_by)) {
-        return $error;
-      }
+      $this->delete($video_id, $deleted_by);
     }
   } 
   

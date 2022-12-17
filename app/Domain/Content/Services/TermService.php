@@ -4,7 +4,6 @@ namespace App\Domain\Content\Services;
 
 use Exception;
 use App\Domain\Helpers\LogService;
-use App\Domain\Helpers\FileService;
 use App\Domain\Content\Models\Term;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Interfaces\IContentService;
@@ -12,8 +11,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TermService implements IContentService
 {
-  const FILES_PATH = 'content/terms';
-
   private Term|null $term;
 
   private LogService $log_service;
@@ -49,7 +46,16 @@ class TermService implements IContentService
   {
     return Term::inRandomOrder()->first();
   }
-      
+          
+  /**
+   * @param int $limit the amount of terms to fetch
+   * @return Collection
+  */
+  public function getRandomTerms(int $limit = 1): Collection
+  {
+    return Term::inRandomOrder()->limit($limit)->get();
+  }
+
   /**
    * Fully deletes all of the content
    *
@@ -105,6 +111,15 @@ class TermService implements IContentService
 
     return $term;
   }
+    
+  /**
+   * @param array $ids
+   * @return true
+  */
+  public function termsExist(array $ids): bool
+  {
+    return Term::whereIn('id', $ids)->exists();    
+  } 
   
   /**
    * @param string $path
@@ -114,9 +129,7 @@ class TermService implements IContentService
   public function multipleDelete(array $ids, int $deleted_by)
   {
     foreach($ids AS $term_id) {
-      if($error = $this->delete($term_id, $deleted_by)) {
-        return $error;
-      }
+      $this->delete($term_id, $deleted_by);
     }
   } 
   
@@ -157,7 +170,7 @@ class TermService implements IContentService
   */
   private function validateIfCanDelete(int $term_id)
   {
-    if(!$term = Term::find($term_id)) {
+    if(!$term = Term::withTrashed()->find($term_id)) {
       throw new Exception('Term not found');
     }
 

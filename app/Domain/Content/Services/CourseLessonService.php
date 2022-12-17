@@ -4,17 +4,20 @@ namespace App\Domain\Content\Services;
 
 use Exception;
 use App\Domain\Helpers\LogService;
+use App\Domain\Content\Models\Term;
 use App\Domain\Helpers\FileService;
+use App\Domain\Content\Models\Skill;
 use App\Domain\Content\Models\Video;
 use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
 use App\Domain\Content\Models\CourseLesson;
-use App\Domain\Content\Models\CourseLessonEquipment;
 use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Content\Models\CourseLessonTerm;
 use App\Domain\Helpers\DataManipulationService;
 use App\Domain\Content\Models\CourseLessonSkill;
-use App\Domain\Content\Models\CourseLessonTerm;
+use App\Domain\Content\Models\CourseLessonEquipment;
+use App\Domain\Content\Models\CourseLessonTrainingOption;
 
 class CourseLessonService implements IContentService
 {
@@ -25,11 +28,29 @@ class CourseLessonService implements IContentService
   private LogService $log_service;
 
   private CourseAreaService|null $course_area_service;
+
+  private SkillService|null $skill_service;
+
+  private TermService|null $term_service;
+
+  private EquipmentService|null $equipment_service;
+
+  private TrainingOptionService|null $training_option_service;
   
-  public function __construct(CourseAreaService $course_area_service = null)
+  public function __construct(
+    ?CourseAreaService $course_area_service = null,
+    ?SkillService $skill_service = null,
+    ?TermService $term_service = null,
+    ?EquipmentService $equipment_service = null,
+    ?TrainingOptionService $training_option_service = null
+  )
   {
-    $this->course_area_service = $course_area_service;
-    $this->log_service = new LogService('courseLessons');
+    $this->course_area_service      = $course_area_service;
+    $this->skill_service            = $skill_service;
+    $this->term_service             = $term_service;
+    $this->equipment_service        = $equipment_service;
+    $this->training_option_service  = $training_option_service;
+    $this->log_service              = new LogService('courseLessons');
   }
   
   /**
@@ -78,6 +99,19 @@ class CourseLessonService implements IContentService
 
     return CourseLesson::whereIn('id', $lessons_ids)
                       ->select('id', 'course_id', 'course_area_id', 'name', 'status', 'image')
+                      ->get();
+  }
+  
+  /**
+   * @param array|int $courses_id
+   * @return Collection|null
+  */
+  public function getLessonsByCoursesId($courses_id): ?Collection
+  {
+    $lessons_ids = DataManipulationService::intToArray($courses_id);
+
+    return CourseLesson::whereIn('course_id', $lessons_ids)
+                      ->select('id')
                       ->get();
   }
 
@@ -139,11 +173,21 @@ class CourseLessonService implements IContentService
   }
 
   /**
+   * @param int $training_option_id
+   * @return bool
+  */
+  public function isTrainingOptionInUsed(int $training_option_id): bool
+  {
+    return CourseLessonTrainingOption::where('training_option_id', $training_option_id)->exists();
+  }
+
+  /**
    * @return Collection
   */
   public function getAll(): Collection
   {
     return $this->baseQueryBuilder()
+              ->with('skills', 'equipment', 'terms', 'trainingOptions')
               ->orderBy('course_lessons.id', 'desc')
               ->get();
   }
@@ -257,14 +301,14 @@ class CourseLessonService implements IContentService
     $lesson->name             = $data['name'];
     $lesson->content          = $data['content'];
     $lesson->description      = $data['description'];
-    $lesson->rehearsals       = $data['rehearsals']       ?? null;
-    $lesson->rest_time        = $data['rest_time']        ?? null;
-    $lesson->activity_time    = $data['activity_time']    ?? null;
-    $lesson->activity_period  = $data['activity_period']  ?? null;
     $lesson->status           = $data['status']           ?? StatusService::PENDING;
-    
+
     try {
       $lesson->save();
+      $this->assignTrainingOptions($lesson->id, $data['training_options'], $created_by);
+      $this->assignSkills($lesson->id, $data['skills'], $created_by);
+      $this->assignTerms($lesson->id, $data['terms'], $created_by);
+      $this->assignEquipment($lesson->id, $data['equipment'], $created_by);
     } catch(Exception $ex) {
       FileService::delete($lesson->image);
       throw $ex;
@@ -300,27 +344,100 @@ class CourseLessonService implements IContentService
     $lesson->description    = $data['description'];
     $lesson->status         = $data['status'];
     
-    if(!empty($data['rehearsals'])) {
-      $lesson->rehearsals = $data['rehearsals'];
-    }
-    
-    if(!empty($data['rest_time'])) {
-      $lesson->rest_time = $data['rest_time'];
-    }
-
-    if(!empty($data['activity_time'])) {
-      $lesson->activity_time = $data['activity_time'];
-    }
-
-    if(!empty($data['activity_period'])) {
-      $lesson->activity_period = $data['activity_period'];
-    }
-    
     $lesson->save();
+
+    $this->assignTrainingOptions($lesson->id, $data['training_options'], $updated_by);
+    $this->assignSkills($lesson->id, $data['skills'], $updated_by);
+    $this->assignTerms($lesson->id, $data['terms'], $updated_by);
+    $this->assignEquipment($lesson->id, $data['equipment'], $updated_by);
 
     $this->log_service->info('Lesson ' . $lesson->id . ' has been updated: ' . json_encode($lesson));
 
     return $lesson;
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @param array $equipment
+   * @param int $created_by
+   * @return void
+  */
+  public function assignEquipment(int $lesson_id, array $equipment, int $created_by)
+  {
+    $this->deleteLessonEquipment($lesson_id);
+
+    if(!count($equipment)) {
+      return;
+    }
+
+    if(!$this->equipment_service->equipmentExist($equipment)) {
+      throw new Exception('One or more equipment were not found, equipment: ' . json_encode($equipment));
+    }
+
+    $this->addLessonEquipment($lesson_id, $equipment, $created_by);
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @param array $terms
+   * @param int $created_by
+   * @return void
+  */
+  public function assignTerms(int $lesson_id, array $terms, int $created_by)
+  {
+    $this->deleteLessonTerms($lesson_id);
+
+    if(!count($terms)) {
+      return;
+    }
+
+    if(!$this->term_service->termsExist($terms)) {
+      throw new Exception('One or more terms were not found, terms: ' . json_encode($terms));
+    }
+    
+    $this->addLessonTerms($lesson_id, $terms, $created_by);
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @param array $training_options
+   * @param int $created_by
+   * @return void
+  */
+  public function assignTrainingOptions(int $lesson_id, array $training_options, int $created_by)
+  {
+    $this->deleteLessonTrainingOptions($lesson_id);
+
+    if(!count($training_options)) {
+      return;
+    }
+
+    if(!$this->training_option_service->trainingOptionsExist(collect($training_options)->pluck('id')->toArray())) {
+      throw new Exception('One or more Training Options were not found, Training Options: ' . json_encode($training_options));
+    }
+
+    $this->addLessonTrainingOptions($lesson_id, $training_options, $created_by);
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @param array $skills
+   * @param int $created_by
+   * @return void
+  */
+  public function assignSkills(int $lesson_id, array $skills, int $created_by)
+  {
+    $this->deleteLessonSkills($lesson_id);
+
+    if(!count($skills)) {
+      return;
+    }
+
+    if(!$this->skill_service->skillsExist($skills)) {
+      throw new Exception('One or more skills were not found, skills: ' . json_encode($skills));
+    }
+
+    $this->addLessonSkills($lesson_id, $skills, $created_by);
   }
   
   /**
@@ -344,9 +461,7 @@ class CourseLessonService implements IContentService
   public function multipleDelete(array $ids, int $deleted_by)
   {
     foreach($ids AS $lesson_id) {
-      if($error = $this->delete($lesson_id, $deleted_by)) {
-        return $error;
-      }
+      $this->delete($lesson_id, $deleted_by);
     }
   } 
   
@@ -381,6 +496,25 @@ class CourseLessonService implements IContentService
   }
     
   /**
+   * @param int $course_area_id
+   * @return bool
+  */
+  public function isCourseAreaInUsed(int $course_area_id): bool
+  {
+    return CourseLesson::where('course_area_id', $course_area_id)->exists();
+  }
+    
+  /**
+   * @return void
+  */
+  public function truncateAllLessonAssignedContent()
+  {
+    $this->truncateLessonSkills();
+    $this->truncateLessonTerms();
+    $this->truncateLessonEquipment();
+  }
+  
+  /**
    * Throws an error if failed the validation and cannot delete
    * If it can be deleted, stores the content in the class state
    * @param int $lesson_id
@@ -394,16 +528,153 @@ class CourseLessonService implements IContentService
 
     $this->lesson = $lesson;
   }
-
+  
   /**
-   * @param int $course_area_id
-   * @return bool
+   * @return void
   */
-  public function isCourseAreaInUsed(int $course_area_id): bool
+  private function truncateLessonSkills()
   {
-    return CourseLesson::where('course_area_id', $course_area_id)->exists();
+    CourseLessonSkill::truncate();
   }
   
+  /**
+   * @return void
+  */
+  private function truncateLessonTerms()
+  {
+    CourseLessonTerm::truncate();
+  }
+  
+  /**
+   * @return void
+  */
+  private function truncateLessonEquipment()
+  {
+    CourseLessonEquipment::truncate();
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @return void
+  */
+  private function deleteLessonEquipment(int $lesson_id)
+  {
+    CourseLessonEquipment::where('course_lesson_id', $lesson_id)->delete();
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @param array $equipment
+   * @param int $created_by
+   * @return void
+  */
+  private function addLessonEquipment(int $lesson_id, array $equipment, int $created_by)
+  {
+    $lesson_equipment = [];
+    foreach($equipment AS $equipment) {
+      $lesson_equipment[] = [
+        'equipment_id'      => $equipment,
+        'course_lesson_id'  => $lesson_id,
+        'created_at'        => now(),
+        'created_by'        => $created_by,
+      ];
+    }
+
+    CourseLessonEquipment::insert($lesson_equipment);
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @return void
+  */
+  private function deleteLessonTerms(int $lesson_id)
+  {
+    CourseLessonTerm::where('course_lesson_id', $lesson_id)->delete();
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @param array $terms
+   * @param int $created_by
+   * @return void
+  */
+  private function addLessonTerms(int $lesson_id, array $terms, int $created_by)
+  {
+    $lesson_terms = [];
+    foreach($terms AS $term) {
+      $lesson_terms[] = [
+        'term_id'           => $term,
+        'course_lesson_id'  => $lesson_id,
+        'created_at'        => now(),
+        'created_by'        => $created_by,
+      ];
+    }
+
+    CourseLessonTerm::insert($lesson_terms);
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @return void
+  */
+  private function deleteLessonTrainingOptions(int $lesson_id)
+  {
+    CourseLessonTrainingOption::where('course_lesson_id', $lesson_id)->delete();
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @param array $training_options
+   * @param int $created_by
+   * @return void
+  */
+  private function addLessonTrainingOptions(int $lesson_id, array $training_options, int $created_by)
+  {
+    $lesson_training_options = [];
+    foreach($training_options AS $training_option) {
+      $lesson_training_options[] = [
+        'course_lesson_id'    => $lesson_id,
+        'training_option_id'  => $training_option['id'],
+        'value'               => $training_option['value'],
+        'created_at'          => now(),
+        'created_by'          => $created_by,
+      ];
+    }
+
+    CourseLessonTrainingOption::insert($lesson_training_options);
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @return void
+  */
+  private function deleteLessonSkills(int $lesson_id)
+  {
+    CourseLessonSkill::where('course_lesson_id', $lesson_id)->delete();
+  }
+  
+  /**
+   * @param int $lesson_id
+   * @param array $skills
+   * @param int $created_by
+   * @return void
+  */
+  private function addLessonSkills(int $lesson_id, array $skills, int $created_by)
+  {
+    $lesson_skills = [];
+    foreach($skills AS $skill) {
+      $lesson_skills[] = [
+        'skill_id'          => $skill,
+        'course_lesson_id'  => $lesson_id,
+        'type'              => Skill::LEARNS_TYPE,
+        'created_at'        => now(),
+        'created_by'        => $created_by,
+      ];
+    }
+
+    CourseLessonSkill::insert($lesson_skills);
+  }
+
   /**
    * Build base query
    *
@@ -424,10 +695,6 @@ class CourseLessonService implements IContentService
               'course_lessons.name',
               'course_lessons.content',
               'course_lessons.description',
-              'course_lessons.rehearsals',
-              'course_lessons.activity_time',
-              'course_lessons.activity_period',
-              'course_lessons.rest_time',
               'course_lessons.status',
               'course_lessons.view_order',
               'course_lessons.created_at',

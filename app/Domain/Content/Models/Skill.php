@@ -9,16 +9,19 @@ use App\Domain\Content\Models\CourseLessonSkill;
 class Skill extends Model
 {
     use SoftDeletes;
+
+    const REQUIRES_TYPE = 0;
+    const LEARNS_TYPE   = 1;
     
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
     
-    protected $appends = ['skillSrc'];
+    protected $appends = ['imageSrc'];
 
-    public function getSkillSrcAttribute()
+    public function getImageSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/' . $this->video_path;  
+        return config('app.url') . '/' . 'files/' . $this->image;  
     }
 
     public function lessons()

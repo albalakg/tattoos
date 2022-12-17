@@ -59,7 +59,6 @@ class AuthController extends Controller
       $user_service->forgotPassword($request->email);
       return $this->successResponse('An email has been sent to the requested address');
     } catch (Exception $ex) {
-      dd($ex);
       $ex->service = 'auth';
       return $this->errorResponse($ex);
     }

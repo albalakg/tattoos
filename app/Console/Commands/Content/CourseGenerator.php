@@ -4,13 +4,16 @@ namespace App\Console\Commands\Content;
 
 use Exception;
 use Illuminate\Console\Command;
+use App\Domain\Content\Services\TermService;
+use App\Domain\Content\Services\SkillService;
 use App\Domain\Content\Services\VideoService;
 use App\Domain\Content\Services\CourseService;
+use App\Domain\Content\Services\TrainerService;
+use App\Domain\Content\Services\EquipmentService;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Services\CourseLessonService;
 use App\Domain\Content\Services\CourseCategoryService;
 use App\Domain\Content\Services\GenerateCourseService;
-use App\Domain\Content\Services\TrainerService;
 
 class CourseGenerator extends Command
 {
@@ -49,10 +52,18 @@ class CourseGenerator extends Command
             $course_generator = new GenerateCourseService(
                 new CourseService,
                 new CourseAreaService,
-                new CourseLessonService(new CourseAreaService),
+                new CourseLessonService(
+                    new CourseAreaService,
+                    new SkillService(),
+                    new TermService(),
+                    new EquipmentService()
+                ),
                 new CourseCategoryService,
                 new VideoService,
                 new TrainerService,
+                new SkillService,
+                new TermService,
+                new EquipmentService,
             );
  
             $course_generator->generate();
@@ -67,7 +78,7 @@ class CourseGenerator extends Command
                 $this->error('A total of ' . count($errors) . ' errors');
             }
 
-            $this->info('Generated the course successfully with the following details: ' . $course_generator->getGenerationDetails());
+            $this->info('Generated the course successfully with the following details: ' . "\n" . $course_generator->getGenerationDetails());
         } catch(Exception $ex) {
             $this->error('Failed generating the course: ' . $ex->__toString());
         }

@@ -4,110 +4,89 @@ namespace App\Domain\Content\Services;
 
 use Exception;
 use Illuminate\Support\Str;
-use App\Domain\Content\Models\Course;
 use App\Domain\Helpers\StatusService;
-use Illuminate\Support\Facades\Storage;
+use App\Domain\Content\Services\TermService;
+use App\Domain\Content\Services\SkillService;
+use App\Domain\Content\Services\EquipmentService;
 
 class GenerateCourseService
 {    
   /**
    * Holds all of the errors during the generation
-   *
-   * @var array
   */
-  private $errors = [];
+  private array $errors = [];
 
-  /**
-   * @var CourseService
-  */
-  private $course_service;
+  private CourseService $course_service;
   
-  /**
-   * @var CourseCategoryService
-  */
-  private $course_category_service;
+  private CourseCategoryService $course_category_service;
   
-  /**
-   * @var CourseAreaService
-  */
-  private $course_area_service;
+  private CourseAreaService $course_area_service;
   
-  /**
-   * @var CourseLessonService
-  */
-  private $course_lesson_service;
+  private CourseLessonService $course_lesson_service;
   
-  /**
-   * @var VideoService
-  */
-  private $video_service;
+  private VideoService $video_service;
   
-  /**
-   * @var TrainerService
-  */
-  private $trainer_service;
+  private SkillService $skill_service;
+  
+  private TermService $term_service;
+  
+  private EquipmentService $equipment_service;
+  
+  private TrainerService $trainer_service;
 
-  /**
-   * @var int
-  */
-  private $total_course_areas = 6;
+  private int $total_course_areas = 6;
   
-  /**
-   * @var int
-  */
-  private $total_lessons = 80;
+  private int $total_lessons = 80;
   
-  /**
-   * @var int
-  */
-  private $total_videos = 5;
+  private int $total_videos = 5;
   
-  /**
-   * @var int
-  */
-  private $total_trainers = 6;
+  private int $total_skills = 5;
   
-  /**
-   * @var array
-  */
-  private $course_meta_data = [];
+  private int $total_terms = 5;
   
-  /**
-   * @var null|Course
-  */
-  private $created_course;
+  private int $total_equipment = 5;
   
-  /**
-   * @var array
-  */
-  private $course_areas_meta_data = [];
+  private int $total_trainers = 6;
   
-  /**
-   * @var array
-  */
-  private $created_course_areas = [];
+  private array $course_meta_data = [];
   
-  /**
-   * @var array
-  */
-  private $lessons_meta_data = [];
+  private null|object $created_course;
+  
+  private array $course_areas_meta_data = [];
+  
+  private array $created_course_areas = [];
+  
+  private array $lessons_meta_data = [];
 
-  /**
-   * @var array
-  */
-  private $created_lessons = [];
+  private array $created_lessons = [];
   
-  /**
-   * @var array
-  */
-  private $videos_meta_data = [];
+  private array $videos_meta_data = [];
 
-  /**
-   * @var array
-  */
-  private $created_videos = [];
+  private array $created_videos = [];
   
-  public function __construct(CourseService $course_service, CourseAreaService $course_area_service, CourseLessonService $course_lesson_service, CourseCategoryService $course_category_service, VideoService $video_service, TrainerService $trainer_service)
+  private array $skills_meta_data = [];
+
+  private array $created_skills = [];
+  
+  private array $terms_meta_data = [];
+
+  private array $created_terms = [];
+  
+  private array $equipment_meta_data = [];
+
+  private array $created_equipment = [];
+  
+  public function __construct(
+    CourseService $course_service,
+    CourseAreaService $course_area_service,
+    CourseLessonService $course_lesson_service,
+    CourseCategoryService $course_category_service,
+    VideoService $video_service, 
+    TrainerService $trainer_service,
+    SkillService $skill_service,
+    TermService $term_service,
+    EquipmentService $equipment_service,
+  )
   {
     $this->course_category_service  = $course_category_service;
     $this->course_area_service      = $course_area_service;
@@ -115,6 +94,9 @@ class GenerateCourseService
     $this->course_service           = $course_service;
     $this->video_service            = $video_service;
     $this->trainer_service          = $trainer_service;
+    $this->skill_service            = $skill_service;
+    $this->term_service             = $term_service;
+    $this->equipment_service        = $equipment_service;
   }
   
   /**
@@ -164,11 +146,15 @@ class GenerateCourseService
   */
   public function getGenerationDetails(): string
   {
-    return  '1 Course Category, '     . 
-            '1 Course, '              . 
-            $this->total_course_areas . ' Course Areas, ' . 
-            $this->total_lessons      . ' lessons, ' . 
-            $this->total_videos       . ' videos, ' .
+    $line_break = "\n";
+    return  '1 Course Category, '     .                     $line_break .
+            '1 Course, '              .                     $line_break .
+            $this->total_course_areas . ' Course Areas, ' . $line_break . 
+            $this->total_lessons      . ' lessons, '      . $line_break . 
+            $this->total_videos       . ' videos, '       . $line_break .
+            $this->total_skills       . ' skills, '       . $line_break .
+            $this->total_terms        . ' terms, '        . $line_break .
+            $this->total_equipment    . ' equipment, '    . $line_break .
             $this->total_trainers     . ' trainers'
             ;
   }
@@ -215,6 +201,15 @@ class GenerateCourseService
     $this->buildVideosMetaData();
     $this->saveVideos();
 
+    $this->buildSkillsMetaData();
+    $this->saveSkills();
+
+    $this->buildTermsMetaData();
+    $this->saveTerms();
+
+    $this->buildEquipmentMetaData();
+    $this->saveEquipment();
+
     $this->buildCourseCategoryMetaData();
     $this->saveCourseCategory();
 
@@ -231,10 +226,10 @@ class GenerateCourseService
   private function buildCourseCategoryMetaData()
   {
     $this->course_meta_data = [
-      'name'        => ContentFaker::getCourseCategoryName(),
+      'name'        => ContentFaker::getCourseCategoryName() . ' ' . Str::random(5),
       'description' => ContentFaker::getDescription(),
       'status'      => StatusService::ACTIVE,
-      'image'       => $this->getCourseImage(),
+      'image'       => $this->getImage(),
     ];
   }
 
@@ -247,13 +242,13 @@ class GenerateCourseService
   {
     $this->course_meta_data = [
       'category_id' => $this->course_category_service->getRandomCategory()->id,
-      'name'        => ContentFaker::getCourseName(),
+      'name'        => ContentFaker::getCourseName() . ' ' . Str::random(5),
       'description' => ContentFaker::getDescription(),
       'price'       => $this->getPrice(),
       'discount'    => $this->getDiscount(),
       'view_order'  => $this->course_service->getNextViewOrder(),
       'status'      => StatusService::ACTIVE,
-      'image'       => $this->getCourseImage(),
+      'image'       => $this->getImage(),
       'trailer'     => $this->getCourseTrailer(),
     ];
   }
@@ -271,7 +266,7 @@ class GenerateCourseService
           'course_id'   => $this->created_course->id,
           'trainer_id'  => $this->trainer_service->getRandomTrainer()->id ?? 0,
           'name'        => ContentFaker::getCourseAreaName(),
-          'image'       => $this->getCourseImage(),
+          'image'       => $this->getImage(),
           'trailer'     => NULL,
           'status'      => StatusService::ACTIVE,
           'price'       => $this->getPrice(),
@@ -300,7 +295,7 @@ class GenerateCourseService
     for($index = 0; $index < $this->total_videos; $index++) {
       try {
         $this->videos_meta_data[] = [
-          'name'          => ContentFaker::getVideoName() . ' | ' . Str::random(5),
+          'name'          => ContentFaker::getVideoName() . ' ' . Str::random(5),
           'description'   => ContentFaker::getDescription(),
           'status'        => StatusService::ACTIVE,
           'video_length'  => 8,
@@ -323,6 +318,86 @@ class GenerateCourseService
     }
   }
 
+  private function buildSkillsMetaData()
+  {
+    for($index = 0; $index < $this->total_skills; $index++) {
+      try {
+        $this->skills_meta_data[] = [
+          'name'          => ContentFaker::getSkillName() . ' ' . Str::random(5),
+          'description'   => ContentFaker::getDescription(),
+          'status'        => StatusService::ACTIVE,
+          'image'         => $this->getImage(),
+        ];
+      } catch(Exception $ex) {
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
+      }
+    }
+  }
+
+  private function saveSkills()
+  {
+    foreach($this->skills_meta_data AS $skill) {
+      try {
+        $this->created_skills[] = $this->skill_service->create($skill, 0);
+      } catch(Exception $ex) {
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
+      }
+    }
+  }
+
+  private function buildTermsMetaData()
+  {
+    for($index = 0; $index < $this->total_terms; $index++) {
+      try {
+        $this->terms_meta_data[] = [
+          'name'          => ContentFaker::getTermName() . ' ' . Str::random(5),
+          'description'   => ContentFaker::getDescription(),
+          'status'        => StatusService::ACTIVE,
+        ];
+      } catch(Exception $ex) {
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
+      }
+    }
+  }
+
+  private function saveTerms()
+  {
+    foreach($this->terms_meta_data AS $term) {
+      try {
+        $this->created_terms[] = $this->term_service->create($term, 0);
+      } catch(Exception $ex) {
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
+      }
+    }
+  }
+
+  private function buildEquipmentMetaData()
+  {
+    for($index = 0; $index < $this->total_equipment; $index++) {
+      try {
+        $this->equipment_meta_data[] = [
+          'name'          => ContentFaker::getEquipmentName() . ' ' . Str::random(5),
+          'description'   => ContentFaker::getDescription(),
+          'status'        => StatusService::ACTIVE,
+          'image'         => $this->getImage(),
+        ];
+      } catch(Exception $ex) {
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
+      }
+    }
+  }
+
+  private function saveEquipment()
+  {
+    foreach($this->equipment_meta_data AS $equipment) {
+      try {
+        $this->created_equipment[] = $this->equipment_service->create($equipment, 0);
+      } catch(Exception $ex) {
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
+      }
+    }
+  }
+
   private function buildTrainersMetaData()
   {
     for($index = 0; $index < $this->total_trainers; $index++) {
@@ -331,7 +406,7 @@ class GenerateCourseService
           'name'          => ContentFaker::getTrainerName(),
           'title'         => ContentFaker::getTitle(),
           'description'   => ContentFaker::getDescription(),
-          'image'         => $this->getCourseImage(),
+          'image'         => $this->getImage(),
           'status'        => StatusService::ACTIVE,
         ];
       } catch(Exception $ex) {
@@ -359,12 +434,15 @@ class GenerateCourseService
           'course_id'       => $this->created_course->id,
           'course_area_id'  => $this->getCourseAreaId(),
           'name'            => ContentFaker::getCourseAreaName(),
-          'image'           => $this->getCourseImage(),
+          'image'           => $this->getImage(),
           'video_id'        => $this->video_service->getRandomVideo()->id,
           'status'          => StatusService::ACTIVE,
           'content'         => ContentFaker::getLessonContent(),
           'description'     => ContentFaker::getDescription(),
           'view_order'      => $this->course_lesson_service->getNextViewOrder(),
+          'skills'          => $this->skill_service->getRandomSkills(random_int(1, 5))->pluck('id')->toArray(),
+          'terms'           => $this->term_service->getRandomTerms(random_int(1, 5))->pluck('id')->toArray(),
+          'equipment'       => $this->equipment_service->getRandomEquipments(random_int(1, 5))->pluck('id')->toArray(),
         ];
       } catch(Exception $ex) {
         $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
@@ -410,7 +488,7 @@ class GenerateCourseService
   /**
    * @return string
    */
-  private function getCourseImage(): string
+  private function getImage(): string
   {
     return 'FakersContent/CourseImage.jpg';
   }

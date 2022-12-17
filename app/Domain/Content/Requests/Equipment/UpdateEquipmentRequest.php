@@ -18,7 +18,7 @@ class UpdateEquipmentRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'            => ['required', 'bail', new IDRule, 'exists:equipments,id'],
+            'id'            => ['required', 'bail', new IDRule, 'exists:equipment,id'],
             'name'          => ['required', new NameRule],
             'description'   => ['nullable', new DescriptionRule],
             'status'        => ['required', new StatusRule],

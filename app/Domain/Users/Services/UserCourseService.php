@@ -35,19 +35,12 @@ class UserCourseService
   private $user_service;
 
   const DEFAULT_USER_COURSE_PERIOD = 12; // in months
-  
-  /**
-   * Contain the error data
-   *
-   * @var mixed
-  */
-  public $error_data;
 
   public function __construct(CourseService $course_service = null, UserService $user_service = null)
   {
     $this->course_service = $course_service;
-    $this->user_service = $user_service;
-    $this->log_service = new LogService('userCourses');
+    $this->user_service   = $user_service;
+    $this->log_service    = new LogService('userCourses');
   }
   
   /**
@@ -168,15 +161,26 @@ class UserCourseService
   }
   
   /**
-   *
    * @param int $user_course_id
-   * @return void
+   * @return object
   */
   public function getUserCourseProgress(int $user_course_id): object
   {
     return UserCourseLesson::where('user_course_id', $user_course_id)
                             ->orderBy('id', 'desc')
                             ->get();
+  }
+  
+  /**
+   * @param int $course_id
+   * @param int $user_id
+   * @return UserCourse|null
+  */
+  public function getUserCourseByCourseAndUser(int $course_id, int $user_id): ?UserCourse
+  {
+    return UserCourse::where('course_id', $course_id)
+                    ->where('user_id', $user_id)
+                    ->first();
   }
   
   /**

@@ -14,11 +14,11 @@ class Equipment extends Model
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
 
-    protected $appends = ['equipmentSrc'];
+    protected $appends = ['imageSrc'];
 
-    public function getEquipmentSrcAttribute()
+    public function getImageSrcAttribute()
     {
-        return config('app.url') . '/' . 'files/' . $this->video_path;  
+        return config('app.url') . '/' . 'files/' . $this->image;  
     }
 
     public function lessons()

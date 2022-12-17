@@ -31,6 +31,18 @@ class ContentFaker
     'סרטון בסיסי קצר', 'סרטון בסיסי מוזר', 'סרטון מיוחד', 'סרטון משונה', 'סרטון ענק', 'סרטון טירוף'
   ];
 
+  const SKILL_NAMES = [
+    'כדרור', 'מסירה', 'עצירת כדור', 'הטעייה', 'הדיפה', 'בעיטה', 'הרמה'
+  ];
+
+  const TERM_NAMES = [
+    'מונח אחד', 'מונח שני', 'מונח שלישי', 'מונח רביעי', 'מונח חמישי'
+  ];
+
+  const EQUIPMENT_NAMES = [
+    'קונוס', 'כדור', 'שער', 'דשא', 'מגרש'
+  ];
+
   const DESCRIPTIONS = [
     'תוכן אקראי בשביל למלא מקום',
     'לא משהו רציני סתם שטות',
@@ -108,6 +120,30 @@ class ContentFaker
   static public function getVideoName(): string
   {
     return self::VIDEO_NAMES[random_int(0, count(self::VIDEO_NAMES) - 1)];
+  }
+  
+  /**
+   * @return string
+  */
+  static public function getSkillName(): string
+  {
+    return self::SKILL_NAMES[random_int(0, count(self::SKILL_NAMES) - 1)];
+  }
+  
+  /**
+   * @return string
+  */
+  static public function getTermName(): string
+  {
+    return self::TERM_NAMES[random_int(0, count(self::TERM_NAMES) - 1)];
+  }
+  
+  /**
+   * @return string
+  */
+  static public function getEquipmentName(): string
+  {
+    return self::EQUIPMENT_NAMES[random_int(0, count(self::EQUIPMENT_NAMES) - 1)];
   }
   
   /**

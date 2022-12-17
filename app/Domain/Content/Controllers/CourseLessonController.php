@@ -5,10 +5,15 @@ namespace App\Domain\Content\Controllers;
 use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use App\Domain\Content\Services\TermService;
+use App\Domain\Content\Services\SkillService;
 use App\Domain\Content\Requests\DeleteRequest;
+use App\Domain\Content\Services\EquipmentService;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Requests\OrderContentRequest;
 use App\Domain\Content\Services\CourseLessonService;
+use App\Domain\Content\Services\TrainingOptionService;
 use App\Domain\Content\Requests\CourseLesson\CreateCourseLessonRequest;
 use App\Domain\Content\Requests\CourseLesson\UpdateCourseLessonRequest;
 
@@ -22,7 +27,11 @@ class CourseLessonController extends Controller
   public function __construct()
   {
     $this->lesson_service = new CourseLessonService(
-      new CourseAreaService
+      new CourseAreaService,
+      new SkillService,
+      new TermService,
+      new EquipmentService,
+      new TrainingOptionService
     );
   }
 
@@ -39,6 +48,7 @@ class CourseLessonController extends Controller
   public function getRandomActiveLessons()
   {
     try {
+      return response()->json(['data' => json_decode(Storage::get('test.json')), 'test' => 1]);
       $response = $this->lesson_service->getRandomActiveLessons();
       return $this->successResponse('Lessons fetched', $response);
     } catch (Exception $ex) {
