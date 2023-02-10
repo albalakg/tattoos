@@ -305,7 +305,9 @@ class CourseLessonService implements IContentService
 
     try {
       $lesson->save();
-      $this->assignTrainingOptions($lesson->id, $data['training_options'], $created_by);
+      if(isset($data['training_options'])) {
+        $this->assignTrainingOptions($lesson->id, $data['training_options'], $created_by);
+      }
       $this->assignSkills($lesson->id, $data['skills'], $created_by);
       $this->assignTerms($lesson->id, $data['terms'], $created_by);
       $this->assignEquipment($lesson->id, $data['equipment'], $created_by);
