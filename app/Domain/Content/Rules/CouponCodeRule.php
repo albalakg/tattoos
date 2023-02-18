@@ -30,7 +30,7 @@ class CouponCodeRule implements Rule
             return false;
         }
 
-        if(strlen($value) !== Coupon::CODE_LENGTH) {
+        if(mb_strlen($value, 'UTF-8') !== Coupon::CODE_LENGTH) {
             return false;
         } 
 

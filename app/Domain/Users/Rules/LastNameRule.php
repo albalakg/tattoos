@@ -29,7 +29,7 @@ class LastNameRule implements Rule
             return false;
         }
 
-        $value_length = strlen($value);
+        $value_length = mb_strlen($value, 'UTF-8');
         return $value_length >= 2 && $value_length <= 30;
     }
 
