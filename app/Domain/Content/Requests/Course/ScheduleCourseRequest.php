@@ -21,7 +21,7 @@ class ScheduleCourseRequest extends FormRequest
             'id'                => ['required', 'bail', new IDRule, 'exists:courses,id'],
             'lessonsId'         => ['required', 'array', 'between:1, 1000'],
             'lessonsId.*.id'    => ['required', new IDRule],
-            // 'lessonsId.*.date'  => ['required', 'date'],
+            'lessonsId.*.date'  => ['required', 'date'],
         ];
     }
 }
