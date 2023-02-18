@@ -3,6 +3,7 @@
 namespace App\Domain\Content\Models;
 
 use Illuminate\Support\Facades\Auth;
+use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Model;
 use App\Domain\Content\Models\CourseArea;
 use App\Domain\Users\Models\UserCourseLesson;
@@ -12,8 +13,8 @@ use App\Domain\Content\Models\CourseLessonRank;
 use App\Domain\Content\Models\CourseLessonTerm;
 use App\Domain\Content\Models\CourseLessonSkill;
 use App\Domain\Content\Models\CourseLessonComment;
+use App\Domain\Content\Models\CourseScheduleLesson;
 use App\Domain\Content\Models\CourseLessonEquipment;
-use App\Domain\Helpers\StatusService;
 
 class CourseLesson extends Model
 {
@@ -52,6 +53,12 @@ class CourseLesson extends Model
     {
         return $this->hasOne(Video::class, 'id', 'video_id')
                     ->select('id', 'video_length');
+    }
+    
+    public function schedule()
+    {
+        return $this->hasOne(CourseScheduleLesson::class, 'course_lesson_id', 'id')
+                    ->select('course_lesson_id', 'course_id', 'date');
     }
 
     public function ranks()

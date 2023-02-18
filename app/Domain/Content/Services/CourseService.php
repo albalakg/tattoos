@@ -10,7 +10,9 @@ use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
 use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Content\Models\CourseSchedule;
 use App\Domain\Content\Services\CourseAreaService;
+use App\Domain\Content\Models\CourseScheduleLesson;
 
 class CourseService implements IContentService
 {
@@ -209,7 +211,39 @@ class CourseService implements IContentService
   }
   
   /**
-   * @param string $path
+   * @param int $course_id
+   * @param array $lessons
+   * @param int $created_by
+   * @return void
+  */
+  public function createSchedule(int $course_id, array $lessons, int $created_by)
+  {
+    $current_course_schedule  = $this->getCurrentCourseSchedule($course_id);
+    $new_course_schedule      = CourseSchedule::create([
+      'course_id'   => $course_id,
+      'version'     => $current_course_schedule ? $current_course_schedule->version + 1 : 1,
+      'created_at'  => now()
+    ]);
+
+    $this->createScheduleLessons($new_course_schedule, $lessons);
+
+    if($current_course_schedule) {
+      $this->deleteCourseScheduleLessons($current_course_schedule->id);
+      $this->deleteCourseSchedule($current_course_schedule->id);
+    }
+  } 
+    
+  /**
+   * @param int $course_id
+   * @return null|CourseSchedule
+  */
+  public function getCurrentCourseSchedule(int $course_id): ?CourseSchedule
+  {
+    return CourseSchedule::where('course_id', $course_id)->first();
+  }
+
+  /**
+   * @param array $ids
    * @param int $deleted_by
    * @return void
   */
@@ -289,6 +323,42 @@ class CourseService implements IContentService
   private function isCourseInUsed(int $course_id): bool
   {
     return $this->course_area_service->isCourseInUsed($course_id);
+  }
+   
+  /**
+   * @param int $course_schedule_id
+   * @return void
+  */
+  private function deleteCourseSchedule(int $course_schedule_id)
+  {
+    return CourseSchedule::where('id', $course_schedule_id)->delete();
+  }
+    
+  /**
+   * @param int $course_schedule_id
+   * @return void
+  */
+  private function deleteCourseScheduleLessons(int $course_schedule_id)
+  {
+    return CourseScheduleLesson::where('course_schedule_id', $course_schedule_id)->delete();
+  }
+
+  /**
+   * @param CourseSchedule $new_course_schedule
+   * @param array $lessons
+   * @return void
+  */
+  private function createScheduleLessons(CourseSchedule $new_course_schedule, array $lessons)
+  {
+    CourseScheduleLesson::insert(array_map(function($lesson) use($new_course_schedule) {
+      return [
+        'course_schedule_id'  => $new_course_schedule->id,
+        'course_id'           => $new_course_schedule->course_id,
+        'course_lesson_id'    => $lesson['id'],
+        'date'                => $lesson['date'] ?? now(),
+        'created_at'          => now()
+      ];
+    }, $lessons));
   }
 
   /**

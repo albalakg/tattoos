@@ -10,6 +10,7 @@ use App\Domain\Content\Services\CourseService;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Requests\Course\CreateCourseRequest;
 use App\Domain\Content\Requests\Course\UpdateCourseRequest;
+use App\Domain\Content\Requests\Course\ScheduleCourseRequest;
 
 class CourseController extends Controller
 {  
@@ -70,6 +71,18 @@ class CourseController extends Controller
     try {
       $response = $this->course_service->multipleDelete($request->ids, Auth::user()->id);
       return $this->successResponse('Courses deleted', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse(
+        $ex,
+      );
+    }
+  }
+
+  public function schedule(ScheduleCourseRequest $request)
+  {
+    try {
+      $response = $this->course_service->createSchedule($request->id, $request->lessonsId, Auth::user()->id);
+      return $this->successResponse('Courses schedule created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse(
         $ex,
