@@ -222,10 +222,11 @@ class CourseService implements IContentService
     $new_course_schedule      = CourseSchedule::create([
       'course_id'   => $course_id,
       'version'     => $current_course_schedule ? $current_course_schedule->version + 1 : 1,
-      'created_at'  => now()
+      'created_at'  => now(),
+      'created_by'  => $created_by,
     ]);
 
-    $this->createScheduleLessons($new_course_schedule, $lessons);
+    $this->createScheduleLessons($new_course_schedule, $lessons, $created_by);
 
     if($current_course_schedule) {
       $this->deleteCourseScheduleLessons($current_course_schedule->id);
@@ -346,17 +347,19 @@ class CourseService implements IContentService
   /**
    * @param CourseSchedule $new_course_schedule
    * @param array $lessons
+   * @param int $created_by
    * @return void
   */
-  private function createScheduleLessons(CourseSchedule $new_course_schedule, array $lessons)
+  private function createScheduleLessons(CourseSchedule $new_course_schedule, array $lessons, int $created_by)
   {
-    CourseScheduleLesson::insert(array_map(function($lesson) use($new_course_schedule) {
+    CourseScheduleLesson::insert(array_map(function($lesson) use($new_course_schedule, $created_by) {
       return [
         'course_schedule_id'  => $new_course_schedule->id,
         'course_id'           => $new_course_schedule->course_id,
         'course_lesson_id'    => $lesson['id'],
         'date'                => $lesson['date'] ?? now(),
-        'created_at'          => now()
+        'created_at'          => now(),
+        'created_by'          => $created_by,
       ];
     }, $lessons));
   }

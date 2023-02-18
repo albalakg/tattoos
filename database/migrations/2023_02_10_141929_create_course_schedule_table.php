@@ -18,6 +18,7 @@ class CreateCourseScheduleTable extends Migration
             $table->unsignedInteger('course_id')->index();
             $table->unsignedInteger('version')->index();
             $table->dateTime('created_at');
+            $table->unsignedInteger('created_by')->index();
             $table->softDeletes();
         });
     }
