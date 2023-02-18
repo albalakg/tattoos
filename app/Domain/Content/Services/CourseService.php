@@ -218,7 +218,7 @@ class CourseService implements IContentService
   */
   public function createSchedule(int $course_id, array $lessons, int $created_by)
   {
-    $current_course_schedule  = $this->getCurrentCourseSchedule($course_id);
+    $current_course_schedule  = $this->getCourseSchedule($course_id);
     $new_course_schedule      = CourseSchedule::create([
       'course_id'   => $course_id,
       'version'     => $current_course_schedule ? $current_course_schedule->version + 1 : 1,
@@ -238,7 +238,7 @@ class CourseService implements IContentService
    * @param int $course_id
    * @return null|CourseSchedule
   */
-  public function getCurrentCourseSchedule(int $course_id): ?CourseSchedule
+  public function getCourseSchedule(int $course_id): ?CourseSchedule
   {
     return CourseSchedule::where('course_id', $course_id)->first();
   }

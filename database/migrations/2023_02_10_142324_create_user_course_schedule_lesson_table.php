@@ -15,7 +15,7 @@ class CreateUserCourseScheduleLessonTable extends Migration
     {
         Schema::create('user_course_schedule_lessons', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('course_schedule_id')->index();
+            $table->unsignedInteger('user_course_schedule_id')->index();
             $table->unsignedInteger('user_id')->index();
             $table->unsignedInteger('course_lesson_id')->index();
             $table->dateTime('date');
