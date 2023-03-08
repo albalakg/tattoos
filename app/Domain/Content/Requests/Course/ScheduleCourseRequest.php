@@ -3,10 +3,7 @@
 namespace App\Domain\Content\Requests\Course;
 
 use App\Rules\IDRule;
-use App\Domain\Content\Rules\StatusRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Rules\NameRule;
-use App\Rules\DescriptionRule;
 
 class ScheduleCourseRequest extends FormRequest
 {

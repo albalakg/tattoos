@@ -19,7 +19,7 @@ class CreateUserCourseScheduleLessonTable extends Migration
             $table->unsignedInteger('user_id')->index();
             $table->unsignedInteger('course_lesson_id')->index();
             $table->dateTime('date');
-            $table->dateTime('created_at');
+            $table->timestamps();
             $table->unsignedInteger('created_by')->index();
             $table->softDeletes();
         });

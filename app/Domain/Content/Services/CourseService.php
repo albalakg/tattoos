@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Models\CourseSchedule;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Models\CourseScheduleLesson;
+use App\Domain\Users\Models\UserCourseLesson;
+use App\Domain\Users\Models\UserCourseSchedule;
+use App\Domain\Users\Models\UserCourseScheduleLesson;
 
 class CourseService implements IContentService
 {
@@ -231,6 +234,7 @@ class CourseService implements IContentService
     if($current_course_schedule) {
       $this->deleteCourseScheduleLessons($current_course_schedule->id);
       $this->deleteCourseSchedule($current_course_schedule->id);
+      $this->updateAllUsersCourseSchedule($current_course_schedule->id, $new_course_schedule->id);
     }
   } 
     
@@ -342,6 +346,18 @@ class CourseService implements IContentService
   private function deleteCourseScheduleLessons(int $course_schedule_id)
   {
     return CourseScheduleLesson::where('course_schedule_id', $course_schedule_id)->delete();
+  }
+    
+  /**
+   * @param int $old_course_schedule_id
+   * @param int $new_course_schedule_id
+   * @return void
+  */
+  private function updateAllUsersCourseSchedule(int $old_course_schedule_id, int $new_course_schedule_id)
+  {
+    return UserCourseLesson::where('course_schedule_id', $old_course_schedule_id)->update([
+      'course_schedule_id' => $new_course_schedule_id
+    ]);
   }
 
   /**

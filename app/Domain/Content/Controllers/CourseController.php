@@ -13,12 +13,12 @@ use App\Domain\Content\Requests\Course\UpdateCourseRequest;
 use App\Domain\Content\Requests\Course\ScheduleCourseRequest;
 
 class CourseController extends Controller
-{  
+{
   /**
    * @var CourseService
-  */
+   */
   private $course_service;
-  
+
   public function __construct()
   {
     $this->course_service = new CourseService(
@@ -84,9 +84,7 @@ class CourseController extends Controller
       $response = $this->course_service->createSchedule($request->id, $request->lessonsId, Auth::user()->id);
       return $this->successResponse('Courses schedule created successfully', $response);
     } catch (Exception $ex) {
-      return $this->errorResponse(
-        $ex,
-      );
+      return $this->errorResponse($ex);
     }
   }
 

@@ -32,7 +32,7 @@ class UserFavoriteService
   {
     $this->content_service = $content_service;
     $this->user_service = $user_service;
-    $this->log_service = new LogService('userfavorites');
+    $this->log_service = new LogService('userFavorites');
   }
   
   /**

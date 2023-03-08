@@ -12,8 +12,6 @@ class UserCourseScheduleLesson extends Model
 
   protected $guarded = [];
 
-  public $timestamps = false;
-
   public function userCourseSchedule()
   {
     return $this->hasOne(UserCourseSchedule::class, 'id', 'user_course_schedule_id');

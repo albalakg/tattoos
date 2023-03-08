@@ -23,5 +23,6 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('favorites/add',            [UserController::class, 'addToFavorite']);
     Route::post('favorites/remove',         [UserController::class, 'removeFromFavorite']);
     Route::post('lesson/progress',          [UserController::class, 'setLessonProgress']);
+    Route::post('lesson/schedule',          [UserController::class, 'scheduleLesson']);
     
 });

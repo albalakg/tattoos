@@ -145,23 +145,30 @@ return [
             'days' => 1,
         ],
 
-        'userfavorites' => [
+        'userFavorites' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/content/userfavorites/userfavorites.log'),
+            'path' => storage_path('logs/userFavorites/userFavorites.log'),
             'level' => 'debug',
             'days' => 1,
         ],
 
         'userCourses' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/content/userCourses/userCourses.log'),
+            'path' => storage_path('logs/userCourses/userCourses.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'userSchedules' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/userSchedules/userSchedules.log'),
             'level' => 'debug',
             'days' => 1,
         ],
 
         'completeUserCourse' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/content/completeUserCourse/completeUserCourse.log'),
+            'path' => storage_path('logs/completeUserCourse/completeUserCourse.log'),
             'level' => 'debug',
             'days' => 1,
         ],
