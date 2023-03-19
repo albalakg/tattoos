@@ -25,8 +25,8 @@ class TrainingOptionValue implements Rule
      */
     public function passes($attribute, $value)
     {
-        if(!is_int($value)) {
-            return false;
+        if(!is_string($value)) {
+            $value = (int) $value;
         }
 
         return $value > 0 && $value < PHP_INT_MAX;

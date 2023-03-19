@@ -308,9 +308,19 @@ class CourseLessonService implements IContentService
       if(isset($data['training_options'])) {
         $this->assignTrainingOptions($lesson->id, $data['training_options'], $created_by);
       }
-      $this->assignSkills($lesson->id, $data['skills'], $created_by);
-      $this->assignTerms($lesson->id, $data['terms'], $created_by);
-      $this->assignEquipment($lesson->id, $data['equipment'], $created_by);
+
+      if(isset($data['skills'])) {
+        $this->assignSkills($lesson->id, $data['skills'], $created_by);
+      }
+
+      if(isset($data['terms'])) {
+        $this->assignTerms($lesson->id, $data['terms'], $created_by);
+      }
+
+      if(isset($data['equipment'])) {
+        $this->assignEquipment($lesson->id, $data['equipment'], $created_by);
+      }
+
     } catch(Exception $ex) {
       FileService::delete($lesson->image);
       throw $ex;
@@ -320,6 +330,7 @@ class CourseLessonService implements IContentService
 
     return $this->baseQueryBuilder()
           ->where('course_lessons.id', $lesson->id)
+          ->with('skills', 'equipment', 'terms', 'trainingOptions')
           ->first();
   }
 
@@ -348,14 +359,28 @@ class CourseLessonService implements IContentService
     
     $lesson->save();
 
-    $this->assignTrainingOptions($lesson->id, $data['training_options'], $updated_by);
-    $this->assignSkills($lesson->id, $data['skills'], $updated_by);
-    $this->assignTerms($lesson->id, $data['terms'], $updated_by);
-    $this->assignEquipment($lesson->id, $data['equipment'], $updated_by);
+    if(isset($data['training_options'])) {
+      $this->assignTrainingOptions($lesson->id, $data['training_options'], $updated_by);
+    }
+
+    if(isset($data['skills'])) {
+      $this->assignSkills($lesson->id, $data['skills'], $updated_by);
+    }
+
+    if(isset($data['terms'])) {
+      $this->assignTerms($lesson->id, $data['terms'], $updated_by);
+    }
+
+    if(isset($data['equipment'])) {
+      $this->assignEquipment($lesson->id, $data['equipment'], $updated_by);
+    }
 
     $this->log_service->info('Lesson ' . $lesson->id . ' has been updated: ' . json_encode($lesson));
 
-    return $lesson;
+    return $this->baseQueryBuilder()
+          ->where('course_lessons.id', $lesson->id)
+          ->with('skills', 'equipment', 'terms', 'trainingOptions')
+          ->first();
   }
   
   /**
@@ -696,6 +721,7 @@ class CourseLessonService implements IContentService
               'course_lessons.course_area_id',
               'course_lessons.name',
               'course_lessons.content',
+              'course_lessons.image',
               'course_lessons.description',
               'course_lessons.status',
               'course_lessons.view_order',

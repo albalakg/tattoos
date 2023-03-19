@@ -86,8 +86,8 @@ class CourseService implements IContentService
   public function getGuestCourseById(int $course_id): Course
   {
     return  Course::where('id', $course_id)
-                  ->with('guestActiveAreasWithActiveLessons', 'category', 'details')
-                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order')
+                  ->with('guestActiveAreasWithActiveLessons', 'category', 'details', 'recommendations')
+                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order', 'price')
                   ->first();
   }
 
@@ -116,7 +116,7 @@ class CourseService implements IContentService
   public function getCoursesFullContent(array $courses_ids): Collection
   {
     return Course::whereIn('id', $courses_ids)
-                 ->with('activeAreasWithActiveLessons', 'category', 'details')
+                 ->with('activeAreasWithActiveLessons', 'category', 'details', 'recommendations')
                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order')
                  ->orderBy('view_order')
                  ->get();
