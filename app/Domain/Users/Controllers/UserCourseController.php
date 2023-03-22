@@ -14,10 +14,7 @@ use App\Domain\Users\Requests\CreateTestCommentRequest;
 
 class UserCourseController extends Controller
 {  
-  /**
-   * @var UserCourseService
-  */
-  private $user_course_service;
+  private UserCourseService $user_course_service;
   
   public function __construct()
   {

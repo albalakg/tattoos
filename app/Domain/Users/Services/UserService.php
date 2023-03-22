@@ -362,7 +362,7 @@ class UserService
   {
     try {
       $user             = new User();
-      $user->role_id    = $data['role_id'];
+      $user->role_id    = Role::getRoleId($data['role']);
       $user->status     = StatusService::PENDING;
       $user->email      = $data['email'];
       $user->password   = bcrypt($data['password']);

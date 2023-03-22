@@ -113,10 +113,11 @@ class UserController extends Controller
     }
   }
 
-  public function delete(DeleteUsersRequest $request, UserService $user_service)
+  public function delete(DeleteUsersRequest $request)
   {
     try {
-      $response = $user_service->deleteUsers($request->ids, Auth::user()->id);
+      $user_service = new UserService;
+      $response     = $user_service->deleteUsers($request->ids, Auth::user()->id);
       return $this->successResponse('Users deleted', $response);
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
@@ -128,7 +129,7 @@ class UserController extends Controller
   {
     try {
       $user_service = new UserService;
-      $response = $user_service->getAll();
+      $response     = $user_service->getAll();
       return $this->successResponse('Users fetched', $response);
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
