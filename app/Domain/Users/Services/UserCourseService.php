@@ -14,25 +14,17 @@ use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Users\Models\UserCourseLesson;
 use App\Events\Users\UserCourseDisabledEvent;
 use App\Domain\Content\Services\CourseService;
+use App\Domain\Users\Models\UserCourseSchedule;
 use App\Domain\Users\Models\UserCourseSubmission;
 use App\Domain\Users\Models\UserCourseSubmissionComment;
 
 class UserCourseService
 {
-  /**
-   * @var LogService
-  */
-  private $log_service;
+  private LogService $log_service;
 
-  /**
-   * @var CourseService|null
-  */
-  private $course_service;
+  private CourseService|null $course_service;
 
-  /**
-   * @var UserService|null
-  */
-  private $user_service;
+  private UserService|null $user_service;
 
   const DEFAULT_USER_COURSE_PERIOD = 12; // in months
 
@@ -206,6 +198,8 @@ class UserCourseService
     $user = $this->user_service->getUserByID($data->user_id);
     $course = $this->course_service->getCourse($data->course_id);
 
+    $this->storeUserCourseSchedule($user_course);
+
     $mail_service = new MailService;
     $mail_service->delay()->send(
       $user->email,
@@ -240,6 +234,8 @@ class UserCourseService
       $user_course->status      = StatusService::ACTIVE;
       $user_course->created_by  = $user_id;
       $user_course->save();
+      
+      $this->storeUserCourseSchedule($user_course);
 
       $this->log_service->info('User ' . $user_id . ' has been assigned to course ' . $content_id);
 
@@ -272,6 +268,18 @@ class UserCourseService
 
     return $user_course;
   }
+  
+  /**
+   * @param string $path
+   * @param int $deleted_by
+   * @return void
+  */
+  public function multipleDelete(array $ids, int $deleted_by)
+  {
+    foreach($ids AS $term_id) {
+      $this->delete($term_id, $deleted_by);
+    }
+  } 
   
   /**
    * @param int $user_course_id
@@ -360,5 +368,21 @@ class UserCourseService
   {
     $end_date = new Carbon($user_course->end_at);
     return $end_date->isPast();
+  }
+
+  private function storeUserCourseSchedule(UserCourse $user_course)
+  {
+    $course_schedule = $this->course_service->getCourseSchedule($user_course->course_id);
+    if(!$course_schedule) {
+      $this->log_service->info('Unable to set schedule for user "' . $user_course->user_id . '" to course "' . $user_course->course_id . '", schedule not found');
+      return;
+    }
+
+    UserCourseSchedule::create([
+      'course_schedule_id'  => $user_course->id,
+      'user_id'             => $user_course->user_id,
+      'start_date'          => now(),
+      'created_at'          => now()
+    ]);
   }
 }

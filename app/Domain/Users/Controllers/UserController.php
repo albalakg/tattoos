@@ -23,7 +23,9 @@ use App\Domain\Users\Requests\UpdateUserEmailRequest;
 use App\Domain\Support\Services\SupportCategoryService;
 use App\Domain\Users\Requests\UpdateUserPasswordRequest;
 use App\Domain\Users\Requests\UserLessonProgressRequest;
+use App\Domain\Users\Services\UserCourseScheduleService;
 use App\Domain\Users\Requests\LandedOnPageNotFoundRequest;
+use App\Domain\Users\Requests\ScheduleUserCourseLessonRequest;
 
 class UserController extends Controller
 {
@@ -111,10 +113,11 @@ class UserController extends Controller
     }
   }
 
-  public function delete(DeleteUsersRequest $request, UserService $user_service)
+  public function delete(DeleteUsersRequest $request)
   {
     try {
-      $response = $user_service->deleteUsers($request->ids, Auth::user()->id);
+      $user_service = new UserService;
+      $response     = $user_service->deleteUsers($request->ids, Auth::user()->id);
       return $this->successResponse('Users deleted', $response);
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
@@ -126,7 +129,7 @@ class UserController extends Controller
   {
     try {
       $user_service = new UserService;
-      $response = $user_service->getAll();
+      $response     = $user_service->getAll();
       return $this->successResponse('Users fetched', $response);
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
@@ -149,10 +152,13 @@ class UserController extends Controller
   {
     try {
       $user_service = new UserService(
-        new ContentService
+        new ContentService,
+        null,
+        null,
+        new UserCourseScheduleService
       );
       
-      $response = $user_service->getUserCourses(Auth::user(), StatusService::ACTIVE);
+      $response = $user_service->getUserCourses(Auth::user()->id, StatusService::ACTIVE);
       return $this->successResponse('Fetched user active courses', $response);
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
@@ -288,6 +294,17 @@ class UserController extends Controller
       $log_service = new LogService('users');
       $log_service->error('Landed on page not found with url: ' . $request->path);
       return $this->successResponse('Registered successfully');
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function scheduleLesson(ScheduleUserCourseLessonRequest $request)
+  {
+    try {
+      $user_course_schedule_service = new UserCourseScheduleService;
+      $response = $user_course_schedule_service->scheduleLesson($request->id, $request->date, Auth::user()->id);
+      return $this->successResponse('User course lesson rescheduled successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

@@ -30,7 +30,7 @@ class Role extends Model
   */
   static public function getRoleId(string $role_name) :int
   {
-    return self::ROLES_LIST[$role_name];
+    return self::ROLES_LIST[strtolower($role_name)];
   }     
 
   /**

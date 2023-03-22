@@ -43,6 +43,10 @@ class ContentFaker
     'קונוס', 'כדור', 'שער', 'דשא', 'מגרש'
   ];
 
+  const TRAINING_OPTIONS_NAMES = [
+    'שעה', 'דקות', 'שעות', 'ימים'
+  ];
+
   const DESCRIPTIONS = [
     'תוכן אקראי בשביל למלא מקום',
     'לא משהו רציני סתם שטות',
@@ -144,6 +148,14 @@ class ContentFaker
   static public function getEquipmentName(): string
   {
     return self::EQUIPMENT_NAMES[random_int(0, count(self::EQUIPMENT_NAMES) - 1)];
+  }
+  
+  /**
+   * @return string
+  */
+  static public function getTrainingOptionName(): string
+  {
+    return self::TRAINING_OPTIONS_NAMES[random_int(0, count(self::TRAINING_OPTIONS_NAMES) - 1)];
   }
   
   /**

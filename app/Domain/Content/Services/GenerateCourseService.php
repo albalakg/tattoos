@@ -34,6 +34,8 @@ class GenerateCourseService
   
   private TrainerService $trainer_service;
 
+  private TrainingOptionService $training_option_service;
+
   private int $total_course_areas = 6;
   
   private int $total_lessons = 80;
@@ -58,7 +60,7 @@ class GenerateCourseService
   
   private array $lessons_meta_data = [];
 
-  private array $created_lessons = [];
+  private array $created_course_lessons = [];
   
   private array $videos_meta_data = [];
 
@@ -76,6 +78,14 @@ class GenerateCourseService
 
   private array $created_equipment = [];
   
+  private array $trainers_meta_data = [];
+
+  private array $created_trainers = [];
+  
+  private array $training_options_meta_data = [];
+
+  private array $created_training_options = [];
+  
   public function __construct(
     CourseService $course_service,
     CourseAreaService $course_area_service,
@@ -86,6 +96,7 @@ class GenerateCourseService
     SkillService $skill_service,
     TermService $term_service,
     EquipmentService $equipment_service,
+    TrainingOptionService $training_option_service
   )
   {
     $this->course_category_service  = $course_category_service;
@@ -97,6 +108,7 @@ class GenerateCourseService
     $this->skill_service            = $skill_service;
     $this->term_service             = $term_service;
     $this->equipment_service        = $equipment_service;
+    $this->training_option_service  = $training_option_service;
   }
   
   /**
@@ -209,6 +221,9 @@ class GenerateCourseService
 
     $this->buildEquipmentMetaData();
     $this->saveEquipment();
+
+    $this->buildTrainingOptionsMetaData();
+    $this->saveTrainingOptions();
 
     $this->buildCourseCategoryMetaData();
     $this->saveCourseCategory();
@@ -392,6 +407,30 @@ class GenerateCourseService
     foreach($this->equipment_meta_data AS $equipment) {
       try {
         $this->created_equipment[] = $this->equipment_service->create($equipment, 0);
+      } catch(Exception $ex) {
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
+      }
+    }
+  }
+
+  private function buildTrainingOptionsMetaData()
+  {
+    for($index = 0; $index < $this->total_equipment; $index++) {
+      try {
+        $this->training_options_meta_data[] = [
+          'name' => ContentFaker::getTrainingOptionName() . ' ' . Str::random(5),
+        ];
+      } catch(Exception $ex) {
+        $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
+      }
+    }
+  }
+
+  private function saveTrainingOptions()
+  {
+    foreach($this->training_options_meta_data AS $training_options) {
+      try {
+        $this->created_training_options[] = $this->training_option_service->create($training_options, 0);
       } catch(Exception $ex) {
         $this->errors[] = __METHOD__ . ': ' . $ex->__toString();
       }

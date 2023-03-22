@@ -14,6 +14,7 @@ use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Services\CourseLessonService;
 use App\Domain\Content\Services\CourseCategoryService;
 use App\Domain\Content\Services\GenerateCourseService;
+use App\Domain\Content\Services\TrainingOptionService;
 
 class CourseGenerator extends Command
 {
@@ -54,9 +55,10 @@ class CourseGenerator extends Command
                 new CourseAreaService,
                 new CourseLessonService(
                     new CourseAreaService,
-                    new SkillService(),
-                    new TermService(),
-                    new EquipmentService()
+                    new SkillService,
+                    new TermService,
+                    new EquipmentService,
+                    new TrainingOptionService,
                 ),
                 new CourseCategoryService,
                 new VideoService,
@@ -64,6 +66,7 @@ class CourseGenerator extends Command
                 new SkillService,
                 new TermService,
                 new EquipmentService,
+                new TrainingOptionService
             );
  
             $course_generator->generate();

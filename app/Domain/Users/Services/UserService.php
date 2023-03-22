@@ -25,35 +25,23 @@ use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Models\UserCourseLessonWatch;
+use App\Domain\Users\Models\UserCourseSchedule;
 use App\Domain\Users\Models\UserEmailVerification;
 use App\Mail\Auth\ForgotPasswordMail;
 
 class UserService
 {  
-  /**
-   * @var ContentService
-  */
-  private $content_service;
+  private ?ContentService $content_service;
   
-  /**
-   * @var SupportService
-  */
-  private $support_service;
+  private ?SupportService $support_service;
   
-  /**
-   * @var OrderService
-  */
-  private $order_service;
+  private ?OrderService $order_service;
   
-  /**
-   * @var LogService
-  */
-  private $log_service;
+  private LogService $log_service;
   
-  /**
-   * @var UserCours|null
-  */
-  private $user_course;
+  private ?UserCourse $user_course;
+  
+  private ?UserCourseScheduleService $user_course_schedule_service;
     
   /**
    * @param ContentService $content_service
@@ -61,12 +49,18 @@ class UserService
    * @param OrderService $order_service
    * @return void
   */
-  public function __construct(ContentService $content_service = null, SupportService $support_service = null, OrderService $order_service = null)
+  public function __construct(
+    ContentService $content_service = null, 
+    SupportService $support_service = null, 
+    OrderService $order_service = null, 
+    UserCourseScheduleService $user_course_schedule_service = null
+  )
   {
-    $this->content_service  = $content_service;
-    $this->support_service  = $support_service;
-    $this->order_service    = $order_service;
-    $this->log_service      = new LogService('users');
+    $this->content_service              = $content_service;
+    $this->support_service              = $support_service;
+    $this->order_service                = $order_service;
+    $this->user_course_schedule_service = $user_course_schedule_service;
+    $this->log_service                  = new LogService('users');
   }
   
   /**
@@ -153,19 +147,31 @@ class UserService
   }
   
   /**
-   * @param Object $user
+   * @param int $user_id
    * @param int $status
    * @return Collection|null
   */
-  public function getUserCourses(Object $user, int $status = null): ?Collection
+  public function getUserCourses(int $user_id, int $status = null): ?Collection
   {
-    $user_courses = UserCourse::where('user_id', $user->id);
+    $user_courses = UserCourse::where('user_id', $user_id);
     if(!is_null($status)) {
       $user_courses = $user_courses->where('status', $status);
     }
     
-    $user_courses = $user_courses->select('id', 'course_id', 'progress')->pluck('course_id');
-    $courses      = $this->content_service->getCoursesFullContent($user_courses->toArray());
+    $user_courses   = $user_courses->select('id', 'course_id', 'progress')->pluck('course_id');
+    $courses        = $this->content_service->getCoursesFullContent($user_courses->toArray());
+    $user_schedules = $this->user_course_schedule_service->getUserCourseScheduleWithScheduleCourseByUserId($user_id); 
+
+    foreach($courses AS $course) {
+      foreach($course->activeAreasWithActiveLessons AS $course_area) {
+        foreach($course_area->activeLessons AS $lesson) {
+          $user_schedule_lesson_date = $user_schedules->where('course_lesson_id', $lesson->id)->first();
+          if($user_schedule_lesson_date && $lesson->schedule) {
+            $lesson->schedule->date = $user_schedule_lesson_date['date'];
+          }
+        }
+      }
+    }
 
     return $courses;
   }
@@ -356,7 +362,7 @@ class UserService
   {
     try {
       $user             = new User();
-      $user->role_id    = $data['role_id'];
+      $user->role_id    = Role::getRoleId($data['role']);
       $user->status     = StatusService::PENDING;
       $user->email      = $data['email'];
       $user->password   = bcrypt($data['password']);

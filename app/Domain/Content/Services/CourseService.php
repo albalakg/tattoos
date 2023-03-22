@@ -10,7 +10,12 @@ use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
 use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Content\Models\CourseSchedule;
 use App\Domain\Content\Services\CourseAreaService;
+use App\Domain\Content\Models\CourseScheduleLesson;
+use App\Domain\Users\Models\UserCourseLesson;
+use App\Domain\Users\Models\UserCourseSchedule;
+use App\Domain\Users\Models\UserCourseScheduleLesson;
 
 class CourseService implements IContentService
 {
@@ -81,8 +86,8 @@ class CourseService implements IContentService
   public function getGuestCourseById(int $course_id): Course
   {
     return  Course::where('id', $course_id)
-                  ->with('guestActiveAreasWithActiveLessons', 'category', 'details')
-                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order')
+                  ->with('guestActiveAreasWithActiveLessons', 'category', 'details', 'recommendations')
+                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order', 'price')
                   ->first();
   }
 
@@ -111,7 +116,7 @@ class CourseService implements IContentService
   public function getCoursesFullContent(array $courses_ids): Collection
   {
     return Course::whereIn('id', $courses_ids)
-                 ->with('activeAreasWithActiveLessons', 'category', 'details')
+                 ->with('activeAreasWithActiveLessons', 'category', 'details', 'recommendations')
                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order')
                  ->orderBy('view_order')
                  ->get();
@@ -209,7 +214,41 @@ class CourseService implements IContentService
   }
   
   /**
-   * @param string $path
+   * @param int $course_id
+   * @param array $lessons
+   * @param int $created_by
+   * @return void
+  */
+  public function createSchedule(int $course_id, array $lessons, int $created_by)
+  {
+    $current_course_schedule  = $this->getCourseSchedule($course_id);
+    $new_course_schedule      = CourseSchedule::create([
+      'course_id'   => $course_id,
+      'version'     => $current_course_schedule ? $current_course_schedule->version + 1 : 1,
+      'created_at'  => now(),
+      'created_by'  => $created_by,
+    ]);
+
+    $this->createScheduleLessons($new_course_schedule, $lessons, $created_by);
+
+    if($current_course_schedule) {
+      $this->deleteCourseScheduleLessons($current_course_schedule->id);
+      $this->deleteCourseSchedule($current_course_schedule->id);
+      $this->updateAllUsersCourseSchedule($current_course_schedule->id, $new_course_schedule->id);
+    }
+  } 
+    
+  /**
+   * @param int $course_id
+   * @return null|CourseSchedule
+  */
+  public function getCourseSchedule(int $course_id): ?CourseSchedule
+  {
+    return CourseSchedule::where('course_id', $course_id)->first();
+  }
+
+  /**
+   * @param array $ids
    * @param int $deleted_by
    * @return void
   */
@@ -289,6 +328,56 @@ class CourseService implements IContentService
   private function isCourseInUsed(int $course_id): bool
   {
     return $this->course_area_service->isCourseInUsed($course_id);
+  }
+   
+  /**
+   * @param int $course_schedule_id
+   * @return void
+  */
+  private function deleteCourseSchedule(int $course_schedule_id)
+  {
+    return CourseSchedule::where('id', $course_schedule_id)->delete();
+  }
+    
+  /**
+   * @param int $course_schedule_id
+   * @return void
+  */
+  private function deleteCourseScheduleLessons(int $course_schedule_id)
+  {
+    return CourseScheduleLesson::where('course_schedule_id', $course_schedule_id)->delete();
+  }
+    
+  /**
+   * @param int $old_course_schedule_id
+   * @param int $new_course_schedule_id
+   * @return void
+  */
+  private function updateAllUsersCourseSchedule(int $old_course_schedule_id, int $new_course_schedule_id)
+  {
+    return UserCourseLesson::where('course_schedule_id', $old_course_schedule_id)->update([
+      'course_schedule_id' => $new_course_schedule_id
+    ]);
+  }
+
+  /**
+   * @param CourseSchedule $new_course_schedule
+   * @param array $lessons
+   * @param int $created_by
+   * @return void
+  */
+  private function createScheduleLessons(CourseSchedule $new_course_schedule, array $lessons, int $created_by)
+  {
+    CourseScheduleLesson::insert(array_map(function($lesson) use($new_course_schedule, $created_by) {
+      return [
+        'course_schedule_id'  => $new_course_schedule->id,
+        'course_id'           => $new_course_schedule->course_id,
+        'course_lesson_id'    => $lesson['id'],
+        'date'                => $lesson['date'] ?? now(),
+        'created_at'          => now(),
+        'created_by'          => $created_by,
+      ];
+    }, $lessons));
   }
 
   /**
