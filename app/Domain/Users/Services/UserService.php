@@ -163,10 +163,10 @@ class UserService
     $user_schedules = $this->user_course_schedule_service->getUserCourseScheduleWithScheduleCourseByUserId($user_id); 
 
     foreach($courses AS $course) {
-      foreach($course->activeAreasWithActiveLessons AS $courseArea) {
-        foreach($courseArea->activeLessons AS $lesson) {
+      foreach($course->activeAreasWithActiveLessons AS $course_area) {
+        foreach($course_area->activeLessons AS $lesson) {
           $user_schedule_lesson_date = $user_schedules->where('course_lesson_id', $lesson->id)->first();
-          if($user_schedule_lesson_date) {
+          if($user_schedule_lesson_date && $lesson->schedule) {
             $lesson->schedule->date = $user_schedule_lesson_date['date'];
           }
         }

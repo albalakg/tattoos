@@ -9,6 +9,7 @@ use App\Domain\Users\Services\UserService;
 use App\Domain\Content\Services\CourseService;
 use App\Domain\Users\Services\UserCourseService;
 use App\Domain\Users\Requests\CreateUserCourseRequest;
+use App\Domain\Users\Requests\DeleteUserCourseRequest;
 use App\Domain\Users\Requests\UpdateTestStatusRequest;
 use App\Domain\Users\Requests\CreateTestCommentRequest;
 
@@ -78,6 +79,16 @@ class UserCourseController extends Controller
   {
     try {
       $response = $this->user_course_service->createByAdmin($request, Auth::user()->id);
+      return $this->successResponse('User Course created', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  } 
+  
+  public function delete(DeleteUserCourseRequest $request)
+  {
+    try {
+      $response = $this->user_course_service->multipleDelete($request->ids, Auth::user()->id);
       return $this->successResponse('User Course created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

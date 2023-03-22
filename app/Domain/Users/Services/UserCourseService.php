@@ -270,6 +270,18 @@ class UserCourseService
   }
   
   /**
+   * @param string $path
+   * @param int $deleted_by
+   * @return void
+  */
+  public function multipleDelete(array $ids, int $deleted_by)
+  {
+    foreach($ids AS $term_id) {
+      $this->delete($term_id, $deleted_by);
+    }
+  } 
+  
+  /**
    * @param int $user_course_id
    * @param int $deleted_by
    * @return void
