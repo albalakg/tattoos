@@ -37,6 +37,11 @@
 # runs the application
 # run php artisan serve
 
+# How to deploy to production
+# ------
+# Create a pull request from "develop" -> "main" and merge it
+# it will deploy it automatically from the "main" branch right after
+
 
 
 # A user to login
