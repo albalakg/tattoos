@@ -19,7 +19,7 @@ class CreateVideoRequest extends FormRequest
             'name'          => ['required', new NameRule],
             'description'   => ['nullable', new DescriptionRule],
             'video_length'  => ['required', 'int', 'min:1'],
-            'file'          => ['required', 'file', 'max:20000']
+            'file'          => ['required', 'file', 'max:100000']
         ];
     }
 }
