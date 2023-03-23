@@ -4,7 +4,7 @@
 
 # Step 2
 # ------
-# create database with the db name as in the .env file
+# go to branch development
 
 # Step 3
 # ------
@@ -13,33 +13,38 @@
 
 # Step 4
 # ------
+# install of the application dependencies
+# run composer install
+
+# Step 5
+# ------
 # generate a unique key for the application
 # that key is used for encryptions
 # run php artisan key:generate
 
-# Step 5
+# Step 6
 # ------
 # migrates the tables to the database
 # run php artisan migrate
 
-# Step 6
+# Step 7
 # ------
 # creates default records for the application
 # run php artisan db:seed
 
-# Step 7
+# Step 8
 # ------
 # inserts unique keys for the authentication 
 # run php artisan passport:install
 
-# Step 8
+# Step 9
 # ------
 # runs the application
 # run php artisan serve
 
 # How to deploy to production
 # ------
-# Create a pull request from "develop" -> "main" and merge it
+# create a pull request from "develop" -> "main" and merge it
 # it will deploy it automatically from the "main" branch right after
 
 
