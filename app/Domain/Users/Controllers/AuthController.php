@@ -28,7 +28,6 @@ class AuthController extends Controller
   public function login(LoginRequest $request, LoginService $login_service)
   {
     try {
-      throw new Exception('haha');
       $userData = $login_service->attempt($request)->getResponse();
       return $this->successResponse('Logged', $userData);
     } catch (Exception $ex) {
