@@ -65,8 +65,9 @@ class Controller extends BaseController
     */
     protected function errorResponse(Exception $exception, $data = null, $status = Response::HTTP_BAD_REQUEST) : JsonResponse
     {
-        $logger = new LogService($exception->service ?? LogService::DEFAULT_CHANNEL, Auth::user());
-        $logger->error($exception);
+        $logger     = new LogService($exception->service ?? LogService::DEFAULT_CHANNEL, Auth::user());
+        $log_level  = isset($exception->log_level) ? $exception->log_level : 'error';
+        $logger->$log_level($exception);
 
         $debug_error = [
             'ErrorMessage'  => $exception->getMessage(),
@@ -86,7 +87,7 @@ class Controller extends BaseController
 
         return response()->json(
             $error_data,
-            $status
+            $status ? $status : 400
         );
     }
 }

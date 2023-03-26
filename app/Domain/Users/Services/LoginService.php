@@ -55,7 +55,7 @@ class LoginService
         $this->writeLoginAttempt($request, $attempt);
 
         if(!$attempt) {
-            throw new Exception('Email or password is invalid');
+            throw new Exception('Email or password is invalid', 422);
         }
 
         $this->user = Auth::user();

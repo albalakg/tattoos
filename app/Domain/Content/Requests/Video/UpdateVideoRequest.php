@@ -22,7 +22,7 @@ class UpdateVideoRequest extends FormRequest
             'name'          => ['required', new NameRule],
             'description'   => ['nullable', new DescriptionRule],
             'status'        => ['required', new StatusRule],
-            'video_length'  => ['required', 'int', 'min:1'],
+            'video_length'  => ['nullable', 'int', 'min:1'],
             'file'          => ['nullable', 'file', 'max:100000']
         ];
     }

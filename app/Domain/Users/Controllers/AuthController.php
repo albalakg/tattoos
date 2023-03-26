@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Controllers;
 
+use App\Domain\Helpers\LogService;
 use Exception;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
@@ -17,14 +18,24 @@ use App\Domain\Users\Requests\ForgotPasswordRequest;
 
 class AuthController extends Controller
 {
+  private LogService $log_service;
+
+  public function __construct()
+  {
+    $this->log_service = new LogService('auth');
+  }
+  
   public function login(LoginRequest $request, LoginService $login_service)
   {
     try {
       $userData = $login_service->attempt($request)->getResponse();
       return $this->successResponse('Logged', $userData);
     } catch (Exception $ex) {
+      if($ex->getCode() !== 422) {
+        $ex->log_level = 'critical';
+      }
       $ex->service = 'auth';
-      return $this->errorResponse($ex);
+      return $this->errorResponse($ex, null, $ex->getCode());
     }
   }
 
