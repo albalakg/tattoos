@@ -101,6 +101,7 @@ class Course extends Model
         return $this->hasMany(CourseArea::class, 'course_id', 'id')
                     ->where('status', StatusService::ACTIVE)
                     ->with('guestActiveLessons')
+                    ->orderBy('view_order')
                     ->select('id', 'name', 'course_id', 'description', 'view_order', 'image', 'trailer');
     }
 
@@ -109,6 +110,7 @@ class Course extends Model
         return $this->hasMany(CourseArea::class, 'course_id', 'id')
                     ->where('status', StatusService::ACTIVE)
                     ->with('activeLessons', 'trainer')
+                    ->orderBy('view_order')
                     ->select('id', 'name', 'course_id', 'description', 'view_order', 'image', 'trainer_id');
     }
 

@@ -372,6 +372,8 @@ class UserService
       $data['user_id']    = $user->id;
       $this->log_service->info('User ' . $user['id'] . ' has been created by ' . $created_by);
       $this->createUserDetails($data, $created_by);
+      $email_verification = $this->saveEmailVerification($user, $user->email);
+      $this->verifyEmail($user->email, $email_verification->token, true);
 
       return $user;
     } catch(Exception $ex) {
@@ -405,13 +407,11 @@ class UserService
     $user             = User::find($data['id']);
     $user->role_id    = Role::ROLES_LIST[strtolower($data['role'])];
     $user->status     = StatusService::PENDING;
-    $user->email      = $data['email'];
-    $user->password   = bcrypt($data['password']);
-    $user->updated_by = $data['updated_by'];
     $user->save();
 
     $this->log_service->info('User ' . $data['id'] . ', main data was updated by ' . $updated_by);
 
+    $data['user_id'] = $user->id;
     $this->updateUserDetails($data, $updated_by);
 
     return $data;
@@ -702,20 +702,24 @@ class UserService
   /**
    * @param string $email
    * @param string $token
+   * @param bool $bypass_verification
    * @return Void
   */
-  public function verifyEmail(string $email, string $token)
+  public function verifyEmail(string $email, string $token, bool $bypass_verification = false)
   {
     $verification = UserEmailVerification::where('email', $email)
-                                        ->where('token', $token)
-                                        ->first();
-    if(!$verification) {
-      $this->log_service->info("Failed to verify the email with the token: $token");
-      throw new Exception('Failed to verify email');
-    }
+                                          ->where('token', $token)
+                                          ->first();
 
-    if($verification->verified_at) {
-      return;
+    if(!$bypass_verification) {
+      if(!$verification) {
+        $this->log_service->info("Failed to verify the email with the token: $token");
+        throw new Exception('Failed to verify email');
+      }
+  
+      if($verification->verified_at) {
+        return;
+      }
     }
     
     $user = $this->getUserByEmail($email);
