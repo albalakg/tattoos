@@ -259,7 +259,7 @@ class CourseAreaService implements IContentService
   */
   private function validateIfCanDelete(int $course_area_id)
   {
-    if(!$course_area = CourseArea::withTruncate()->find($course_area_id)) {
+    if(!$course_area = CourseArea::find($course_area_id)) {
       throw new Exception('Course Area not found');
     }
 
