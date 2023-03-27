@@ -22,7 +22,7 @@ class CreateCourseAreaRequest extends FormRequest
             'trainer_id'    => ['required', new IDRule],
             'description'   => ['nullable', new DescriptionRule],
             'image'         => ['required', 'file', 'max:5000'],
-            'trailer'       => ['required', 'file', 'max:10000'],
+            'trailer'       => ['nullable', 'file', 'max:10000'],
             'price'         => 'nullable|numeric|min:1',
             'discount'      => 'nullable|numeric|min:1',
             'lessons'       => 'nullable|array|between:0,100',

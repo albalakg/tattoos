@@ -406,7 +406,7 @@ class UserService
   {
     $user             = User::find($data['id']);
     $user->role_id    = Role::ROLES_LIST[strtolower($data['role'])];
-    $user->status     = StatusService::PENDING;
+    $user->status     = $data['status'];
     $user->save();
 
     $this->log_service->info('User ' . $data['id'] . ', main data was updated by ' . $updated_by);

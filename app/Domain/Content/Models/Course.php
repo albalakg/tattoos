@@ -90,6 +90,11 @@ class Course extends Model
                     ->where('status', StatusService::PENDING);
     }
 
+    public function schedules()
+    {
+        return $this->hasMany(CourseScheduleLesson::class, 'course_id', 'id');
+    }
+
     public function areasWithLessons()
     {
         return $this->hasMany(CourseArea::class, 'course_id', 'id')

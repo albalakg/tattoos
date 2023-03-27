@@ -21,7 +21,7 @@ class CreateCourseRequest extends FormRequest
             'name'          => ['required', new NameRule],
             'description'   => ['nullable', new DescriptionRule],
             'image'         => ['required', 'file', 'max:5000'],
-            'trailer'       => ['required', 'file', 'max:10000'],
+            'trailer'       => ['nullable', 'file', 'max:10000'],
             'price'         => 'nullable|numeric|min:1',
             'discount'      => 'nullable|numeric|min:1',
         ];
