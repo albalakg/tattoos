@@ -10,6 +10,9 @@ class CourseScheduleLesson extends Model
 {
     use SoftDeletes;
 
+    const LESSON_TYPE_ID    = 1,
+          TRAINING_TYPE_ID  = 2;
+
     public $timestamps = false;
     
     protected $guarded = [];
