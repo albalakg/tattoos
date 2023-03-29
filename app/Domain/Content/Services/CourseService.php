@@ -90,6 +90,16 @@ class CourseService implements IContentService
                   ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order', 'price')
                   ->first();
   }
+  
+  /**
+   * @return Course
+  */
+  public function getGuestOnlyCourse(): Course
+  {
+    return  Course::with('guestActiveAreasWithActiveLessons', 'category', 'details', 'recommendations')
+                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order', 'price')
+                  ->first();
+  }
 
   /**
    * @param int $category_id

@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
         
         $users = [
             [
-                'role_id'       => Role::NORMAL,
+                'role'          => 'admin',
                 'first_name'    => 'Goldens',
                 'last_name'     => 'Academy',
                 'email'         => 'demo@goldens.com',
