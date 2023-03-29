@@ -18,7 +18,7 @@ class CreateSkillRequest extends FormRequest
         return [
             'name'          => ['required', new NameRule],
             'description'   => ['nullable', new DescriptionRule],
-            'image'         => ['nullable', 'file', 'max:5000']
+            'image'         => ['nullable', 'file', 'max:50000']
         ];
     }
 }
