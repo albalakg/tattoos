@@ -10,6 +10,7 @@ use App\Domain\Content\Requests\Video\CreateVideoRequest;
 use App\Domain\Content\Requests\Video\UpdateVideoRequest;
 use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\CourseLessonService;
+use Illuminate\Support\Facades\Storage;
 
 class VideoController extends Controller
 {

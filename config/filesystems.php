@@ -41,6 +41,8 @@ return [
     |
     */
 
+    'only_bucket' => env('AWS_BUCKET'),
+
     'disks' => [
 
         'local' => [
