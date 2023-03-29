@@ -39,7 +39,8 @@ class CourseController extends Controller
   public function getCourse($id)
   {
     try {
-      $response = $this->course_service->getGuestCourseById($id);
+      $response = $this->course_service->getGuestOnlyCourse();
+      // $response = $this->course_service->getGuestCourseById($id);
       return $this->successResponse('Course created', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
