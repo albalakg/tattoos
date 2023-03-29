@@ -301,7 +301,7 @@ class CourseLessonService implements IContentService
     $lesson->name             = $data['name'];
     $lesson->content          = $data['content'];
     $lesson->description      = $data['description'];
-    $lesson->status           = $data['status']           ?? StatusService::PENDING;
+    $lesson->status           = $data['status'] ?? StatusService::PENDING;
 
     try {
       $lesson->save();
@@ -352,11 +352,11 @@ class CourseLessonService implements IContentService
 
     $lesson->course_id      = $this->course_area_service->getById($data['course_area_id'])->course_id;
     $lesson->course_area_id = $data['course_area_id'];
+    $lesson->video_id       = $data['video_id'];
     $lesson->name           = $data['name'];
     $lesson->content        = $data['content'];
     $lesson->description    = $data['description'];
     $lesson->status         = $data['status'];
-    
     $lesson->save();
 
     if(isset($data['training_options'])) {

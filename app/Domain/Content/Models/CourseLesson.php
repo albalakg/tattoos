@@ -52,7 +52,7 @@ class CourseLesson extends Model
     public function guestVideo()
     {
         return $this->hasOne(Video::class, 'id', 'video_id')
-                    ->select('id', 'video_length');
+                    ->select('id', 'video_length', 'video_path');
     }
     
     public function schedule()
