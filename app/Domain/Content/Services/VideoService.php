@@ -77,7 +77,7 @@ class VideoService implements IContentService
     $video->description  = $data['description'];
     $video->video_length = $data['video_length'];
     $video->status       = StatusService::ACTIVE;
-    $video->video_path   = FileService::create($data['file'], self::FILES_PATH);
+    $video->video_path   = FileService::create($data['file'], self::FILES_PATH, 's3');
     $video->created_by   = $created_by;
     $video->status       = $data['status'] ?? StatusService::PENDING;
 
@@ -105,7 +105,7 @@ class VideoService implements IContentService
 
     if(!empty($data['file'])) {
       FileService::delete($video->video_path);
-      $video->video_path   = FileService::create($data['file'], self::FILES_PATH);
+      $video->video_path   = FileService::create($data['file'], self::FILES_PATH, 's3');
       $video->video_length = $data['video_length'];
     }
 
@@ -115,7 +115,7 @@ class VideoService implements IContentService
 
     return $video;
   }
-  
+
   /**
    * @param string $path
    * @param int $deleted_by
