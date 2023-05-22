@@ -55,9 +55,10 @@ class UserController extends Controller
     }
   }
 
-  public function updateUserEmail(UpdateUserEmailRequest $request, UserService $user_service)
+  public function updateUserEmail(UpdateUserEmailRequest $request)
   {
     try {
+      $user_service = new UserService;
       $user_service->updateUserEmail($request->validated(), Auth::user()->id);
       return $this->successResponse('User\'s email updated');
     } catch (Exception $ex) {
@@ -66,9 +67,10 @@ class UserController extends Controller
     }
   }
 
-  public function updateUserPassword(UpdateUserPasswordRequest $request, UserService $user_service)
+  public function updateUserPassword(UpdateUserPasswordRequest $request)
   {
     try {
+      $user_service = new UserService;
       $user_service->updateUserPassword($request->validated(), Auth::user()->id);
       return $this->successResponse('User\'s password updated');
     } catch (Exception $ex) {
