@@ -18,7 +18,7 @@ class Video extends Model
 
     public function getVideoSrcAttribute()
     {
-        return config('content.videos') . '/' . $this->video_path;  
+        return config('content.videos') . '/' . str_replace('content/videos/', '', $this->video_path);  
     }   
 
     public function lessons()
