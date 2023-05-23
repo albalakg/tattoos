@@ -18,7 +18,7 @@ class Video extends Model
 
     public function getVideoSrcAttribute()
     {
-        return 'https://' . config('filesystems.only_bucket') . '.s3.amazonaws.com/' . $this->video_path;  
+        return config('content.videos') . '/' . $this->video_path;  
     }   
 
     public function lessons()
