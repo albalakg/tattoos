@@ -44,8 +44,6 @@ class AuthService extends BaseService
     return true;
   }
 
-  # TODO: Fix the logs info
-
   /**
    * Logout another user
    *
@@ -57,7 +55,7 @@ class AuthService extends BaseService
   {
     $logged_out_user = User::find($logged_out_user_id);
     if(!$logged_out_user) {
-      $this->log_service->info('User ' . $logged_out_user_id->id . ' not found');
+      $this->log_service->info('User not found', ['id' => $logged_out_user_id]);
       return false;
     }
 
@@ -65,7 +63,7 @@ class AuthService extends BaseService
     Auth::user()->token()->revoke();
     Auth::setUser($user);
 
-    $this->log_service->info('User ' . $logged_out_user_id->id . ' has been logged out');
+    $this->log_service->info('User has been logged out', ['id' => $logged_out_user_id]);
 
     return true;
   }

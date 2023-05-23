@@ -196,6 +196,6 @@ class LogService
     private function sendMail(Exception $ex)
     {
         $mail_service = new MailService;
-        $mail_service->send(MailService::SYSTEM_EMAILS, ApplicationErrorMail::class, ['content' => $ex->__toString()]);
+        $mail_service->send(MailService::SYSTEM_EMAILS, ApplicationErrorMail::class, ['data' => $ex]);
     }
 }

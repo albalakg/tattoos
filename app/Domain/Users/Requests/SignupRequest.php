@@ -26,6 +26,7 @@ class SignupRequest extends FormRequest
             'last_name'     => ['required', new LastNameRule],
             'team'          => ['nullable', new TeamRule],
             'city'          => ['nullable', new CityRule],
+            'birth_date'    => ['nullable', 'date'],
             'phone'         => ['nullable', 'bail', new PhoneRule, 'unique:user_details,phone'],
         ];
     }

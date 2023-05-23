@@ -342,6 +342,7 @@ class UserService
       $this->log_service->info('User ' . $user->id . 'completed sign up, part 2');
       $this->saveEmailVerification($user, $user->email);
       $this->log_service->info('User ' . $user->id . 'completed sign up, part 3');
+      event(new UserCreatedEvent($user));
       return $user;
     } catch(Exception $ex) {
       if(isset($user) && $user) {
@@ -374,6 +375,7 @@ class UserService
       $this->createUserDetails($data, $created_by);
       $email_verification = $this->saveEmailVerification($user, $user->email);
       $this->verifyEmail($user->email, $email_verification->token, true);
+      event(new UserCreatedEvent($user));
 
       return $user;
     } catch(Exception $ex) {
@@ -429,6 +431,7 @@ class UserService
     $user->last_name  = $data['last_name'];
     $user->phone      = $data['phone'];
     $user->gender     = $data['gender'];
+    $user->birth_date = $data['birth_date'];
     $user->team_id    = $this->getTeamId($data['team'] ?? null, $user->id);
     $user->city_id    = $this->getCityId($data['city'] ?? null, $user->id);
 
@@ -748,8 +751,6 @@ class UserService
     ]);
 
     $this->log_service->info('Sent verification mail for changing the email');
-
-    event(new UserCreatedEvent($user));
     return $email_verification;
   }
 
