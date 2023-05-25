@@ -5,13 +5,13 @@ namespace App\Domain\Content\Controllers;
 use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Domain\Content\Requests\DeleteRequest;
-use App\Domain\Content\Services\CouponService;
-use App\Domain\Content\Requests\GetCouponRequest;
-use App\Domain\Content\Requests\CreateCouponRequest;
-use App\Domain\Content\Requests\UpdateCouponRequest;
 use App\Domain\Content\Services\CourseLessonService;
-use App\Domain\Content\Requests\UpdateCouponStatusRequest;
+use App\Domain\Content\Services\CouponService;
+use App\Domain\Content\Requests\DeleteRequest;
+use App\Domain\Content\Requests\CourseCoupon\GetCouponRequest;
+use App\Domain\Content\Requests\CourseCoupon\CreateCouponRequest;
+use App\Domain\Content\Requests\CourseCoupon\UpdateCouponRequest;
+use App\Domain\Content\Requests\CourseCoupon\UpdateCouponStatusRequest;
 
 class CouponController extends Controller
 {
