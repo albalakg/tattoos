@@ -319,7 +319,7 @@ class UserService
   public function logout(User $user)
   {
     $user->token()->revoke();
-    $this->log_service->info('User ' . $user->id . ' logged out successfully');
+    $this->log_service->info('User logged out successfully', ['id' => $user->id]);
   }
   
   /**
@@ -336,12 +336,12 @@ class UserService
       $user->password   = bcrypt($data['password']);
       $user->save();
 
-      $this->log_service->info('User ' . $user->id . 'completed sign up, part 1');
+      $this->log_service->info('User completed sign up, part 1', ['id' => $user->id]);
       $data['user_id'] = $user->id;
       $this->createUserDetails($data);
-      $this->log_service->info('User ' . $user->id . 'completed sign up, part 2');
+      $this->log_service->info('User completed sign up, part 2', ['id' => $user->id]);
       $this->saveEmailVerification($user, $user->email);
-      $this->log_service->info('User ' . $user->id . 'completed sign up, part 3');
+      $this->log_service->info('User completed sign up, part 3', ['id' => $user->id]);
       event(new UserCreatedEvent($user));
       return $user;
     } catch(Exception $ex) {
@@ -371,7 +371,7 @@ class UserService
       $user->save();
 
       $data['user_id']    = $user->id;
-      $this->log_service->info('User ' . $user['id'] . ' has been created by ' . $created_by);
+      $this->log_service->info('User has been created by an admin', ['id' => $user['id'], 'adminId' => $created_by]);
       $this->createUserDetails($data, $created_by);
       $email_verification = $this->saveEmailVerification($user, $user->email);
       $this->verifyEmail($user->email, $email_verification->token, true);
@@ -411,7 +411,7 @@ class UserService
     $user->status     = $data['status'];
     $user->save();
 
-    $this->log_service->info('User ' . $data['id'] . ', main data was updated by ' . $updated_by);
+    $this->log_service->info('User main data was updated by and admin', ['id' => $data['id'], 'adminId' => $updated_by]);
 
     $data['user_id'] = $user->id;
     $this->updateUserDetails($data, $updated_by);
@@ -437,7 +437,7 @@ class UserService
 
     $user->save();
 
-    $this->log_service->info('User ' . $user_id . ', updated his profile');
+    $this->log_service->info('User updated his profile', ['id' => $user_id]);
     
     $user->team = $data['team'] ?? null;
     $user->city = $data['city'] ?? null;
@@ -488,7 +488,7 @@ class UserService
     }
 
     $this->saveUserDetails($user_details, $data);
-    $this->log_service->info('User ' . $data['user_id'] . ', details were updated by ' . $updated_by);
+    $this->log_service->info('User details were updated by and admin', ['id' => $data['user_id'], 'adminId' => $updated_by]);
     
     return $user_details;
   }
@@ -537,7 +537,7 @@ class UserService
     }
 
     if(!$this->canResetPassword($email)) {
-      $this->log_service->error("Email $email have reached maximum forgot reset attempts");
+      $this->log_service->error('Email have reached maximum forgot reset attempts', ['email' => $email]);
       return;
     }
 
@@ -551,7 +551,7 @@ class UserService
     ]);
 
     $forgot_password_request->user_name = $user->details->first_name;
-    $this->log_service->info("Submitted a forgot password request for user $user->id");
+    $this->log_service->info('Submitted a forgot password request for user'. ['id' => $user->id]);
 
     $mail_service = new MailService;
     $mail_service->delay(5)->send($email, ForgotPasswordMail::class, $forgot_password_request);
@@ -567,7 +567,7 @@ class UserService
                                          ->where('status', StatusService::PENDING)
                                          ->update(['status' => StatusService::INACTIVE]);
 
-    $this->log_service->info("Deactivate $records_updated reset passwords");
+    $this->log_service->info('Deactivate reset passwords', ['updatedRecords' => $records_updated]);
     return $records_updated;
   }
   
@@ -595,7 +595,7 @@ class UserService
   public function updateUserEmail(array $data, int $updated_by): bool
   {
     $user = User::where('id', $data['id'])->update(['email' => $data['email']]);
-    $this->log_service->info("User $updated_by updated the email of user " . $data['id']);
+    $this->log_service->info('User email has been updated by an admin', ['id' => $data['id'], 'adminId' => $updated_by]);
     return $user;
   } 
   
@@ -607,7 +607,8 @@ class UserService
   public function updateUserPassword(array $data, int $updated_by): bool
   {
     $result = $this->savePassword($this->getUserById($data['id']), $data['password']);
-    $this->log_service->info("User $updated_by updated the password of user " . $data['id']);
+    $this->log_service->info('User password has been updated by an admin', ['id' => $data['id'], 'adminId' => $updated_by]);
+
     return $result;
   } 
    
@@ -716,7 +717,7 @@ class UserService
 
     if(!$bypass_verification) {
       if(!$verification) {
-        $this->log_service->info("Failed to verify the email with the token: $token");
+        $this->log_service->info('Failed to verify the email', ['token' => $token]);
         throw new Exception('Failed to verify email');
       }
   
@@ -727,13 +728,16 @@ class UserService
     
     $user = $this->getUserByEmail($email);
     
-    $this->log_service->info('User ' . $user->id . ' has verified his email');
+    $this->log_service->info('User has verified his email', ['id' => $user->id]);
     $verification->update(['verified_at' => now()]);
     $this->updateUserEmail([
       'id'    => $verification->user_id,
       'email' => $email 
     ], $verification->user_id);
-    $this->saveStatus($verification->user_id, StatusService::ACTIVE);
+    
+    if($user->isWaitingForConfirmation()) {
+      $this->saveStatus($verification->user_id, StatusService::ACTIVE);
+    }
   }
   
   /**
@@ -762,7 +766,7 @@ class UserService
   private function saveStatus(int $user_id, int $status): bool
   {
     $result = User::where('id', $user_id)->update(['status' => $status]);
-    $this->log_service->info('User ' . $user_id . ' status has been updated to ' . $status);
+    $this->log_service->info('User status has been updated', ['id' => $user_id, 'status' => $status]);
     return $result;
   }
   
@@ -814,7 +818,11 @@ class UserService
     $user_details             = new UserDetail();
     $user_details->user_id    = $data['user_id'];
     $this->saveUserDetails($user_details, $data);
-    $this->log_service->info('User ' . $data['user_id'] . ', details were created by ' . $created_by ?? $data['user_id']);
+    if($created_by) {
+      $this->log_service->info('User details were created by an admin', ['id' => $data['user_id'], 'adminId' => $created_by]);
+    } else {
+      $this->log_service->info('User details were created', ['id' => $data['user_id']]);
+    }
     
     return $user_details;
   }
