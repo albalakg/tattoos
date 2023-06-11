@@ -15,7 +15,7 @@ class ScheduleUserCourseLessonRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'    => ['required', 'bail', new IDRule, 'exists:course_lessons,id'],
+            'id'    => ['required', 'bail', new IDRule, 'exists:course_schedule_lessons,id'],
             'date'  => ['required', 'date'],
         ];
     }

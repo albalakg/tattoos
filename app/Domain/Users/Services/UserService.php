@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Services;
 
+use App\Domain\Content\Models\CourseScheduleLesson;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -162,17 +163,23 @@ class UserService
     $courses        = $this->content_service->getCoursesFullContent($user_courses->toArray());
     $user_schedules = $this->user_course_schedule_service->getUserCourseScheduleWithScheduleCourseByUserId($user_id); 
 
+    
     foreach($courses AS $course) {
-      foreach($course->activeAreasWithActiveLessons AS $course_area) {
-        foreach($course_area->activeLessons AS $lesson) {
-          $user_schedule_lesson_date = $user_schedules->where('course_lesson_id', $lesson->id)->first();
-          if($user_schedule_lesson_date && $lesson->schedule) {
-            $lesson->schedule->date = $user_schedule_lesson_date['date'];
-          }
+      $user_course_schedules  = $user_schedules->where('course_id', $course->id)->first();
+
+      foreach($course->schedules AS $schedule) {
+        $user_schedule_lesson   = $user_course_schedules->lessons->where('course_schedule_lesson_id', $schedule->id)->first();
+        if($user_schedule_lesson) {
+          $schedule->date = $user_schedule_lesson['date'];
         }
       }
-    }
 
+      $added_lessons_by_user = $user_course_schedules->lessons->whereNull('course_schedule_lesson_id');
+      foreach($added_lessons_by_user AS $added_lesson_by_user) {
+        $added_lesson_by_user->course_id = $course->id;
+        $course->schedules->push($added_lesson_by_user);
+      }
+    }
     return $courses;
   }
   

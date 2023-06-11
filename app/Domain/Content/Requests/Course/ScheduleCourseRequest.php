@@ -15,10 +15,11 @@ class ScheduleCourseRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'                => ['required', 'bail', new IDRule, 'exists:courses,id'],
-            'lessonsId'         => ['required', 'array', 'between:1, 1000'],
-            'lessonsId.*.id'    => ['required', new IDRule],
-            'lessonsId.*.date'  => ['required', 'date'],
+            'id'                    => ['required', 'bail', new IDRule, 'exists:courses,id'],
+            'lessonsId'             => ['required', 'array', 'between:1, 1000'],
+            'lessonsId.*.id'        => ['required', new IDRule],
+            'lessonsId.*.date'      => ['required', 'date'],
+            'lessonsId.*.type_id'   => ['required', 'int', 'in:1,2'],
         ];
     }
 }
