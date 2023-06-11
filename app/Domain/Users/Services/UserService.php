@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Services;
 
+use App\Domain\Content\Models\CourseScheduleLesson;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -163,12 +164,11 @@ class UserService
     $user_schedules = $this->user_course_schedule_service->getUserCourseScheduleWithScheduleCourseByUserId($user_id); 
 
     foreach($courses AS $course) {
-      foreach($course->activeAreasWithActiveLessons AS $course_area) {
-        foreach($course_area->activeLessons AS $lesson) {
-          $user_schedule_lesson_date = $user_schedules->where('course_lesson_id', $lesson->id)->first();
-          if($user_schedule_lesson_date && $lesson->schedule) {
-            $lesson->schedule->date = $user_schedule_lesson_date['date'];
-          }
+      foreach($course->schedules AS $schedule) {
+        $user_course_schedules  = $user_schedules->where('course_id', $schedule->course_id)->first();
+        $user_schedule_lesson   = $user_course_schedules->lessons->where('course_schedule_lesson_id', $schedule->id)->first();
+        if($user_schedule_lesson) {
+          $schedule->date = $user_schedule_lesson['date'];
         }
       }
     }

@@ -5,7 +5,7 @@ namespace App\Domain\Users\Requests;
 use App\Rules\IDRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ScheduleUserCourseLessonRequest extends FormRequest
+class AddTrainingScheduleRequest extends FormRequest
 {
     public function authorize()
     {
@@ -15,8 +15,8 @@ class ScheduleUserCourseLessonRequest extends FormRequest
     public function rules()
     {
         return [
-            'id'    => ['required', 'bail', new IDRule, 'exists:course_schedule_lessons,id'],
-            'date'  => ['required', 'date'],
+            'lesson_id' => ['required', 'bail', new IDRule, 'exists:course_lessons,id'],
+            'date'      => ['required', 'date'],
         ];
     }
 }

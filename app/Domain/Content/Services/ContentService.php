@@ -4,10 +4,11 @@ namespace App\Domain\Content\Services;
 
 use Exception;
 use App\Domain\Helpers\LogService;
+use App\Domain\Content\Models\Video;
 use App\Domain\Content\Models\Coupon;
 use App\Domain\Content\Models\Course;
-use App\Domain\Content\Models\Video;
 use Illuminate\Database\Eloquent\Collection;
+use App\Domain\Content\Models\CourseScheduleLesson;
 use App\Domain\Content\Services\CourseLessonService;
 
 /**
@@ -137,8 +138,23 @@ class ContentService
   public function getVideoByLessonId(int $lesson_id): ?Video
   {
     try {
-      $coupon_service = new CourseLessonService;
-      return $coupon_service->getVideoByLessonId($lesson_id);
+      $course_lesson_service = new CourseLessonService;
+      return $course_lesson_service->getVideoByLessonId($lesson_id);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return null;
+    }
+  }
+  
+  /**
+   * @param int $course_schedule_lesson_id
+   * @return CourseScheduleLesson|null
+  */
+  public function getCourseScheduleLessonById(int $course_schedule_lesson_id): ?CourseScheduleLesson
+  {
+    try {
+      $course_service = new CourseService;
+      return $course_service->getCourseScheduleLessonById($course_schedule_lesson_id);
     } catch(Exception $ex) {
       $this->log_service->error($ex);
       return null;

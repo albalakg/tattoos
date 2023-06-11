@@ -24,6 +24,7 @@ use App\Domain\Support\Services\SupportCategoryService;
 use App\Domain\Users\Requests\UpdateUserPasswordRequest;
 use App\Domain\Users\Requests\UserLessonProgressRequest;
 use App\Domain\Users\Services\UserCourseScheduleService;
+use App\Domain\Users\Requests\AddTrainingScheduleRequest;
 use App\Domain\Users\Requests\LandedOnPageNotFoundRequest;
 use App\Domain\Users\Requests\ScheduleUserCourseLessonRequest;
 
@@ -304,8 +305,21 @@ class UserController extends Controller
   public function scheduleLesson(ScheduleUserCourseLessonRequest $request)
   {
     try {
-      $user_course_schedule_service = new UserCourseScheduleService;
+      $user_course_schedule_service = new UserCourseScheduleService(
+        new ContentService
+      );
       $response = $user_course_schedule_service->scheduleLesson($request->id, $request->date, Auth::user()->id);
+      return $this->successResponse('User course lesson rescheduled successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function addTrainingSchedule(AddTrainingScheduleRequest $request)
+  {
+    try {
+      $user_course_schedule_service = new UserCourseScheduleService;
+      $response = $user_course_schedule_service->scheduleLesson($request->lesson_id, $request->date, Auth::user()->id);
       return $this->successResponse('User course lesson rescheduled successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
