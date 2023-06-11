@@ -2,6 +2,7 @@
 
 namespace App\Domain\Users\Services;
 
+use App\Domain\Content\Models\CourseScheduleLesson;
 use Exception;
 use App\Domain\Helpers\LogService;
 use Illuminate\Database\Eloquent\Collection;
@@ -63,6 +64,28 @@ class UserCourseScheduleService
 
     return $user_course_schedule_lesson;
   } 
+  
+  /**
+   * @param array $data
+   * @param int $user_id
+   * @return UserCourseScheduleLesson
+  */
+  public function addTrainingSchedule(array $data, $user_id): UserCourseScheduleLesson
+  {
+    $user_course_schedule = $this->getUserCourseScheduleByUserId($user_id);
+    if(!$user_course_schedule) {
+      throw new Exception('User course schedule not found');
+    }
+
+    return UserCourseScheduleLesson::create([
+      'type_id'                 => CourseScheduleLesson::TRAINING_TYPE_ID,
+      'user_course_schedule_id' => $user_course_schedule->id,
+      'user_id'                 => $user_id,
+      'course_lesson_id'        => $data['lesson_id'],
+      'date'                    => $data['date'],
+      'created_by'              => $user_id,
+    ]);
+  }
   
   /**
    * @param int $user_id

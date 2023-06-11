@@ -163,16 +163,23 @@ class UserService
     $courses        = $this->content_service->getCoursesFullContent($user_courses->toArray());
     $user_schedules = $this->user_course_schedule_service->getUserCourseScheduleWithScheduleCourseByUserId($user_id); 
 
+    
     foreach($courses AS $course) {
+      $user_course_schedules  = $user_schedules->where('course_id', $course->id)->first();
+
       foreach($course->schedules AS $schedule) {
-        $user_course_schedules  = $user_schedules->where('course_id', $schedule->course_id)->first();
         $user_schedule_lesson   = $user_course_schedules->lessons->where('course_schedule_lesson_id', $schedule->id)->first();
         if($user_schedule_lesson) {
           $schedule->date = $user_schedule_lesson['date'];
         }
       }
-    }
 
+      $added_lessons_by_user = $user_course_schedules->lessons->whereNull('course_schedule_lesson_id');
+      foreach($added_lessons_by_user AS $added_lesson_by_user) {
+        $added_lesson_by_user->course_id = $course->id;
+        $course->schedules->push($added_lesson_by_user);
+      }
+    }
     return $courses;
   }
   

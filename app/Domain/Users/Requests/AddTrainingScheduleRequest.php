@@ -16,6 +16,7 @@ class AddTrainingScheduleRequest extends FormRequest
     {
         return [
             'lesson_id' => ['required', 'bail', new IDRule, 'exists:course_lessons,id'],
+            'course_id' => ['required', 'bail', new IDRule, 'exists:courses,id'],
             'date'      => ['required', 'date'],
         ];
     }

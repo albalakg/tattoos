@@ -319,7 +319,7 @@ class UserController extends Controller
   {
     try {
       $user_course_schedule_service = new UserCourseScheduleService;
-      $response = $user_course_schedule_service->scheduleLesson($request->lesson_id, $request->date, Auth::user()->id);
+      $response = $user_course_schedule_service->addTrainingSchedule($request->validated(), Auth::user()->id);
       return $this->successResponse('User course lesson rescheduled successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
