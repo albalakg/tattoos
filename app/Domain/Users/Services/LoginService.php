@@ -3,6 +3,7 @@
 namespace App\Domain\Users\Services;
 
 use Exception;
+use Illuminate\Http\Response;
 use App\Domain\Users\Models\User;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Facades\Auth;
@@ -55,7 +56,7 @@ class LoginService
         $this->writeLoginAttempt($request, $attempt);
 
         if(!$attempt) {
-            throw new Exception('Email or password is invalid', 422);
+            throw new Exception('Email or password is invalid', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $this->user = Auth::user();
@@ -84,17 +85,17 @@ class LoginService
     {
         if($this->user->isInactive()) {
             $this->log_service->info('User ' . $this->user->id . ' is unauthorized to login');
-            throw new Exception('Unauthorized to login');
+            throw new Exception('Unauthorized to login', Response::HTTP_UNAUTHORIZED);
         }
 
         if($this->user->isWaitingForConfirmation()) {
             $this->log_service->info('User ' . $this->user->id . ' must confirm the email');
-            throw new Exception('Please confirm your email first');
+            throw new Exception('Please confirm your email first', Response::HTTP_UNAUTHORIZED);
         }
 
         if($this->is_maintenance && !$this->user->isAdmin()) {
             $this->log_service->info('User ' . $this->user->id . ' can\'t access while in maintenance');
-            throw new Exception('Sorry, Unauthorized to login during maintenance mode');
+            throw new Exception('Sorry, Unauthorized to login during maintenance mode', Response::HTTP_UNAUTHORIZED);
         }
     }
     

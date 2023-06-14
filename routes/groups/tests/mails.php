@@ -8,6 +8,7 @@ Route::get('/email-confirmation', function() {
         'name'  => 'עדן',
         'token' => 'ASD3FV32f233fdfsadfdsf'
     ];
+    
     return view('mails.auth.emailConfirmation', ['data' => $data]);
 });
 

@@ -74,7 +74,7 @@ class PaymentService
             $provider_class = self::PROVIDERS[$provider];
             $this->payment_provider = new $provider_class;
         } catch(Exception $ex) {
-            throw new Exception('Failed to set provider with: ' . $provider)
+            throw new Exception('Failed to set provider with: ' . $provider);
         }
     }
     

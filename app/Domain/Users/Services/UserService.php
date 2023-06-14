@@ -166,6 +166,9 @@ class UserService
     
     foreach($courses AS $course) {
       $user_course_schedules  = $user_schedules->where('course_id', $course->id)->first();
+      if(!$user_course_schedules) {
+        continue;
+      }
 
       foreach($course->schedules AS $schedule) {
         $user_schedule_lesson   = $user_course_schedules->lessons->where('course_schedule_lesson_id', $schedule->id)->first();
@@ -348,8 +351,8 @@ class UserService
       $this->createUserDetails($data);
       $this->log_service->info('User completed sign up, part 2', ['id' => $user->id]);
       $this->saveEmailVerification($user, $user->email);
-      $this->log_service->info('User completed sign up, part 3', ['id' => $user->id]);
       event(new UserCreatedEvent($user));
+      $this->log_service->info('User completed sign up, part 3', ['id' => $user->id]);
       return $user;
     } catch(Exception $ex) {
       if(isset($user) && $user) {
