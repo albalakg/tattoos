@@ -6,12 +6,10 @@ use App\Domain\Helpers\LogService;
 use Exception;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Users\Requests\LoginRequest;
 use App\Domain\Users\Services\LoginService;
 use App\Domain\Users\Requests\SignupRequest;
-use App\Domain\Users\Services\UserCourseService;
 use App\Domain\Users\Requests\VerifyEmailRequest;
 use App\Domain\Users\Requests\ResetPasswordRequest;
 use App\Domain\Users\Requests\ForgotPasswordRequest;
@@ -31,9 +29,6 @@ class AuthController extends Controller
       $userData = $login_service->attempt($request)->getResponse();
       return $this->successResponse('Logged', $userData);
     } catch (Exception $ex) {
-      if($ex->getCode() !== 422) {
-        $ex->log_level = 'critical';
-      }
       $ex->service = 'auth';
       return $this->errorResponse($ex, null, $ex->getCode());
     }

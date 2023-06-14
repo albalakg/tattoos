@@ -269,7 +269,7 @@ class OrderService
   */
   private function canCreateOrder(int $content_id, int $created_by): bool
   {
-    $has_active_order = $this->userHasAnActiveOrInProgressOfOrder($content_id, $created_by);
+    $has_active_order = $this->userHasAValidOrderForThatCourse($content_id, $created_by);
     // add more rules here...
 
     return !$has_active_order;
@@ -280,11 +280,11 @@ class OrderService
    * @param int $created_by
    * @return boolean
   */
-  private function userHasAnActiveOrInProgressOfOrder(int $content_id, int $created_by): bool
+  private function userHasAValidOrderForThatCourse(int $content_id, int $created_by): bool
   {
     return Order::where('user_id', $created_by)
                 ->where('content_id', $content_id)
-                ->whereIn('status', [StatusService::ACTIVE, StatusService::IN_PROGRESS])
+                ->whereIn('status', [StatusService::ACTIVE, StatusService::PENDING, StatusService::IN_PROGRESS])
                 ->exists();
   }
 }

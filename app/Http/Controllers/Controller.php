@@ -87,7 +87,7 @@ class Controller extends BaseController
 
         return response()->json(
             $error_data,
-            $status
+            $status ? $status : Response::HTTP_BAD_REQUEST
         );
     }
 }
