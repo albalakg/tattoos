@@ -14,7 +14,7 @@ class DropUniqueFieldsInTables extends Migration
     public function up()
     {
         Schema::table('course_categories', function (Blueprint $table) {
-            $table->dropUnique('name');
+            $table->dropUnique('course_categories_name_unique');
         });
         
         Schema::table('courses', function (Blueprint $table) {
