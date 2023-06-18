@@ -40,19 +40,6 @@ class NameRule implements Rule
             return false;
         }
 
-        // TODO: fix the chars in hebrew
-        // $unique_chars = count_chars($value, 3);
-        // for($index = 0; $index < strlen($unique_chars); $index++) {
-        //     $char = $unique_chars[$index];
-        //     if(is_string($char)) {
-        //         $char = strtolower($char);
-        //     }
-
-        //     if(strpos($this->valid_chars, $char) === false) {
-        //         return false;
-        //     }
-        // }
-
         $value_length = mb_strlen($value, 'UTF-8');
         return $value_length >= 2 && $value_length <= 40;
     }
