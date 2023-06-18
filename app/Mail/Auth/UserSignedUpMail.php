@@ -8,7 +8,7 @@ use App\Domain\Interfaces\IMails;
 use Illuminate\Queue\SerializesModels;
 use App\Domain\Emails\Models\LuEmailType;
 
-class EmailVerificationMail extends Mailable implements IMails
+class UserSignedUpMail extends Mailable implements IMails
 {
     use Queueable, SerializesModels;
 
@@ -31,7 +31,7 @@ class EmailVerificationMail extends Mailable implements IMails
      */
     public function build()
     {
-        return $this->subject('אימות התחברות')->view('mails.auth.emailConfirmation');
+        return $this->subject('ברוך הבא ל Goldens Academy')->view('mails.auth.userSignedUp');
     }
     
     /**
@@ -39,6 +39,6 @@ class EmailVerificationMail extends Mailable implements IMails
     */
     static public function getTypeId(): int
     {
-        return LuEmailType::EMAIL_VERIFICATION_EMAIL;
+        return LuEmailType::USER_SIGNED_UP_EMAIL;
     }
 }

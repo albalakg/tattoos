@@ -102,16 +102,6 @@
                         </div>
                         <br>
                         <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-
-                        <a href="{{URL::to('/')}}/courses/{{ $data['course_id'] }}">
-                            <button>
-                                היכנס לקורס
-                            </button>
-                        </a>
 
                         <br>
                         <br>

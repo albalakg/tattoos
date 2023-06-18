@@ -76,13 +76,13 @@
                 <td align="center">
                     <div class="content">
                         <div>
-                            <h1>
+                        <h1>
                                 היי {{ $data['name'] }}, <span class="blue--text">ברוכים הבאים!</span>
                             </h1>
                             <p>
                             תודה רבה שנרשמת אצלינו.
                             <br>
-                            בכדי שתוכל להיכנס למשתמש ולהתחיל ללמוד, רק צריך שתלחץ על הכפתור למטה לאשר את המייל.
+                            בכדי שתוכל להיכנס למשתמש ולהתחיל ללמוד, רק צריך לאשר את כתובת המייל על ידי לחיצה על הכפתור למטה.
                             </p>
                         </div>
                         <br>
@@ -92,7 +92,7 @@
                         <br>
                         <br>
 
-                        <a href="{{ URL::to('/')}}/email-confirmation?token={{ $data['token'] }}">
+                        <a href="{{ config('app.client_url') }}/email-confirmation?token={{ $data['token'] }}&email={{ $data['email'] }}">
                             <button>
                                 התחילו ללמוד
                             </button>

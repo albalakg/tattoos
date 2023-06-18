@@ -64,7 +64,7 @@ class MailService
   */
   public function delay(int $seconds = self::DEFAULT_DELAY): self
   {
-    $this->delay_time_time = now()->addSeconds($seconds);
+    $this->delay_time = $seconds;
     $this->info('Delay triggered with: ' . $seconds . ' seconds');
     return $this;
   }

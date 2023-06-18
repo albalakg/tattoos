@@ -3,6 +3,7 @@
 namespace App\Domain\Users\Controllers;
 
 use App\Domain\Helpers\LogService;
+use App\Domain\Helpers\MailService;
 use Exception;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
@@ -37,7 +38,9 @@ class AuthController extends Controller
   public function signup(SignupRequest $request)
   {
     try {
-      $user_service = new UserService;
+      $user_service = new UserService(
+        null, null, null, null, new MailService
+      );
       $created_user = $user_service->signup($request->validated());
       return $this->successResponse('You have Signed Up Successfully', $created_user);
     } catch (Exception $ex) {
@@ -61,7 +64,9 @@ class AuthController extends Controller
   public function forgotPassword(ForgotPasswordRequest $request)
   {
     try {
-      $user_service = new UserService;
+      $user_service = new UserService(
+        null, null, null, null, new MailService
+      );
       $user_service->forgotPassword($request->email);
       return $this->successResponse('An email has been sent to the requested address');
     } catch (Exception $ex) {

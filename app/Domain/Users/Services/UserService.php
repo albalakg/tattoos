@@ -28,6 +28,7 @@ use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Models\UserCourseLessonWatch;
 use App\Domain\Users\Models\UserCourseSchedule;
 use App\Domain\Users\Models\UserEmailVerification;
+use App\Mail\Auth\UserSignedUpMail;
 use App\Mail\Auth\ForgotPasswordMail;
 
 class UserService
@@ -42,7 +43,10 @@ class UserService
   
   private ?UserCourse $user_course;
   
+  private ?MailService $mail_service;
+
   private ?UserCourseScheduleService $user_course_schedule_service;
+  
     
   /**
    * @param ContentService $content_service
@@ -54,12 +58,14 @@ class UserService
     ContentService $content_service = null, 
     SupportService $support_service = null, 
     OrderService $order_service = null, 
-    UserCourseScheduleService $user_course_schedule_service = null
+    UserCourseScheduleService $user_course_schedule_service = null,
+    MailService $mail_service = null
   )
   {
     $this->content_service              = $content_service;
     $this->support_service              = $support_service;
     $this->order_service                = $order_service;
+    $this->mail_service                 = $mail_service;
     $this->user_course_schedule_service = $user_course_schedule_service;
     $this->log_service                  = new LogService('users');
   }
@@ -350,8 +356,13 @@ class UserService
       $data['user_id'] = $user->id;
       $this->createUserDetails($data);
       $this->log_service->info('User completed sign up, part 2', ['id' => $user->id]);
-      $this->saveEmailVerification($user, $user->email);
-      event(new UserCreatedEvent($user));
+      $email_verification = $this->saveEmailVerification($user, $user->email);
+      $user_signed_up_mail_data = [
+        'email' => $data['email'],
+        'token' => $email_verification['token'],
+        'name'  => $data['first_name'] . ' ' . $data['last_name']
+      ];
+      $this->mail_service->delay(5)->send($user->email, UserSignedUpMail::class, $user_signed_up_mail_data);
       $this->log_service->info('User completed sign up, part 3', ['id' => $user->id]);
       return $user;
     } catch(Exception $ex) {
@@ -554,17 +565,15 @@ class UserService
     $this->deactivateUsersResetPasswords($email);
 
     $forgot_password_request = UserResetPassword::create([
-      'token'     => Str::random(50),
-      'email'     => $email,
-      'status'    => StatusService::PENDING,
-      'created_at' => now()
+      'token'       => Str::random(50),
+      'email'       => $email,
+      'status'      => StatusService::PENDING,
+      'created_at'  => now()
     ]);
 
     $forgot_password_request->user_name = $user->details->first_name;
-    $this->log_service->info('Submitted a forgot password request for user'. ['id' => $user->id]);
-
-    $mail_service = new MailService;
-    $mail_service->delay(5)->send($email, ForgotPasswordMail::class, $forgot_password_request);
+    $this->log_service->info('Submitted a forgot password request for user', ['id' => $user->id]);
+    $this->mail_service->delay(5)->send($email, ForgotPasswordMail::class, $forgot_password_request);
   }
   
   /**
