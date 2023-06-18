@@ -6,7 +6,7 @@
     <title>updateStatus</title>
 </head>
 <body>
-    <table>
+    <table dir="rtl">
         <thead>
             <tr>
                 <td align="center">

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <style>
         body {
             direction: rtl;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 0;
             margin: 0;
         }
@@ -65,24 +66,24 @@
                 border-spacing: unset;
             }
         }
-
     </style>
 </head>
+
 <body>
-    <table>
+    <table dir="rtl">
         @include('mails.templates.header')
         <tbody>
             <tr>
                 <td align="center">
                     <div class="content">
                         <div>
-                        <h1>
+                            <h1>
                                 היי {{ $data['name'] }}, <span class="blue--text">ברוכים הבאים!</span>
                             </h1>
                             <p>
-                            תודה רבה שנרשמת אצלינו.
-                            <br>
-                            בכדי שתוכל להיכנס למשתמש ולהתחיל ללמוד, רק צריך לאשר את כתובת המייל על ידי לחיצה על הכפתור למטה.
+                                תודה רבה שנרשמת אצלינו.
+                                <br>
+                                בכדי שתוכל להיכנס למשתמש ולהתחיל ללמוד, רק צריך לאשר את כתובת המייל על ידי לחיצה על הכפתור למטה.
                             </p>
                         </div>
                         <br>
@@ -97,7 +98,7 @@
                                 התחילו ללמוד
                             </button>
                         </a>
-                        
+
                         <br>
                         <br>
                         <br>
@@ -109,4 +110,5 @@
         </tbody>
     </table>
 </body>
+
 </html>

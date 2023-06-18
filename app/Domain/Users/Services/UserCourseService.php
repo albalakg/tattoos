@@ -207,17 +207,14 @@ class UserCourseService
 
     $this->storeUserCourseSchedule($user_course);
 
-    $mail_service = new MailService;
-    $mail_service->delay()->send(
-      $user->email,
-      AddCourseToUserMail::class,
-      [
-        'user_name'   => $user->fullName,
-        'course'      => $course->name,
-        'end_at'      => $course->end_at,
-      ]
-    );
+    $mail_data = [
+      'name'        => $user->details->first_name,
+      'course_name' => $course->name,
+      'end_at'      => $user_course->end_at,
+      'course_id'   => $data->course_id
+    ];
 
+    $this->mail_service->delay()->send($user->email, AddCourseToUserMail::class, $mail_data);
     return $user_course;
   }
 
@@ -231,7 +228,6 @@ class UserCourseService
     try {
       if($this->isUserHasCourse($user_id, $content_id)) {
         $this->log_service->warning('User already has an active course', ['user_id' => $user_id, 'content_id' => $content_id]);
-
       }
 
       $user_course              = new UserCourse;
@@ -253,6 +249,7 @@ class UserCourseService
         'end_at'      => $user_course->end_at,
         'course_id'   => $content_id
       ];
+
       $this->mail_service->delay()->send($user->email, AddCourseToUserMail::class, $mail_data);
       $this->log_service->info('User has been assigned to course', ['user_id' => $user_id, 'content_id' => $content_id]);
 

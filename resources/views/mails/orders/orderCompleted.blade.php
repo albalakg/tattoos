@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <style>
         body {
             direction: rtl;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 0;
             margin: 0;
         }
@@ -65,11 +66,11 @@
                 border-spacing: unset;
             }
         }
-
     </style>
 </head>
+
 <body>
-    <table>
+    <table dir="rtl">
         @include('mails.templates.header')
         <tbody>
             <tr>
@@ -80,16 +81,16 @@
                                 היי {{ $data['name'] }}, <span class="blue--text">ההזמנה בוצעה בהצלחה!</span>
                             </h1>
                             <small>
-                            המספר הזמנה הינו: {{ $data['order_number'] }}
+                                המספר הזמנה הינו: {{ $data['order_number'] }}
                             </small>
                             <p>
-                            תודה רבה שרכשת את הקורס "{{ $data['course_name'] }}".
-                            <br>
-                            עלות הקורס הינה {{ $data ['price'] }} ש"ח.
-                            <br>
-                            הקורס זמין עד התאריך "{{ $data['end_at'] }}".
+                                תודה רבה שרכשת את הקורס "{{ $data['course_name'] }}".
+                                <br>
+                                עלות הקורס הינה {{ $data ['price'] }} ש"ח.
+                                <br>
+                                הקורס זמין עד התאריך "{{ $data['end_at'] }}".
                             </p>
-                            
+
                         </div>
                         <br>
                         <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
@@ -103,7 +104,7 @@
                                 היכנס לקורס
                             </button>
                         </a>
-                        
+
                         <br>
                         <br>
                         <br>
@@ -115,4 +116,5 @@
         </tbody>
     </table>
 </body>
+
 </html>
