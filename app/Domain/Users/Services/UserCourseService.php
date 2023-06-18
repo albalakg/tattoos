@@ -22,16 +22,23 @@ class UserCourseService
 {
   private LogService $log_service;
 
-  private CourseService|null $course_service;
+  private ?CourseService $course_service;
 
-  private UserService|null $user_service;
+  private ?UserService $user_service;
+
+  private ?MailService $mail_service;
 
   const DEFAULT_USER_COURSE_PERIOD = 12; // in months
 
-  public function __construct(CourseService $course_service = null, UserService $user_service = null)
+  public function __construct(
+    CourseService $course_service = null, 
+    UserService $user_service = null,
+    MailService $mail_service = null,
+  )
   {
     $this->course_service = $course_service;
     $this->user_service   = $user_service;
+    $this->mail_service   = $mail_service;
     $this->log_service    = new LogService('userCourses');
   }
   
@@ -223,7 +230,8 @@ class UserCourseService
   {
     try {
       if($this->isUserHasCourse($user_id, $content_id)) {
-        throw new Exception('User ' . $user_id . ' already has an active course ' . $content_id);
+        $this->log_service->warning('User already has an active course', ['user_id' => $user_id, 'content_id' => $content_id]);
+
       }
 
       $user_course              = new UserCourse;
@@ -234,10 +242,19 @@ class UserCourseService
       $user_course->status      = StatusService::ACTIVE;
       $user_course->created_by  = $user_id;
       $user_course->save();
+
+      $user   = $this->user_service->getUserByID($user_course->user_id);
+      $course = $this->course_service->getCourseById($content_id);
       
       $this->storeUserCourseSchedule($user_course);
-
-      $this->log_service->info('User ' . $user_id . ' has been assigned to course ' . $content_id);
+      $mail_data = [
+        'name'        => $user->details->first_name,
+        'course_name' => $course->name,
+        'end_at'      => $user_course->end_at,
+        'course_id'   => $content_id
+      ];
+      $this->mail_service->delay()->send($user->email, AddCourseToUserMail::class, $mail_data);
+      $this->log_service->info('User has been assigned to course', ['user_id' => $user_id, 'content_id' => $content_id]);
 
       return $user_course;
     } catch(Exception $ex) {
@@ -264,7 +281,7 @@ class UserCourseService
     $user_course->status      = StatusService::ACTIVE;
     $user_course->save();
 
-    $this->log_service->info('User ' . $user_course->user_id . ' course ' . $user_course->course_id . ' has been updated to: ' . json_encode($user_course));
+    $this->log_service->info('User course has been updated', $user_course);
 
     return $user_course;
   }
@@ -290,12 +307,13 @@ class UserCourseService
   {
     try {
       if(!$user_course = UserCourse::find($user_course_id)) {
-        $this->log_service->info('User course ' . $user_course_id . ' was not found');
+        $this->log_service->warning('User course was not found', ['user_course_id' => $user_course_id]);
         throw new Exception('User Course not found');
       }
   
       $user_course->delete();
-      $this->log_service->info('User course ' . $user_course_id . ' has been deleted');
+      $this->log_service->info('User course has been deleted', ['user_course_id' => $user_course_id]);
+
     } catch(Exception $ex) {
       $this->log_service->error($ex);
     }
@@ -348,7 +366,7 @@ class UserCourseService
   private function disableCourse(int $user_course_id)
   {
     if(!$user_course = UserCourse::find($user_course_id)) {
-      $this->log_service->info('User course ' . $user_course_id . ' was not found');
+      $this->log_service->warning('User course was not found', ['user_course_id' => $user_course_id]);
       throw new Exception('User Course not found');
     }
 
@@ -357,7 +375,7 @@ class UserCourseService
     $user_course->status = StatusService::INACTIVE;
     $user_course->save();
 
-    $this->log_service->info('User course ' . $user_course_id . ' has been disabled');
+    $this->log_service->info('User course has been disabled', ['user_course_id' => $user_course_id]);
   }
 
   /**
@@ -374,7 +392,11 @@ class UserCourseService
   {
     $course_schedule = $this->course_service->getCourseSchedule($user_course->course_id);
     if(!$course_schedule) {
-      $this->log_service->info('Unable to set schedule for user "' . $user_course->user_id . '" to course "' . $user_course->course_id . '", schedule not found');
+      $this->log_service->warning(
+        'Unable to set schedule for user to course schedule not found',
+        ['user_id' => $user_course->user_id, 'course_id' => $user_course->course_id]
+      );
+
       return;
     }
 

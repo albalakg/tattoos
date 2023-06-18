@@ -10,14 +10,12 @@
             background-color: #173656;
             height: 250px;
             border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding-top: 20px;
+            padding: 20px;
         }
 
         .header img {
             width: 30%;
+            margin: auto;
         }
 
         @media only screen and (max-width: 600px) {

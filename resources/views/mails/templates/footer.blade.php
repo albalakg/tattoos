@@ -12,6 +12,11 @@
             width: 50%;
             margin: auto;
         }
+
+        .link {
+            margin: auto;
+        }
+        
     </style>
 </head>
 <body>
