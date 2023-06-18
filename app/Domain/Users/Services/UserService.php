@@ -846,11 +846,11 @@ class UserService
   {
     $user_details->first_name = $data['first_name'];
     $user_details->last_name  = $data['last_name'];
-    $user_details->phone      = $data['phone']      ?? null;
-    $user_details->gender     = $data['gender']     ?? null;
-    $user_details->birth_date = $data['birth_date'] ?? null;
-    $user_details->team_id    = $this->getTeamId($data['team'] ?? null, $user_details->user_id);
-    $user_details->city_id    = $this->getCityId($data['city'] ?? null, $user_details->user_id);
+    $user_details->phone      = $data['phone']                  ?? null;
+    $user_details->gender     = $data['gender']                 ?? null;
+    $user_details->birth_date = $data['birth_date']             ?? null;
+    $user_details->team_id    = $this->getTeamId($data['team']  ?? null, $user_details->user_id);
+    $user_details->city_id    = $this->getCityId($data['city']  ?? null, $user_details->user_id);
 
     $user_details->save();
     return $user_details;

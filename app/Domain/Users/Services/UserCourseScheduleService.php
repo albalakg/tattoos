@@ -89,15 +89,6 @@ class UserCourseScheduleService
   
   /**
    * @param int $user_id
-   * @return ?UserCourseSchedule
-  */
-  public function getUserCourseScheduleByUserId(int $user_id): ?UserCourseSchedule
-  {
-    return UserCourseSchedule::where('user_id', $user_id)->first();
-  }
-  
-  /**
-   * @param int $user_id
    * @return Collection
   */
   public function getUserCourseScheduleWithScheduleCourseByUserId(int $user_id): Collection
@@ -111,5 +102,14 @@ class UserCourseScheduleService
                               'course_schedules.course_id',
                              )
                              ->get();
+  }
+  
+  /**
+   * @param int $user_id
+   * @return ?UserCourseSchedule
+  */
+  private function getUserCourseScheduleByUserId(int $user_id): ?UserCourseSchedule
+  {
+    return UserCourseSchedule::where('user_id', $user_id)->first();
   }
 }

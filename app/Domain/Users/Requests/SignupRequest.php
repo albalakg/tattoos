@@ -24,10 +24,10 @@ class SignupRequest extends FormRequest
             'password'      => ['required', new PasswordRule],
             'first_name'    => ['required', new FirstNameRule],
             'last_name'     => ['required', new LastNameRule],
+            'city'          => ['required', new CityRule],
+            'birth_date'    => ['required', 'date'],
+            'phone'         => ['required', 'bail', new PhoneRule, 'unique:user_details,phone'],
             'team'          => ['nullable', new TeamRule],
-            'city'          => ['nullable', new CityRule],
-            'birth_date'    => ['nullable', 'date'],
-            'phone'         => ['nullable', 'bail', new PhoneRule, 'unique:user_details,phone'],
         ];
     }
 }
