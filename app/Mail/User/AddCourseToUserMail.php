@@ -31,7 +31,7 @@ class AddCourseToUserMail extends Mailable implements IMails
      */
     public function build()
     {
-        return $this->subject('קורס חדש ' . $this->data['course_name'])->view('mails.user.newCourse');
+        return $this->subject('רכישת קורס חדש')->view('mails.user.newCourse');
     }
         
     /**

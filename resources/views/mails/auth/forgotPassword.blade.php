@@ -97,7 +97,7 @@
                         <br>
                         <br>
 
-                        <a href="{{ URL::to('/')}}/reset-password?token={{ $data['token'] }}">
+                        <a href="{{ config('app.client_url') }}/reset-password?token={{ $data['token'] }}&email={{ $data['email'] }}">
                             <button>
                                 אפס סיסמה
                             </button>

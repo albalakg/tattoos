@@ -13,8 +13,8 @@ class LuEmailType extends Model
     const SUPPORT_TICKET_EMAIL_TEXT             = 'Support Ticket Created';
     const FORGOT_PASSWORD_EMAIL                 = 3;
     const FORGOT_PASSWORD_EMAIL_TEXT            = 'Forgot Password Created';
-    const EMAIL_VERIFICATION_EMAIL              = 4;
-    const EMAIL_VERIFICATION_EMAIL_TEXT         = 'Email Verification Created';
+    const USER_SIGNED_UP_EMAIL                  = 4;
+    const USER_SIGNED_UP_EMAIL_TEXT             = 'User Signed Up Created';
     const APPLICATION_ERROR_EMAIL               = 5;
     const APPLICATION_ERROR_EMAIL_TEXT          = 'Application Error Created';
     const ORDER_STATUS_UPDATE_EMAIL             = 6;

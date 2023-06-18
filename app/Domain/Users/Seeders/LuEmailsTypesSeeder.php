@@ -19,7 +19,7 @@ class LuEmailsTypesSeeder extends Seeder
             ['id' => LuEmailType::SUPPORT_TICKET_EMAIL,         'name' => LuEmailType::SUPPORT_TICKET_EMAIL_TEXT,           'created_at' => now()],
             ['id' => LuEmailType::SUPPORT_TICKET_MESSAGE_EMAIL, 'name' => LuEmailType::SUPPORT_TICKET_MESSAGE_EMAIL_TEXT,   'created_at' => now()],
             ['id' => LuEmailType::FORGOT_PASSWORD_EMAIL,        'name' => LuEmailType::FORGOT_PASSWORD_EMAIL_TEXT,          'created_at' => now()],
-            ['id' => LuEmailType::EMAIL_VERIFICATION_EMAIL,     'name' => LuEmailType::EMAIL_VERIFICATION_EMAIL_TEXT,       'created_at' => now()],
+            ['id' => LuEmailType::USER_SIGNED_UP_EMAIL,         'name' => LuEmailType::USER_SIGNED_UP_EMAIL_TEXT,           'created_at' => now()],
             ['id' => LuEmailType::APPLICATION_ERROR_EMAIL,      'name' => LuEmailType::APPLICATION_ERROR_EMAIL_TEXT,        'created_at' => now()],
             ['id' => LuEmailType::ORDER_STATUS_UPDATE_EMAIL,    'name' => LuEmailType::ORDER_STATUS_UPDATE_EMAIL_TEXT,      'created_at' => now()],
             ['id' => LuEmailType::ADD_COURSE_TO_USER_EMAIL,     'name' => LuEmailType::ADD_COURSE_TO_USER_EMAIL_TEXT,       'created_at' => now()],
