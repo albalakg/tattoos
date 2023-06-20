@@ -16,16 +16,11 @@ class CourseArea extends Model
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
     
-    protected $appends = ['imageSrc', 'trailerSrc'];
+    protected $appends = ['imageSrc'];
 
     public function getImageSrcAttribute()
     {
         return config('app.url') . '/' . 'files/' . $this->image;  
-    }
-
-    public function getTrailerSrcAttribute()
-    {
-        return config('app.url') . '/' . 'files/' . $this->trailer;  
     }
 
     public function course()

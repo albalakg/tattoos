@@ -55,7 +55,7 @@ class DisableExpiredUserCoursesService
                                       ->select('user_courses.id', 'users.email', 'course_id', 'user_courses.user_id', 'progress', 'end_at', 'user_details.first_name', 'user_details.last_name')
                                       ->get();
 
-    $this->log_service->info('Found ' . count($this->expired_courses) . ' expired courses');
+    $this->log_service->info('Found expired courses', ['total' => count($this->expired_courses)]);
   }
 
   private function getCoursesName()
@@ -88,6 +88,6 @@ class DisableExpiredUserCoursesService
       'status' => StatusService::INACTIVE
     ]);
 
-    $this->log_service->info('Disabled the following courses id ' . json_encode($expired_courses_id));
+    $this->log_service->info('Disabled the following courses id', ['ids' => $expired_courses_id]);
   }
 }

@@ -11,6 +11,7 @@ use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Requests\Course\CreateCourseRequest;
 use App\Domain\Content\Requests\Course\UpdateCourseRequest;
 use App\Domain\Content\Requests\Course\ScheduleCourseRequest;
+use App\Domain\Users\Services\UserCourseService;
 
 class CourseController extends Controller
 {
@@ -22,7 +23,8 @@ class CourseController extends Controller
   public function __construct()
   {
     $this->course_service = new CourseService(
-      new CourseAreaService()
+      new CourseAreaService(),
+      new UserCourseService()
     );
   }
 

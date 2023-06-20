@@ -106,6 +106,17 @@ class UserCourseService
   }
   
   /**
+   * Check if there are active users in the course
+   *
+   * @param int $course_id
+   * @return bool
+  */
+  public function isCourseInUsed(int $course_id) :bool
+  {
+    return UserCourse::where('course_id', $course_id)->where('status', StatusService::ACTIVE)->exists();
+  }
+  
+  /**
    * @param int $id
    * @param int $status
    * @param int $updated_by
@@ -202,7 +213,7 @@ class UserCourseService
     $user_course->created_by  = $created_by;
     $user_course->save();
 
-    $user = $this->user_service->getUserByID($data->user_id);
+    $user   = $this->user_service->getUserByID($data->user_id);
     $course = $this->course_service->getCourse($data->course_id);
 
     $this->storeUserCourseSchedule($user_course);
