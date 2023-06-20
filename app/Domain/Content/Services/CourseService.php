@@ -9,26 +9,34 @@ use App\Domain\Content\Models\Course;
 use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
+use App\Domain\Users\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Models\CourseSchedule;
+use App\Domain\Users\Models\UserCourseSchedule;
+use App\Domain\Users\Services\UserCourseService;
 use App\Domain\Content\Services\CourseAreaService;
 use App\Domain\Content\Models\CourseScheduleLesson;
-use App\Domain\Users\Models\UserCourseSchedule;
 
 class CourseService implements IContentService
 {
   const FILES_PATH = 'content/courses';
 
-  private Course|null $course;
-  
   private LogService $log_service;
 
-  private CourseAreaService|null $course_area_service;
+  private ?Course $course;
+
+  private ?CourseAreaService $course_area_service;
+
+  private ?UserCourseService $user_course_service;
   
-  public function __construct(CourseAreaService $course_area_service = null)
+  public function __construct(
+    CourseAreaService $course_area_service = null,
+    UserCourseService $user_course_service = null    
+  )
   {
-    $this->course_area_service = $course_area_service;
-    $this->log_service = new LogService('courses');
+    $this->user_course_service  = $user_course_service;
+    $this->course_area_service  = $course_area_service;
+    $this->log_service          = new LogService('courses');
   }
   
   /**
@@ -199,7 +207,7 @@ class CourseService implements IContentService
     $course->view_order   = $data['view_order'] ?? 0;
     $course->status       = StatusService::PENDING;
     $course->image        = FileService::create($data['image'], self::FILES_PATH);
-    $course->trailer      = FileService::create($data['trailer'], self::FILES_PATH);
+    $course->trailer      = !empty($data['trailer']) ? FileService::create($data['trailer'], self::FILES_PATH) : null;
     $course->created_by   = $created_by;
     $course->status       = $data['status'] ?? StatusService::PENDING;
     $course->save();
@@ -348,6 +356,10 @@ class CourseService implements IContentService
       throw new Exception('Course not found');
     }
 
+    if($this->isCourseHasContent($course_id)) {
+      throw new Exception('Cannot delete Course that has content');
+    }
+
     if($this->isCourseInUsed($course_id)) {
       throw new Exception('Cannot delete Course that is being used');
     }
@@ -359,9 +371,18 @@ class CourseService implements IContentService
    * @param int $course_id
    * @return bool
   */
-  private function isCourseInUsed(int $course_id): bool
+  private function isCourseHasContent(int $course_id): bool
   {
     return $this->course_area_service->isCourseInUsed($course_id);
+  }
+
+  /**
+   * @param int $course_id
+   * @return bool
+  */
+  private function isCourseInUsed(int $course_id): bool
+  {
+    return $this->user_course_service->isCourseInUsed($course_id);
   }
    
   /**

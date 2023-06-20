@@ -98,7 +98,7 @@
     </style>
 </head>
 <body>
-    <table>
+    <table dir="rtl">
         <thead>
             <tr>
                 <td class="header" align="center">

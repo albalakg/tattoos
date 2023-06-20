@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <style>
         body {
             direction: rtl;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 0;
             margin: 0;
         }
@@ -58,11 +59,11 @@
                 border-spacing: unset;
             }
         }
-
     </style>
 </head>
+
 <body>
-    <table>
+    <table dir="rtl">
         @include('mails.templates.header')
         <tbody>
             <tr>
@@ -73,11 +74,11 @@
                                 היי {{ $data['name'] }}, <span class="blue--text">רוצה לעדכן את הכתובת מייל?</span>
                             </h1>
                             <p>
-                            שמחים לעזור לך בהחלפת הכתובת אמייל.
-                            <br>
-                            רק לפני שמחליפים צריך לאמת את הכתובת חדשה.
-                            <br>
-                            לחץ על הכפתור למטה בשביל להחליף את הכתובת
+                                שמחים לעזור לך בהחלפת הכתובת אמייל.
+                                <br>
+                                רק לפני שמחליפים צריך לאמת את הכתובת חדשה.
+                                <br>
+                                לחץ על הכפתור למטה בשביל להחליף את הכתובת
                             </p>
                         </div>
                         <br>
@@ -92,7 +93,7 @@
                                 אמת כתובת מייל
                             </button>
                         </a>
-                        
+
                         <br>
                         <br>
                         <br>
@@ -104,4 +105,5 @@
         </tbody>
     </table>
 </body>
+
 </html>

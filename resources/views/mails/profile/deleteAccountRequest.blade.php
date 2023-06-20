@@ -76,7 +76,7 @@
     </style>
 </head>
 <body>
-    <table>
+    <table dir="rtl">
         @include('mails.templates.header')
         <tbody>
             <tr>

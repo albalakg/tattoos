@@ -48,7 +48,6 @@ class Kernel extends ConsoleKernel
             $this->schedule->call(function () {
                 $service = new DisableExpiredUserCoursesService(new ContentService, new MailService);
                 $service->handler();
-                $this->log_service->info('checkForExpiredCourses ran successfully');            
             })->cron('0 0 * * *');
         } catch (\Exception $ex) {
             $this->log_service->error($ex);

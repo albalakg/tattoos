@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Content\Services\CourseService;
+use App\Domain\Helpers\MailService;
 use App\Domain\Users\Services\UserCourseService;
 use App\Domain\Users\Requests\CreateUserCourseRequest;
 use App\Domain\Users\Requests\DeleteUserCourseRequest;
@@ -22,6 +23,7 @@ class UserCourseController extends Controller
     $this->user_course_service = new UserCourseService(
       new CourseService,
       new UserService,
+      new MailService
     );
   }
   

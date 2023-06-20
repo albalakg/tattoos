@@ -241,7 +241,9 @@ class UserService
   */
   public function setLessonProgress(array $data, int $user_id)
   {
+    $this->log_service->info('test1');
     if(!$this->hasAccessToLesson($user_id, $data['lesson_id'])) {
+      $this->log_service->info('no access');
       throw new Exception('User doesn\'t have access to the lesson: ' . $data['lesson_id']);
     }
 
@@ -873,12 +875,15 @@ class UserService
   private function hasAccessToLesson(int $user_id, int $lesson_id): bool
   {
     $course_ID = $this->content_service->getLessonCourseId($lesson_id);
+    $this->log_service->info('$course_ID', ['$course_ID' => $course_ID]);
 
     $this->user_course = UserCourse::query()
-                        ->where('user_id', $user_id)
-                        ->where('course_id', $course_ID)
-                        ->where('status', StatusService::ACTIVE)
-                        ->first();
+                                  ->where('user_id', $user_id)
+                                  ->where('course_id', $course_ID)
+                                  ->where('status', StatusService::ACTIVE)
+                                  ->first();
+
+    $this->log_service->info('$this->user_course', ['$this->user_course' => $this->user_course]);
 
     return !!$this->user_course;
   }

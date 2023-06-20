@@ -6,7 +6,7 @@
     <title>New Test Comment</title>
 </head>
 <body>
-    <table>
+    <table dir="rtl">
         <thead>
             <tr>
                 <td align="center">

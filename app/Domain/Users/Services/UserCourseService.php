@@ -106,6 +106,17 @@ class UserCourseService
   }
   
   /**
+   * Check if there are active users in the course
+   *
+   * @param int $course_id
+   * @return bool
+  */
+  public function isCourseInUsed(int $course_id) :bool
+  {
+    return UserCourse::where('course_id', $course_id)->where('status', StatusService::ACTIVE)->exists();
+  }
+  
+  /**
    * @param int $id
    * @param int $status
    * @param int $updated_by
@@ -202,22 +213,19 @@ class UserCourseService
     $user_course->created_by  = $created_by;
     $user_course->save();
 
-    $user = $this->user_service->getUserByID($data->user_id);
+    $user   = $this->user_service->getUserByID($data->user_id);
     $course = $this->course_service->getCourse($data->course_id);
 
     $this->storeUserCourseSchedule($user_course);
 
-    $mail_service = new MailService;
-    $mail_service->delay()->send(
-      $user->email,
-      AddCourseToUserMail::class,
-      [
-        'user_name'   => $user->fullName,
-        'course'      => $course->name,
-        'end_at'      => $course->end_at,
-      ]
-    );
+    $mail_data = [
+      'name'        => $user->details->first_name,
+      'course_name' => $course->name,
+      'end_at'      => $user_course->end_at,
+      'course_id'   => $data->course_id
+    ];
 
+    $this->mail_service->delay()->send($user->email, AddCourseToUserMail::class, $mail_data);
     return $user_course;
   }
 
@@ -231,7 +239,6 @@ class UserCourseService
     try {
       if($this->isUserHasCourse($user_id, $content_id)) {
         $this->log_service->warning('User already has an active course', ['user_id' => $user_id, 'content_id' => $content_id]);
-
       }
 
       $user_course              = new UserCourse;
@@ -253,6 +260,7 @@ class UserCourseService
         'end_at'      => $user_course->end_at,
         'course_id'   => $content_id
       ];
+
       $this->mail_service->delay()->send($user->email, AddCourseToUserMail::class, $mail_data);
       $this->log_service->info('User has been assigned to course', ['user_id' => $user_id, 'content_id' => $content_id]);
 

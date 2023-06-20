@@ -299,7 +299,7 @@ class CourseLessonService implements IContentService
     $lesson->course_area_id   = $data['course_area_id'];
     $lesson->video_id         = $data['video_id'];
     $lesson->name             = $data['name'];
-    $lesson->content          = $data['content'];
+    $lesson->content          = $data['content'] ?? null;
     $lesson->description      = $data['description'];
     $lesson->status           = $data['status'] ?? StatusService::PENDING;
 
@@ -354,7 +354,7 @@ class CourseLessonService implements IContentService
     $lesson->course_area_id = $data['course_area_id'];
     $lesson->video_id       = $data['video_id'];
     $lesson->name           = $data['name'];
-    $lesson->content        = $data['content'];
+    $lesson->content        = $data['content'] ?? null;
     $lesson->description    = $data['description'];
     $lesson->status         = $data['status'];
     $lesson->save();

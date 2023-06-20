@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <style>
         body {
             direction: rtl;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 0;
             margin: 0;
         }
@@ -65,6 +66,7 @@
             font-weight: bold;
             cursor: pointer;
         }
+
         @media only screen and (max-width: 600px) {
             table {
                 width: 100%;
@@ -73,8 +75,9 @@
         }
     </style>
 </head>
+
 <body>
-    <table>
+    <table dir="rtl">
         @include('mails.templates.header')
         <tbody>
             <tr>
@@ -85,9 +88,9 @@
                                 היי {{ $data['name'] }}, <span class="blue--text">שכחת במקרה את הסיסמה?</span>
                             </h1>
                             <p>
-                            נשמח לעזור לך ליצור סיסמה חדשה.
-                            <br>
-                            כל מה שצריך זה ללחוץ על הכפתור למטה ולאחר מכן למלא את הטופס.
+                                נשמח לעזור לך ליצור סיסמה חדשה.
+                                <br>
+                                כל מה שצריך זה ללחוץ על הכפתור למטה ולאחר מכן למלא את הטופס.
                             </p>
                         </div>
                         <br>
@@ -102,7 +105,7 @@
                                 אפס סיסמה
                             </button>
                         </a>
-                        
+
                         <br>
                         <br>
                         <br>
@@ -114,4 +117,5 @@
         </tbody>
     </table>
 </body>
+
 </html>
