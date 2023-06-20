@@ -875,7 +875,7 @@ class UserService
   private function hasAccessToLesson(int $user_id, int $lesson_id): bool
   {
     $course_ID = $this->content_service->getLessonCourseId($lesson_id);
-    $this->log_service->info('$course_ID', ['$course_ID' => $course_ID]);
+    $this->log_service->info('$course_ID', ['$course_ID' => $course_ID, '$user_id' => $user_id , '$lesson_id' => $lesson_id]);
 
     $this->user_course = UserCourse::query()
                                   ->where('user_id', $user_id)
