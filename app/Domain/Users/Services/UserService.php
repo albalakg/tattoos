@@ -884,7 +884,7 @@ class UserService
                                   ->first();
 
     $this->log_service->info('$this->user_course', ['$this->user_course' => $this->user_course]);
-    $this->log_service->info('(bool) $this->user_course', ['(bool) $this->user_course' => (bool) $this->user_course]);
+    $this->log_service->info('isnull', ['!is_null($this->user_course)' => !is_null($this->user_course)]);
 
     return !is_null($this->user_course);
   }
