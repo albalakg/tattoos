@@ -874,7 +874,6 @@ class UserService
   */
   private function hasAccessToLesson(int $user_id, int $lesson_id): bool
   {
-    
     $course_ID = $this->content_service->getLessonCourseId($lesson_id);
     $this->log_service->info('$course_ID', ['$course_ID' => $course_ID]);
 
