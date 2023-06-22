@@ -78,7 +78,7 @@
                     <div class="content">
                         <div>
                             <h1>
-                                היי {{ $data['name'] }}, <span class="blue--text">ההזמנה בוצעה בהצלחה!</span>
+                                היי {{ $data['name'] }}, <span class="blue--text">ההזמנה הושלמה בהצלחה!</span>
                             </h1>
                             <small>
                                 המספר הזמנה הינו: {{ $data['order_number'] }}

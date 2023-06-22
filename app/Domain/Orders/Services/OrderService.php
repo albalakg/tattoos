@@ -133,14 +133,16 @@ class OrderService
     $order->coupon_id           = $coupon->id ?? null;
     $order->marketing_token_id  = $marketing_token->id ?? null;
     $order->price               = $this->getOrderPrice($course, $coupon, $marketing_token);
-    $order->status              = StatusService::PENDING;
+    $order->status              = StatusService::IN_PROGRESS;
     $order->order_number        = $this->generateOrderTicketNumber();
     $order->save();
 
     $this->log_service->info('Order has been created: ' . json_encode($order));
-    $this->startPaymentTransaction($order);
-    
-    return Order::where('id', $order->id)->value('token');
+    $generated_page_link = $this->startPaymentTransaction($order);
+
+    return [
+      'page_link' => $generated_page_link
+    ];
   }
   
   /**
@@ -190,22 +192,21 @@ class OrderService
   
   /**
    * visa is the default provider and at the moment the only provider
+   * returns the generated page link
    * TODO: when adding a new provider need to make it more dynamic
    * 
    * @param Order $order
    * @param string $provider
-   * @return bool
+   * @return ?string
   */
-  private function startPaymentTransaction(Order $order, string $provider = 'visa'): bool
+  private function startPaymentTransaction(Order $order, string $provider = 'visa'): ?string
   {
     try {
       $this->payment_service = new PaymentService($order, $provider);
-      $this->payment_service->startTransaction();
-
-      return true;
+      return $this->payment_service->startTransaction();
     } catch(Exception $ex) {
       $this->log_service->critical($ex);
-      return false;
+      return null;
     }
   }
   
@@ -258,7 +259,15 @@ class OrderService
     }
 
     $total_price = floor(($course->price - $course_discount - $coupon_discount - $marketing_token_discount) * $taxes);
-    $this->log_service->info("Calc order price: course_discount=$course_discount|coupon_discount=$coupon_discount|marketing_token_discount=$marketing_token_discount|total_price=$total_price");
+
+    $this->log_service->info('Calc order price', [
+      'course_price'              => $course->price,
+      'course_discount'           => $course_discount,
+      'coupon_discount'           => $coupon_discount,
+      'marketing_token_discount'  => $marketing_token_discount,
+      'total_price'               => $total_price,
+    ]);
+
     return $total_price;
   }
 

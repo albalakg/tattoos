@@ -2,24 +2,53 @@
 
 namespace App\Domain\Payment\Services\Providers;
 
+use App\Domain\Helpers\LogService;
 use Exception;
+use Illuminate\Support\Str;
 use App\Domain\Orders\Models\Order;
 use Illuminate\Support\Facades\Http;
-use App\Domain\Payment\Models\Payment;
+use App\Domain\Users\Services\UserService;
 use App\Domain\Payment\Interfaces\IPaymentProvider;
 
 class PayPlusProvider implements IPaymentProvider
 {
-    const ID = 1;
+    const ID                    = 1;
+    const PAYMENT_METHOD_CHARGE = 1;
+    const DEFAULT_CHARGE_METHOD = 'credit-card';
+    const PAGE_GENERATION_PATH  = '/api/v1.0/PaymentPages/generateLink';
+    const CURRENCY_CODE         = 'ILS';
+
+    private Order $order;
+
+    private $transaction_response;
+
+    private LogService $log_service;
+
+    public function __construct()
+    {
+        $this->log_service = new LogService('payment');
+    }
     
     /**
      * The payload that will be sent to the provider
      *
      * @var array
     */
-    private $payment_load = [
-        'currency' => 'NIS',
-        'quantity' => 1
+    private $payment_payload = [
+        'payment_page_uid'          => '',
+        'charge_method'             => self::PAYMENT_METHOD_CHARGE,
+        'charge_default'            => self::DEFAULT_CHARGE_METHOD,
+        'hide_other_charge_methods' => true,
+        'amount'                    => null,
+        'currency_code'             => self::CURRENCY_CODE,
+        'sendEmailApproval'         => true,
+        'sendEmailFailure'          => true,
+        'sendEmailApproval'         => true,
+        'refURL_callback'           => '',
+        'customer'                  => [
+            'customer_name'         => '',
+            'email'                 => '',
+        ]
     ];
     
     /**
@@ -31,33 +60,19 @@ class PayPlusProvider implements IPaymentProvider
     }
     
     /**
-     * @param int $price
-     * @return self
+     * @return void
     */
-    public function setPrice(int $price): self
+    public function getTransactionResponse()
     {
-        $this->payment_load['price'] = $price;
-        return $this;
+        return $this->transaction_response;
     }
     
     /**
-     * @param int $quantity
-     * @return self
+     * @return string
     */
-    public function setQuantity(int $quantity): self
+    public function getGeneratedPageLink(): string
     {
-        $this->payment_load['quantity'] = $quantity;
-        return $this;
-    }
-    
-    /**
-     * @param string $currency
-     * @return self
-    */
-    public function setCurrency(string $currency): self
-    {
-        $this->payment_load['currency'] = $currency;
-        return $this;
+        return $this->transaction_response->data->payment_page_link;
     }
     
     /**
@@ -66,7 +81,13 @@ class PayPlusProvider implements IPaymentProvider
     */
     public function buildPayment(Order $order)
     {
-        $this->setPrice($order->price);
+        $this->order = $order;
+
+        $this->setPrice()
+             ->setPageUid()
+             ->setCallbackUrl()
+             ->setCustomer();
+
         return $this;
     }
     
@@ -75,9 +96,9 @@ class PayPlusProvider implements IPaymentProvider
     */
     public function startTransaction()
     {
-        // return Http::withHeaders([
-        //     'Authorization' => config('payment.payplus.token')
-        // ])->post(config('payment.payplus.address'), $this->payment_load);        
+        $this->transaction_response = Http::withHeaders([
+            'Authorization' => config('payment.payplus.token')
+        ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);        
     }
     
     /**
@@ -87,15 +108,82 @@ class PayPlusProvider implements IPaymentProvider
     */
     public function isValid(): bool
     {
-        // add logic for validating..
-        return true;
+        try {
+            if($this->transaction_response->results->status !== 'success') {
+                throw new Exception('The response status from the transaction indicates for an error');
+            }
+
+            if(empty($this->transaction_response->data->payment_page_link) || !is_string($this->transaction_response->data->payment_page_link)) {
+                throw new Exception('The response page link from the transaction is invalid');
+            }
+    
+            return true;
+        } catch(Exception $ex) {
+            $this->log_service->critical($ex);
+            return false;
+        }
     }
     
     /**
-     * @param string $log
-     * @return void
+     * @return self
     */
-    private function info(string $log)
+    private function setPageUid(): self
     {
+        $this->payment_payload['payment_page_uid'] = Str::uuid();
+        return $this;
+    }
+    
+    /**
+     * @return self
+    */
+    private function setCallbackUrl(): self
+    {
+        $this->payment_payload['refURL_callback'] = config('app.url') . '/api/orders/completed';
+        return $this;
+    }
+    
+    /**
+     * @return self
+    */
+    private function setCustomer(): self
+    {
+        $user_service   = new UserService();
+        $user           = $user_service->getUserByID($this->order->user_id);
+        if(!$user) {
+            throw new Exception('User not found');
+        }
+
+        $this->payment_payload['customer']['customer_name'] = $user->details->fullName;
+        $this->payment_payload['customer']['email']         = $user->email;
+        return $this;
+    }
+    
+    /**
+     * @return self
+    */
+    private function setPrice(): self
+    {
+        $this->payment_payload['price'] = $this->order->price;
+        return $this;
+    }
+    
+    /**
+     * @param int $quantity
+     * @return self
+    */
+    private function setQuantity(int $quantity): self
+    {
+        $this->payment_payload['quantity'] = $quantity;
+        return $this;
+    }
+    
+    /**
+     * @param string $currency
+     * @return self
+    */
+    private function setCurrency(string $currency): self
+    {
+        $this->payment_payload['currency'] = $currency;
+        return $this;
     }
 }

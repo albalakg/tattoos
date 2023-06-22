@@ -14,7 +14,7 @@ class OrderCompletedRequest extends FormRequest
     public function rules()
     {
         return [
-            'token' => ['required', 'bail', 'string']
+            'token' => ['required', 'string']
         ];
     }
 }

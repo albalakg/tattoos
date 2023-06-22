@@ -49,9 +49,9 @@ class Controller extends BaseController
 
         return response()->json(
             [
-                'message' => $message,
-                'status' => true,
-                'data' => $data
+                'message'   => $message,
+                'status'    => true,
+                'data'      => $data
             ],
             $status
         );
@@ -76,9 +76,9 @@ class Controller extends BaseController
         ];
         
         $error_data = [
-            'message' => $debug_error['ErrorMessage'],
-            'status' => false,
-            'data' => $data
+            'message'   => $debug_error['ErrorMessage'],
+            'status'    => false,
+            'data'      => $data
         ];
 
         if(EnvService::isNotProd()) {

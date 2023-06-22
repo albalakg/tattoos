@@ -14,10 +14,7 @@ use App\Domain\Orders\Services\MarketingTokenService;
 
 class OrderController extends Controller
 {  
-  /**
-   * @var OrderService
-  */
-  public $service;
+  public OrderService $service;
   
   public function __construct()
   {
@@ -42,7 +39,7 @@ class OrderController extends Controller
   {
     try {
       $response = $this->service->create($request->validated(), Auth::user()->id);
-      return $this->successResponse('Order has been created', $response);
+      return $this->successResponse('Order has been created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -52,7 +49,7 @@ class OrderController extends Controller
   {
     try {
       $response = $this->service->completed($request->input('token'));
-      return $this->successResponse('Order\'s status updated', $response);
+      return $this->successResponse('Order\'s status updated successfully to completed', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

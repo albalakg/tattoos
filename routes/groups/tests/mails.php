@@ -3,18 +3,20 @@
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/email-confirmation', function() {
+Route::get('/user-signedup', function() {
     $data = [
         'name'  => 'עדן',
+        'email' => 'test@goldens.com',
         'token' => 'ASD3FV32f233fdfsadfdsf'
     ];
     
-    return view('mails.auth.emailConfirmation', ['data' => $data]);
+    return view('mails.auth.userSignedUp', ['data' => $data]);
 });
 
 Route::get('/forgot-password', function() {
     $data = [
         'name'  => 'עדן',
+        'email' => 'test@goldens.com',
         'token' => 'ASD3FV32f233fdfsadfdsf'
     ];
     return view('mails.auth.forgotPassword', ['data' => $data]);

@@ -146,7 +146,7 @@ class LogService
     private function getErrorContent(Exception $ex): string
     {
         $content  = '';
-        $content .= 'Message: ' . $ex->__toString() . self::SEPARATOR;
+        $content .= 'Message: ' . $ex->getMessage() . self::SEPARATOR;
         $content .= 'File: '    . $ex->getFile()    . self::SEPARATOR;
         $content .= 'Line: '    . $ex->getLine()    . self::SEPARATOR;
         return $content;
