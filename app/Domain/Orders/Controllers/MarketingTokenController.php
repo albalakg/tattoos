@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Orders\Services\OrderService;
 use App\Domain\Orders\Services\MarketingTokenService;
+use App\Domain\Orders\Requests\GetMarketingTokenRequest;
 use App\Domain\Orders\Requests\CreateMarketingTokenRequest;
 use App\Domain\Orders\Requests\DeleteMarketingTokenRequest;
 use App\Domain\Orders\Requests\UpdateMarketingTokenRequest;
@@ -23,6 +24,16 @@ class MarketingTokenController extends Controller
     $this->service = new MarketingTokenService(
       new OrderService(),
     );
+  }
+
+  public function getByToken(GetMarketingTokenRequest $request)
+  {
+    try {
+      $response = $this->service->getByToken($request->token);
+      return $this->successResponse('Marketing Token fetched', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
   }
 
   public function getAll()

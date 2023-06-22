@@ -45,6 +45,19 @@ class MarketingTokenService
                 )
                 ->get();
   }
+  
+  /**
+   * @param string $token
+   * @return ?MarketingToken
+  */
+  public function getByToken(string $token): ?MarketingToken
+  {
+    return MarketingToken::where('token', $token)
+                        ->select(
+                          'discount',
+                        )
+                        ->first();
+  }
 
   /**
    * @param string|null $token

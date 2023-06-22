@@ -9,8 +9,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class MarketingToken extends Model
 {
     use SoftDeletes;
-    
+
     const TOKEN_LENGTH = 50;
+    
+    protected $appends = ['link'];
+
+    public function getLinkAttribute()
+    {
+        return config('app.client_url') . '/orders?';  
+    }   
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i:s',

@@ -11,7 +11,6 @@ use App\Domain\Content\Services\ContentService;
 use App\Domain\Orders\Requests\CreateOrderRequest;
 use App\Domain\Orders\Requests\OrderCompletedRequest;
 use App\Domain\Orders\Services\MarketingTokenService;
-use App\Domain\Orders\Requests\UpdateOrderStatusRequest;
 
 class OrderController extends Controller
 {  

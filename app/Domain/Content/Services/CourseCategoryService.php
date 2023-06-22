@@ -120,7 +120,7 @@ class CourseCategoryService implements IContentService
       FileService::delete($course_category->image);
       $course_category->image      = FileService::create($data['image'], self::FILES_PATH);
     }
-    $course_category->status       = StatusService::PENDING;
+    $course_category->status       = $data['status'];
     $course_category->save();
 
     $this->log_service->info('Course Category ' . $course_category->id . ' has been updated: ' . json_encode($course_category));
