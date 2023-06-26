@@ -92,7 +92,8 @@ class Course extends Model
 
     public function schedules()
     {
-        return $this->hasMany(CourseScheduleLesson::class, 'course_id', 'id');
+        return $this->hasMany(CourseScheduleLesson::class, 'course_id', 'id')
+                    ->select('course_id', 'id', 'course_lesson_id', 'course_schedule_id', 'date', 'type_id');
     }
 
     public function areasWithLessons()

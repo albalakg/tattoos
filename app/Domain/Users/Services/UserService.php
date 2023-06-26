@@ -185,7 +185,14 @@ class UserService
       $added_lessons_by_user = $user_course_schedules->lessons->whereNull('course_schedule_lesson_id');
       foreach($added_lessons_by_user AS $added_lesson_by_user) {
         $added_lesson_by_user->course_id = $course->id;
-        $course->schedules->push($added_lesson_by_user);
+        $course->schedules->push([
+          'id'                        => $added_lesson_by_user->id,
+          'course_id'                 => $added_lesson_by_user->course_id,
+          'course_lesson_id'          => $added_lesson_by_user->course_lesson_id,
+          'course_schedule_lesson_id' => $added_lesson_by_user->course_schedule_lesson_id,
+          'date'                      => $added_lesson_by_user->date,
+          'type_id'                   => $added_lesson_by_user->type_id,
+        ]);
       }
     }
     return $courses;
