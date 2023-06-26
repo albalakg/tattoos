@@ -168,7 +168,6 @@ class UserService
     $user_courses   = $user_courses->select('id', 'course_id', 'progress')->pluck('course_id');
     $courses        = $this->content_service->getCoursesFullContent($user_courses->toArray());
     $user_schedules = $this->user_course_schedule_service->getUserCourseScheduleWithScheduleCourseByUserId($user_id); 
-
     
     foreach($courses AS $course) {
       $user_course_schedules  = $user_schedules->where('course_id', $course->id)->first();

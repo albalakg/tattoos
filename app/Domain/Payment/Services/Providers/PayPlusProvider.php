@@ -28,12 +28,12 @@ class PayPlusProvider implements IPaymentProvider
     {
         $this->log_service = new LogService('payment');
     }
-    
+
     /**
      * The payload that will be sent to the provider
      *
      * @var array
-    */
+     */
     private $payment_payload = [
         'payment_page_uid'          => '',
         'charge_method'             => self::PAYMENT_METHOD_CHARGE,
@@ -50,106 +50,106 @@ class PayPlusProvider implements IPaymentProvider
             'email'                 => '',
         ]
     ];
-    
+
     /**
      * @return int
-    */
+     */
     public function getProviderID(): int
     {
         return self::ID;
     }
-    
+
     /**
      * @return void
-    */
+     */
     public function getTransactionResponse()
     {
         return $this->transaction_response;
     }
-    
+
     /**
      * @return string
-    */
+     */
     public function getGeneratedPageLink(): string
     {
         return $this->transaction_response->data->payment_page_link;
     }
-    
+
     /**
      * @param Order $order
      * @return void
-    */
+     */
     public function buildPayment(Order $order)
     {
         $this->order = $order;
 
         $this->setPrice()
-             ->setPageUid()
-             ->setCallbackUrl()
-             ->setCustomer();
+            ->setPageUid()
+            ->setCallbackUrl()
+            ->setCustomer();
 
         return $this;
     }
-    
+
     /**
      * @return void
-    */
+     */
     public function startTransaction()
     {
         $this->transaction_response = Http::withHeaders([
-            'Authorization' => config('payment.payplus.token')
-        ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);        
+            'Authorization' => $this->getAuthorization()
+        ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);
     }
-    
+
     /**
      * check if the payment is finished successfully
      *
      * @return bool
-    */
+     */
     public function isValid(): bool
     {
         try {
-            if($this->transaction_response->results->status !== 'success') {
+            if ($this->transaction_response->results->status !== 'success') {
                 throw new Exception('The response status from the transaction indicates for an error');
             }
 
-            if(empty($this->transaction_response->data->payment_page_link) || !is_string($this->transaction_response->data->payment_page_link)) {
+            if (empty($this->transaction_response->data->payment_page_link) || !is_string($this->transaction_response->data->payment_page_link)) {
                 throw new Exception('The response page link from the transaction is invalid');
             }
-    
+
             return true;
-        } catch(Exception $ex) {
+        } catch (Exception $ex) {
             $this->log_service->critical($ex);
             return false;
         }
     }
-    
+
     /**
      * @return self
-    */
+     */
     private function setPageUid(): self
     {
         $this->payment_payload['payment_page_uid'] = Str::uuid();
         return $this;
     }
-    
+
     /**
      * @return self
-    */
+     */
     private function setCallbackUrl(): self
     {
         $this->payment_payload['refURL_callback'] = config('app.url') . '/api/orders/completed';
         return $this;
     }
-    
+
     /**
      * @return self
-    */
+     */
     private function setCustomer(): self
     {
         $user_service   = new UserService();
         $user           = $user_service->getUserByID($this->order->user_id);
-        if(!$user) {
+        if (!$user) {
             throw new Exception('User not found');
         }
 
@@ -157,33 +157,21 @@ class PayPlusProvider implements IPaymentProvider
         $this->payment_payload['customer']['email']         = $user->email;
         return $this;
     }
-    
+
     /**
      * @return self
-    */
+     */
     private function setPrice(): self
     {
         $this->payment_payload['price'] = $this->order->price;
         return $this;
     }
-    
+
     /**
-     * @param int $quantity
-     * @return self
-    */
-    private function setQuantity(int $quantity): self
+     * @return string
+     */
+    private function getAuthorization(): string
     {
-        $this->payment_payload['quantity'] = $quantity;
-        return $this;
-    }
-    
-    /**
-     * @param string $currency
-     * @return self
-    */
-    private function setCurrency(string $currency): self
-    {
-        $this->payment_payload['currency'] = $currency;
-        return $this;
+        return json_encode(["api_key" => config('payment.payplus.token'), "secret_key" => config('payment.payplus.token')]);
     }
 }

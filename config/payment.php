@@ -9,8 +9,9 @@ return [
 
     'payplus' => [
         
-        'address' => env('PAYPLUS_ADDRESS'),
-        'token' => env('PAYPLUS_TOKEN'),
+        'address'       => env('PAYPLUS_ADDRESS'),
+        'api_key'       => env('PAYPLUS_API_KEY'),
+        'secret_key'    => env('PAYPLUS_SECRET_KEY'),
 
     ],
 
@@ -18,8 +19,8 @@ return [
     
     'paypal' => [
         
-        'address' => env('PAYPAL_ADDRESS'),
-        'token' => env('PAYPAL_TOKEN'),
+        'address'   => env('PAYPAL_ADDRESS'),
+        'token'     => env('PAYPAL_TOKEN'),
 
     ],
 

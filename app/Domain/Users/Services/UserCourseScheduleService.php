@@ -93,15 +93,16 @@ class UserCourseScheduleService
   */
   public function getUserCourseScheduleWithScheduleCourseByUserId(int $user_id): Collection
   {
-    return UserCourseSchedule::where('user_course_schedules.user_id', $user_id)
-                             ->join('course_schedules', 'course_schedules.id', 'user_course_schedules.course_schedule_id')
-                             ->with('lessons')
-                             ->select(
-                              'user_course_schedules.id',
-                              'user_course_schedules.course_schedule_id',
-                              'course_schedules.course_id',
-                             )
-                             ->get();
+    return UserCourseSchedule::join('user_courses', 'user_courses.id', 'user_course_schedules.user_course_id')
+                              ->join('course_schedules', 'course_schedules.id', 'user_course_schedules.course_schedule_id')
+                              ->where('user_courses.user_id', $user_id)
+                              ->with('lessons')
+                              ->select(
+                                'user_course_schedules.id',
+                                'user_course_schedules.course_schedule_id',
+                                'course_schedules.course_id',
+                              )
+                              ->get();
   }
   
   /**
@@ -110,6 +111,9 @@ class UserCourseScheduleService
   */
   private function getUserCourseScheduleByUserId(int $user_id): ?UserCourseSchedule
   {
-    return UserCourseSchedule::where('user_id', $user_id)->first();
+    return UserCourseSchedule::join('user_courses', 'user_courses.id','user_course_schedules.user_course_id')
+                             ->where('user_courses.user_id', $user_id)
+                             ->select('user_course_schedules.*')
+                             ->first();
   }
 }

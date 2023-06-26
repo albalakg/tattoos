@@ -14,7 +14,10 @@ use App\Domain\Orders\Services\MarketingTokenService;
 
 class OrderController extends Controller
 {  
-  public OrderService $service;
+  /**
+   * @var OrderService
+  */
+  public $service;
   
   public function __construct()
   {

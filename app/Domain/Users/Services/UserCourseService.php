@@ -106,6 +106,30 @@ class UserCourseService
   }
   
   /**
+   * @param int $course_id
+   * @return Collection
+  */
+  public function getActiveCourseUsersWithoutSchedule(int $course_id): Collection
+  {
+    $user_courses = UserCourse::where('user_courses.course_id', $course_id)
+                              ->where('user_courses.status', StatusService::ACTIVE)
+                              ->select('user_courses.user_id', 'user_courses.id')
+                              ->get();
+
+    $user_courses_with_schedule = UserCourseSchedule::whereIn('user_course_id', $user_courses->pluck('id')->toArray())
+                                                    ->pluck('user_course_id')
+                                                    ->toArray();
+    
+    foreach($user_courses AS $index => $user_course) {
+      if(in_array($user_course->id, $user_courses_with_schedule)) {
+        unset($user_courses[$index]);
+      }
+    }
+
+    return $user_courses;
+  }
+  
+  /**
    * Check if there are active users in the course
    *
    * @param int $course_id
@@ -409,8 +433,8 @@ class UserCourseService
     }
 
     UserCourseSchedule::create([
-      'course_schedule_id'  => $user_course->id,
-      'user_id'             => $user_course->user_id,
+      'user_course_id'      => $user_course->id,
+      'course_schedule_id'  => $course_schedule->id,
       'start_date'          => now(),
       'created_at'          => now()
     ]);

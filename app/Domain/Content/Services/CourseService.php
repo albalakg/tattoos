@@ -9,7 +9,6 @@ use App\Domain\Content\Models\Course;
 use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Builder;
 use App\Domain\Interfaces\IContentService;
-use App\Domain\Users\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Models\CourseSchedule;
 use App\Domain\Users\Models\UserCourseSchedule;
@@ -272,12 +271,12 @@ class CourseService implements IContentService
       'created_by'  => $created_by,
     ]);
 
-    $this->createScheduleLessons($new_course_schedule, $lessons, $created_by);
-    
     if($current_course_schedule) {
       $this->deleteCourseScheduleLessons($current_course_schedule->id);
-      $this->updateAllUsersCourseSchedule($current_course_schedule->id, $new_course_schedule->id);
     }
+
+    $this->createScheduleLessons($new_course_schedule, $lessons, $created_by);
+    $this->setCourseScheduleToActiveCourseMembersWithoutSchedule($new_course_schedule);
   } 
     
   /**
@@ -343,6 +342,26 @@ class CourseService implements IContentService
     $last_view_order = Course::orderBy('view_order', 'desc')->value('view_order');
     return $last_view_order ? $last_view_order++ : 1; 
   }
+  
+  /**
+   * @param CourseSchedule $course_schedule
+   * @return void
+  */
+  private function setCourseScheduleToActiveCourseMembersWithoutSchedule(CourseSchedule $course_schedule)
+  {
+    $course_users         = $this->user_course_service->getActiveCourseUsersWithoutSchedule($course_schedule->course_id);
+    $new_users_course_schedule = [];
+    foreach($course_users AS $course_user) {
+      $new_users_course_schedule[] = [
+        'user_course_id'      => $course_user->id,
+        'course_schedule_id'  => $course_schedule->id,
+        'start_date'          => now(),
+        'created_at'          => now(),
+        
+      ];
+    }
+    UserCourseSchedule::insert($new_users_course_schedule);
+  }
    
   /**
    * Throws an error if failed the validation and cannot delete
@@ -401,18 +420,6 @@ class CourseService implements IContentService
   private function deleteCourseScheduleLessons(int $course_schedule_id)
   {
     return CourseScheduleLesson::where('course_schedule_id', $course_schedule_id)->delete();
-  }
-    
-  /**
-   * @param int $old_course_schedule_id
-   * @param int $new_course_schedule_id
-   * @return void
-  */
-  private function updateAllUsersCourseSchedule(int $old_course_schedule_id, int $new_course_schedule_id)
-  {
-    return UserCourseSchedule::where('course_schedule_id', $old_course_schedule_id)->update([
-      'course_schedule_id' => $new_course_schedule_id
-    ]);
   }
 
   /**
