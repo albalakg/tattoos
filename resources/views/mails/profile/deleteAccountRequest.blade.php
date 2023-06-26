@@ -104,13 +104,13 @@
                         <br>
 
                         <div class="actions">
-                            <a href="{{URL::to('/')}}/delete-account&token={{ $data['token'] }}&status=1">
+                            <a href="{{ config('app.client_url') }}/delete-account&token={{ $data['token'] }}&status=1">
                                 <button>
                                     מחק משתמש
                                 </button>
                             </a>
 
-                            <a href="{{URL::to('/')}}/delete-account&token={{ $data['token'] }}&status=0">
+                            <a href="{{ config('app.client_url') }}/delete-account&token={{ $data['token'] }}&status=0">
                                 <button class="cancel--button">
                                     בטל מחיקה
                                 </button>

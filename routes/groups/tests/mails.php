@@ -25,6 +25,7 @@ Route::get('/forgot-password', function() {
 Route::get('/update-email', function() {
     $data = [
         'name'  => 'עדן',
+        'email' => 'test@goldens.com',
         'token' => 'ASD3FV32f233fdfsadfdsf'
     ];
     return view('mails.profile.updateEmailRequest', ['data' => $data]);

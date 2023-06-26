@@ -2,7 +2,6 @@
 
 namespace App\Domain\Users\Services;
 
-use App\Domain\Content\Models\CourseScheduleLesson;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -12,24 +11,23 @@ use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\MailService;
 use App\Domain\Users\Models\LuCity;
 use App\Domain\Users\Models\LuTeam;
+use App\Mail\Auth\UserSignedUpMail;
 use Illuminate\Support\Facades\Hash;
 use App\Domain\Helpers\StatusService;
+use App\Mail\Auth\ForgotPasswordMail;
 use App\Events\Users\UserCreatedEvent;
 use App\Events\Users\UserDeletedEvent;
 use App\Domain\Users\Models\UserCourse;
 use App\Domain\Users\Models\UserDetail;
+use App\Mail\User\UpdateEmailRequestMail;
 use App\Domain\Orders\Services\OrderService;
-use App\Events\Users\UserResetPasswordEvent;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Users\Models\UserCourseLesson;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Models\UserCourseLessonWatch;
-use App\Domain\Users\Models\UserCourseSchedule;
 use App\Domain\Users\Models\UserEmailVerification;
-use App\Mail\Auth\UserSignedUpMail;
-use App\Mail\Auth\ForgotPasswordMail;
 
 class UserService
 {  
@@ -370,7 +368,7 @@ class UserService
         'token' => $email_verification['token'],
         'name'  => $data['first_name'] . ' ' . $data['last_name']
       ];
-      $this->mail_service->delay(5)->send($user->email, UserSignedUpMail::class, $user_signed_up_mail_data);
+      $this->mail_service->delay()->send($user->email, UserSignedUpMail::class, $user_signed_up_mail_data);
       $this->log_service->info('User completed sign up, part 3', ['id' => $user->id]);
       return $user;
     } catch(Exception $ex) {
@@ -581,7 +579,7 @@ class UserService
 
     $forgot_password_request->user_name = $user->details->first_name;
     $this->log_service->info('Submitted a forgot password request for user', ['id' => $user->id]);
-    $this->mail_service->delay(5)->send($email, ForgotPasswordMail::class, $forgot_password_request);
+    $this->mail_service->delay()->send($email, ForgotPasswordMail::class, $forgot_password_request);
   }
   
   /**
@@ -661,7 +659,12 @@ class UserService
       return;
     }
 
-    $this->saveEmailVerification($user, $email);
+    $email_verification = $this->saveEmailVerification($user, $email);
+    $this->mail_service->delay()->send($email, UpdateEmailRequestMail::class, [
+      'email' => $email,
+      'name'  => $user->details->first_name,
+      'token' => $email_verification->token
+    ]);
   }
   
   /**
@@ -670,6 +673,7 @@ class UserService
   */
   public function userHasOpenEmailVerificationRequest(int $user_id): bool
   {
+    $this->deleteOldEmailVerification($user_id);
     return UserEmailVerification::where('user_id', $user_id)->whereNull('verified_at')->exists();
   }
   
@@ -741,7 +745,7 @@ class UserService
     $verification = UserEmailVerification::where('email', $email)
                                           ->where('token', $token)
                                           ->first();
-
+    
     if(!$bypass_verification) {
       if(!$verification) {
         $this->log_service->info('Failed to verify the email', ['token' => $token]);
@@ -753,9 +757,9 @@ class UserService
       }
     }
     
-    $user = $this->getUserByEmail($email);
+    $user = $this->getUserByID($verification->user_id);
     
-    $this->log_service->info('User has verified his email', ['id' => $user->id]);
+    $this->log_service->info('User has verified his email', ['id' => $verification->user_id]);
     $verification->update(['verified_at' => now()]);
     $this->updateUserEmail([
       'id'    => $verification->user_id,
@@ -783,6 +787,15 @@ class UserService
 
     $this->log_service->info('Sent verification mail for changing the email');
     return $email_verification;
+  }
+
+  /**
+   * @param int $user_id
+   * @return int
+  */
+  private function deleteOldEmailVerification(int $user_id): int
+  {
+    return UserEmailVerification::where('user_id', $user_id)->whereDate( 'created_at', '<=', now()->subDay())->delete();
   }
 
   /**

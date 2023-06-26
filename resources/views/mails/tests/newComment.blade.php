@@ -41,7 +41,7 @@
                     </a>
                 </td>
                 <td align="right">
-                    <a href="{{URL::to('/')}}/delete-account?email={{ $data->email }}&token={{ $data->token }}&status=0">
+                    <a href="{{ config('app.client_url') }}delete-account?email={{ $data->email }}&token={{ $data->token }}&status=0">
                         <button>
                             Cancel Request
                         </button>

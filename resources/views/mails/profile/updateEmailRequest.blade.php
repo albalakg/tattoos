@@ -88,7 +88,7 @@
                         <br>
                         <br>
 
-                        <a href="{{ URL::to('/')}}/email-confirmation?token={{ $data['token'] }}">
+                        <a href="{{ config('app.client_url') }}/email-confirmation?token={{ $data['token'] }}&email={{ $data['email'] }}">
                             <button>
                                 אמת כתובת מייל
                             </button>

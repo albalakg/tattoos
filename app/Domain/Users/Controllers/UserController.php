@@ -10,6 +10,7 @@ use App\Domain\Helpers\StatusService;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Orders\Services\OrderService;
 use App\Domain\Content\Services\ContentService;
+use App\Domain\Helpers\MailService;
 use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Requests\CreateUserRequest;
 use App\Domain\Users\Requests\UpdateUserRequest;
@@ -282,7 +283,13 @@ class UserController extends Controller
   public function updateEmail(UpdateEmailRequest $request)
   {
     try {
-      $user_service = new UserService;
+      $user_service = new UserService(
+        null,
+        null,
+        null,
+        null,
+        new MailService
+      );
       $user_service->changeEmail(Auth::user(), $request->email);
       return $this->successResponse('An email as been sent for verification');
     } catch (Exception $ex) {

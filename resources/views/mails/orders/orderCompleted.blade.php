@@ -99,7 +99,7 @@
                         <br>
                         <br>
 
-                        <a href="{{URL::to('/')}}/courses/{{ $data['course_id'] }}">
+                        <a href="{{ config('app.client_url') }}/courses/{{ $data['course_id'] }}">
                             <button>
                                 היכנס לקורס
                             </button>
