@@ -126,6 +126,11 @@ class OrderService
     $coupon           = $data['coupon_code'] ? $this->content_service->getCoupon($data['coupon_code']) : null;
     $marketing_token  = isset($data['marketing_token']) ? $this->marketing_token_service->getMarketingTokenByToken($data['marketing_token']) : null;
 
+    if($marketing_token->status !== StatusService::ACTIVE) {
+      $this->log_service->info('The marketing token received is inactive', ['id' => $marketing_token->id, 'status' => $marketing_token->status]);
+      $marketing_token = null;
+    }
+
     $order                      = new Order();
     $order->user_id             = $created_by;
     $order->content_type_id     = LuContentType::COURSE;

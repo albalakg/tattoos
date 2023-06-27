@@ -16,7 +16,7 @@ class MarketingToken extends Model
 
     public function getLinkAttribute()
     {
-        return config('app.client_url') . '/orders?';  
+        return config('app.client_url') . '/orders?courseId=' . $this->course_id . '&marketingToken=' . $this->token;  
     }   
 
     protected $casts = [
@@ -27,6 +27,7 @@ class MarketingToken extends Model
 
     public function orders()
     {
-        return $this->hasMany(Order::class, 'marketing_token_id', 'id');
+        return $this->hasMany(Order::class, 'marketing_token_id', 'id')
+                    ->select('id', 'marketing_token_id');
     }
 }

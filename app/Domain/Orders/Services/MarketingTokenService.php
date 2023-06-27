@@ -1,29 +1,30 @@
 <?php
 namespace App\Domain\Orders\Services;
 
+use Exception;
 use Illuminate\Support\Str;
 use App\Domain\Helpers\LogService;
 use App\Domain\Orders\Models\MarketingToken;
 use App\Domain\Orders\Services\OrderService;
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
-
+use App\Domain\Content\Services\ContentService;
+use App\Domain\Helpers\StatusService;
 
 class MarketingTokenService
 {
-  /**
-   * @var LogService
-  */
-  private $log_service;
+  private LogService $log_service;
 
-  /**
-   * @var OrderService|null
-  */
-  private $order_service;
+  private ?OrderService $order_service;
 
-  public function __construct(OrderService $order_service = null)
+  private ?ContentService $content_service;
+
+  public function __construct(
+    OrderService $order_service = null,
+    ContentService $content_service = null
+    )
   {
     $this->order_service    = $order_service;
+    $this->content_service  = $content_service;
     $this->log_service      = new LogService('marketingToken');
   }
   
@@ -36,27 +37,16 @@ class MarketingTokenService
                 ->with('orders')
                 ->select(
                   'id',
+                  'course_id',
                   'name',
                   'email',
                   'phone',
                   'token',
-                  'discount',
+                  'fee',
+                  'status',
                   'created_at'
                 )
                 ->get();
-  }
-  
-  /**
-   * @param string $token
-   * @return ?MarketingToken
-  */
-  public function getByToken(string $token): ?MarketingToken
-  {
-    return MarketingToken::where('token', $token)
-                        ->select(
-                          'discount',
-                        )
-                        ->first();
   }
 
   /**
@@ -80,15 +70,17 @@ class MarketingTokenService
   public function create(array $data, int $created_by)
   {
     $marketing_token              = new MarketingToken();
-    $marketing_token->discount    = $data['discount'];
+    $marketing_token->course_id   = $data['course_id'];
+    $marketing_token->fee         = $data['fee'];
     $marketing_token->name        = $data['name'];
     $marketing_token->email       = $data['email'];
     $marketing_token->phone       = $data['phone'];
+    $marketing_token->status      = StatusService::PENDING;
     $marketing_token->token       = $this->generateToken();
     $marketing_token->created_by  = $created_by;
     $marketing_token->save();
 
-    $this->log_service->info('Marketing token has been created: ' . json_encode($marketing_token));
+  $this->log_service->info('Marketing link has been created', $marketing_token->toArray());
     return $marketing_token;
   }
    
@@ -98,14 +90,18 @@ class MarketingTokenService
   */
   public function update(array $data)
   {
-    $marketing_token              = MarketingToken::find($data['id']);
-    $marketing_token->discount    = $data['discount'];
-    $marketing_token->name        = $data['name'];
-    $marketing_token->email       = $data['email'];
-    $marketing_token->phone       = $data['phone'];
+    $marketing_token = MarketingToken::find($data['id']);
+    if(!$marketing_token) {
+      throw new Exception('Marketing link not found');
+    }
+
+    $marketing_token->name      = $data['name'];
+    $marketing_token->email     = $data['email'];
+    $marketing_token->phone     = $data['phone'];
+    $marketing_token->status    = $data['status'];
     $marketing_token->save();
 
-    $this->log_service->info('Marketing token has been updated: ' . json_encode($marketing_token));
+    $this->log_service->info('Marketing link has been updated', $marketing_token->toArray());
     return $marketing_token;
   }
   
@@ -118,7 +114,7 @@ class MarketingTokenService
   {
     foreach ($ids as $id) {
       try {
-        $this->log_service->info('Marketing Token ' . $id . ' has been deleted');
+        $this->log_service->info('Marketing link has been deleted', ['id' => $id]);
         MarketingToken::where('id', $id)->delete();
       } catch(Exception $ex) {
         $this->log_service->error($ex);
@@ -136,7 +132,7 @@ class MarketingTokenService
     foreach ($ids as $id) {
       try {
         $result = MarketingToken::where('id', $id)->forceDelete();
-        $this->log_service->info('Marketing Token ' . $id . ' has been forced deleted');
+        $this->log_service->info('Marketing link has been forced deleted', ['id' => $id]);
       } catch(Exception $ex) {
         $this->log_service->error($ex);
       }
