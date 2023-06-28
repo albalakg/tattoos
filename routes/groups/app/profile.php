@@ -26,5 +26,6 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('lesson/schedule',                  [UserController::class, 'scheduleLesson']);
     Route::post('lesson/training-schedule',         [UserController::class, 'addTrainingSchedule']);
     Route::post('lesson/training-schedule/{id}',    [UserController::class, 'updateTrainingSchedule']);
+    Route::delete('lesson/training-schedule/{id}',  [UserController::class, 'deleteTrainingSchedule']);
     
 });

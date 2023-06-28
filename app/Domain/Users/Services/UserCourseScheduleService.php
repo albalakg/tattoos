@@ -116,6 +116,23 @@ class UserCourseScheduleService
   }
   
   /**
+   * @param int $schedule_id
+   * @param int $user_id
+   * @return void
+  */
+  public function deleteTrainingSchedule(int $schedule_id, $user_id)
+  {
+    $user_course_schedule = $this->getUserCourseScheduleByUserId($user_id);
+    if(!$user_course_schedule) {
+      throw new Exception('User course schedule not found');
+    }
+
+    UserCourseScheduleLesson::where('id', $schedule_id)
+                            ->where('user_id', $user_id)
+                            ->delete();
+  }
+  
+  /**
    * @param int $user_id
    * @return Collection
   */

@@ -27,6 +27,7 @@ use App\Domain\Users\Requests\UserLessonProgressRequest;
 use App\Domain\Users\Services\UserCourseScheduleService;
 use App\Domain\Users\Requests\AddTrainingScheduleRequest;
 use App\Domain\Users\Requests\LandedOnPageNotFoundRequest;
+use App\Domain\Users\Requests\DeleteTrainingScheduleRequest;
 use App\Domain\Users\Requests\UpdateTrainingScheduleRequest;
 use App\Domain\Users\Requests\ScheduleUserCourseLessonRequest;
 
@@ -292,7 +293,7 @@ class UserController extends Controller
         new MailService
       );
       $user_service->changeEmail(Auth::user(), $request->email);
-      return $this->successResponse('An email as been sent for verification');
+      return $this->successResponse('An email has been sent for verification');
     } catch (Exception $ex) {
       $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
@@ -317,7 +318,7 @@ class UserController extends Controller
         new ContentService
       );
       $response = $user_course_schedule_service->scheduleLesson($request->id, $request->date, Auth::user()->id);
-      return $this->successResponse('User course lesson rescheduled successfully', $response);
+      return $this->successResponse('User course lesson has been rescheduled successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -328,7 +329,7 @@ class UserController extends Controller
     try {
       $user_course_schedule_service = new UserCourseScheduleService;
       $response = $user_course_schedule_service->addTrainingSchedule($request->validated(), Auth::user()->id);
-      return $this->successResponse('User course lesson rescheduled successfully', $response);
+      return $this->successResponse('User training schedule has been created successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -339,7 +340,18 @@ class UserController extends Controller
     try {
       $user_course_schedule_service = new UserCourseScheduleService;
       $response = $user_course_schedule_service->updateTrainingSchedule($request->input('id'), $request->input('date'), Auth::user()->id);
-      return $this->successResponse('User course lesson rescheduled successfully', $response);
+      return $this->successResponse('User training schedule has been updated successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function deleteTrainingSchedule(DeleteTrainingScheduleRequest $request)
+  {
+    try {
+      $user_course_schedule_service = new UserCourseScheduleService;
+      $response = $user_course_schedule_service->deleteTrainingSchedule($request->input('id'), Auth::user()->id);
+      return $this->successResponse('User training schedule has been deleted successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
