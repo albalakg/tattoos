@@ -8,6 +8,7 @@ use App\Domain\Helpers\LogService;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Users\Models\UserCourseSchedule;
 use App\Domain\Content\Services\ContentService;
+use App\Domain\Helpers\StatusService;
 use App\Domain\Users\Models\UserCourseScheduleLesson;
 
 class UserCourseScheduleService
@@ -88,6 +89,33 @@ class UserCourseScheduleService
   }
   
   /**
+   * @param int $schedule_id
+   * @param string $date
+   * @param int $user_id
+   * @return UserCourseScheduleLesson
+  */
+  public function updateTrainingSchedule(int $schedule_id, string $date, $user_id): UserCourseScheduleLesson
+  {
+    $user_course_schedule = $this->getUserCourseScheduleByUserId($user_id);
+    if(!$user_course_schedule) {
+      throw new Exception('User course schedule not found');
+    }
+
+    $user_course_schedule_lesson = UserCourseScheduleLesson::where('id', $schedule_id)
+                                                          ->where('user_id', $user_id)
+                                                          ->first();
+
+    if(!$user_course_schedule_lesson) {
+      throw new Exception('User\'s schedule lesson was not found');
+    }
+
+    $user_course_schedule_lesson->date = $date;
+    $user_course_schedule_lesson->save();
+
+    return $user_course_schedule_lesson;
+  }
+  
+  /**
    * @param int $user_id
    * @return Collection
   */
@@ -113,6 +141,7 @@ class UserCourseScheduleService
   {
     return UserCourseSchedule::join('user_courses', 'user_courses.id','user_course_schedules.user_course_id')
                              ->where('user_courses.user_id', $user_id)
+                             ->where('user_courses.status', StatusService::ACTIVE)
                              ->select('user_course_schedules.*')
                              ->first();
   }

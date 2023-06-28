@@ -4,13 +4,13 @@ namespace App\Domain\Users\Controllers;
 
 use Exception;
 use App\Domain\Helpers\LogService;
+use App\Domain\Helpers\MailService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Users\Services\UserService;
 use App\Domain\Orders\Services\OrderService;
 use App\Domain\Content\Services\ContentService;
-use App\Domain\Helpers\MailService;
 use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Requests\CreateUserRequest;
 use App\Domain\Users\Requests\UpdateUserRequest;
@@ -27,6 +27,7 @@ use App\Domain\Users\Requests\UserLessonProgressRequest;
 use App\Domain\Users\Services\UserCourseScheduleService;
 use App\Domain\Users\Requests\AddTrainingScheduleRequest;
 use App\Domain\Users\Requests\LandedOnPageNotFoundRequest;
+use App\Domain\Users\Requests\UpdateTrainingScheduleRequest;
 use App\Domain\Users\Requests\ScheduleUserCourseLessonRequest;
 
 class UserController extends Controller
@@ -327,6 +328,17 @@ class UserController extends Controller
     try {
       $user_course_schedule_service = new UserCourseScheduleService;
       $response = $user_course_schedule_service->addTrainingSchedule($request->validated(), Auth::user()->id);
+      return $this->successResponse('User course lesson rescheduled successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function updateTrainingSchedule(UpdateTrainingScheduleRequest $request)
+  {
+    try {
+      $user_course_schedule_service = new UserCourseScheduleService;
+      $response = $user_course_schedule_service->updateTrainingSchedule($request->input('id'), $request->input('date'), Auth::user()->id);
       return $this->successResponse('User course lesson rescheduled successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

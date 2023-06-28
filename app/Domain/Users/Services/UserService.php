@@ -163,18 +163,26 @@ class UserService
       $user_courses = $user_courses->where('status', $status);
     }
     
-    $user_courses   = $user_courses->select('id', 'course_id', 'progress')->pluck('course_id');
-    $courses        = $this->content_service->getCoursesFullContent($user_courses->toArray());
+    $user_courses   = $user_courses->select('id', 'course_id', 'progress', 'created_at')->get();
+    $courses        = $this->content_service->getCoursesFullContent($user_courses->pluck('course_id')->toArray());
     $user_schedules = $this->user_course_schedule_service->getUserCourseScheduleWithScheduleCourseByUserId($user_id); 
-    
+
     foreach($courses AS $course) {
+      $user_course = $user_courses->where('course_id', $course->id)->first();
+      $course->schedule_start_date = $user_course->created_at;
+      $course->earliest_scheduled_date = null;
+
       $user_course_schedules  = $user_schedules->where('course_id', $course->id)->first();
       if(!$user_course_schedules) {
         continue;
       }
 
       foreach($course->schedules AS $schedule) {
-        $user_schedule_lesson   = $user_course_schedules->lessons->where('course_schedule_lesson_id', $schedule->id)->first();
+        if(is_null($course->earliest_scheduled_date) || $course->earliest_scheduled_date > $schedule->date) {
+          $course->earliest_scheduled_date = $schedule->date;
+        }
+
+        $user_schedule_lesson = $user_course_schedules->lessons->where('course_schedule_lesson_id', $schedule->id)->first();
         if($user_schedule_lesson) {
           $schedule->date = $user_schedule_lesson['date'];
         }
