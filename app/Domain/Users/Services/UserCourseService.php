@@ -346,6 +346,8 @@ class UserCourseService
       $user_course->delete();
       $this->log_service->info('User course has been deleted', ['user_course_id' => $user_course_id]);
 
+      // TODO:: Add delete all user course schedules & schedules lessons
+
     } catch(Exception $ex) {
       $this->log_service->error($ex);
     }

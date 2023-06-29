@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Goldens -Forgot Password</title>
+    <title>Footer</title>
 
     <style>
         .links {
@@ -16,6 +16,10 @@
         .link {
             margin: auto;
         }
+
+        img {
+            width: 30px;
+        }
         
     </style>
 </head>
@@ -24,29 +28,29 @@
         <td align="center">
             <div class="links">
                 <div class="link">
-                    <a href="">
+                    <a target="_blank" href="https://instagram.com/goldens.fa?igshid=MjEwN2IyYWYwYw==">
                         <img src="{{ URL::to('/') }}/files/general/instagram.png" />
                     </a>
                 </div>
                 <div class="link">
-                    <a href="">
+                    <a target="_blank" href="https://www.facebook.com/profile.php?id=100094130323045">
                         <img src="{{ URL::to('/') }}/files/general/facebook.png" />
                     </a>
                 </div>
                 <div class="link">
-                    <a href="">
-                        <img src="{{ URL::to('/') }}/files/general/linkedin.png" />
+                    <a target="_blank" href="https://www.tiktok.com/@goldens.fa?lang=en">
+                        <img src="{{ URL::to('/') }}/files/general/tik-tok.png" />
                     </a>
                 </div>
                 <div class="link">
-                    <a href="">
-                        <img src="{{ URL::to('/') }}/files/general/twitter.png" />
+                    <a target="_blank" href="https://www.youtube.com/@GOLDENSACADEMY">
+                        <img src="{{ URL::to('/') }}/files/general/youtube.png" />
                     </a>
                 </div>
             </div>
             <br>
-            <small>
-                GOLDENS
+            <small dir="ltr">
+                Goldens Sport Services LTD.
             </small>
             <br>
             <small>

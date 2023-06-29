@@ -82,6 +82,8 @@
                                 היי {{ $data['name'] }}, <span class="blue--text">בהצלחה בקורס!</span>
                             </h1>
                             <p>
+                                ברוכים הבאים לקהילת גולדנס, להצטרפות לקהילה בפייסבוק, <a target="_blank" href="https://www.facebook.com/profile.php?id=100094130323045">לחץ כאן</a>
+                                <br>
                                 הרגע התחלת את הקורס "{{ $data['course_name'] }}".
                                 <br>
                                 יש לך גישה עכשיו לכל תכני הקורס עד התאריך "{{ $data['end_at'] }}".
