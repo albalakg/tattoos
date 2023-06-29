@@ -4,13 +4,15 @@ namespace App\Domain\Users\Models;
 
 use App\Domain\Users\Models\User;
 use App\Domain\Content\Models\Course;
-use App\Domain\Content\Models\CourseLesson;
 use App\Domain\Helpers\StatusService;
 use Illuminate\Database\Eloquent\Model;
 use App\Domain\Users\Models\UserCourseLesson;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserCourse extends Model
 {
+  use SoftDeletes;
+  
   const DONE = 100;
   
   protected $casts = [

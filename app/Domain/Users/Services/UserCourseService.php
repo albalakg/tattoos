@@ -15,6 +15,7 @@ use App\Domain\Users\Models\UserCourseLesson;
 use App\Events\Users\UserCourseDisabledEvent;
 use App\Domain\Content\Services\CourseService;
 use App\Domain\Users\Models\UserCourseSchedule;
+use App\Domain\Users\Models\UserCourseScheduleLesson;
 use App\Domain\Users\Models\UserCourseSubmission;
 use App\Domain\Users\Models\UserCourseSubmissionComment;
 
@@ -346,7 +347,7 @@ class UserCourseService
       $user_course->delete();
       $this->log_service->info('User course has been deleted', ['user_course_id' => $user_course_id]);
 
-      // TODO:: Add delete all user course schedules & schedules lessons
+      $this->deleteUserCourseSchedulesByUserCourseId($user_course->id);
 
     } catch(Exception $ex) {
       $this->log_service->error($ex);
@@ -410,6 +411,21 @@ class UserCourseService
     $user_course->save();
 
     $this->log_service->info('User course has been disabled', ['user_course_id' => $user_course_id]);
+  }
+  
+  /**
+   * @param int $user_course_id
+   * @return void
+  */
+  private function deleteUserCourseSchedulesByUserCourseId(int $user_course_id)
+  {
+    $user_course_schedules = UserCourseSchedule::where('user_course_id', $user_course_id)->select('id')->first();
+    if(!$user_course_schedules) {
+      return;
+    } 
+    
+    $user_course_schedules->delete();
+    UserCourseScheduleLesson::where('user_course_schedule_id', $user_course_schedules->id)->delete();
   }
 
   /**
