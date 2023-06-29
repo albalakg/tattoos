@@ -186,6 +186,8 @@ class UserService
         if($user_schedule_lesson) {
           $schedule->date = $user_schedule_lesson['date'];
         }
+
+        $schedule->is_date_updated = boolval($user_schedule_lesson);
       }
 
       $added_lessons_by_user = $user_course_schedules->lessons->whereNull('course_schedule_lesson_id');
@@ -198,6 +200,7 @@ class UserService
           'course_schedule_lesson_id' => $added_lesson_by_user->course_schedule_lesson_id,
           'date'                      => $added_lesson_by_user->date,
           'type_id'                   => $added_lesson_by_user->type_id,
+          'isSetByUser'               => true,
         ]);
       }
     }
