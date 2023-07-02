@@ -82,20 +82,15 @@
                             </p>
                         </div>
                         <br>
-                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-
                         <a href="{{ config('app.client_url') }}/email-confirmation?token={{ $data['token'] }}&email={{ $data['email'] }}">
                             <button>
                                 אמת כתובת מייל
                             </button>
                         </a>
-
                         <br>
                         <br>
+                        <br>
+                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
                         <br>
                         <br>
                     </div>

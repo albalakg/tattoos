@@ -94,20 +94,15 @@
                             </p>
                         </div>
                         <br>
-                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-
                         <a href="{{ config('app.client_url') }}/reset-password?token={{ $data['token'] }}&email={{ $data['email'] }}">
                             <button>
                                 אפס סיסמה
                             </button>
                         </a>
-
                         <br>
                         <br>
+                        <br>
+                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
                         <br>
                         <br>
                     </div>

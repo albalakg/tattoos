@@ -79,31 +79,28 @@
                     <div class="content">
                         <div>
                             <h1>
-                                היי {{ $data['name'] }}, <span class="blue--text">ראינו שלא היית פעיל תקופה</span>
+                                היי {{ $data['name'] }}, <span class="blue--text">ראינו שלא היית פעיל תקופה.</span>
                             </h1>
                             <p>
-                                נשמח לדעת אם הכל תקין, במידה ולא, מוזמן תמיד להשאיר הודעה באתר או ליצור איתנו קשר.
+                                נשמח לדעת אם הכל תקין, במידה ולא, מוזמן תמיד להשאיר הודעה באתר.
                                 <br>
-                                בנוסף, מוזמן להמשיך מהשיעור האחרון שבו עצרת.
+                                אל תוותר והקפד להתאמן, כי מי שמתרגל יותר, משתפר יותר.
+                                <br>
+                                מוזמן להמשיך מהשיעור האחרון שבו עצרת.
                                 <br>
                                 לכניסה לשיעור, לחץ על הכפתור למטה.
                             </p>
                         </div>
                         <br>
-                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-
                         <a href="{{ config('app.client_url') }}/courses/{{ $data['course_id'] }}/lessons/{{ $data['lesson_id'] }}">
                             <button>
                                 היכנס לשיעור
                             </button>
                         </a>
-
                         <br>
                         <br>
+                        <br>
+                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
                         <br>
                         <br>
                     </div>

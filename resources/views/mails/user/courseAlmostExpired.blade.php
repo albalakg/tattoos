@@ -79,33 +79,28 @@
                     <div class="content">
                         <div>
                             <h1>
-                                היי {{ $data['name'] }}, <span class="blue--text">הקורס עומד להיגמר!</span>
+                                היי {{ $data['name'] }}, <span class="blue--text">האקדמיה עומד להיגמר!</span>
                             </h1>
                             <p>
-                                זהו השבוע האחרון בו יהיה לך גישה לתכני הקורס "{{ $data['course_name'] }}".
+                                זהו השבוע האחרון בו יהיה לך גישה לתכני האקדמיה "{{ $data['course_name'] }}".
                                 <br>
-                                התוקף לקורס נגמר בתאריך "{{ $data['end_at'] }}".
+                                התוקף לאקדמיה נגמר בתאריך "{{ $data['end_at'] }}".
                                 <br>
-                                נצלו את הרגעים האחרונים וכנסו לאתר.
+                                נצלו את הרגעים האחרונים וכנסו למשתמש.
                                 <br>
-                                ניתן להיכנס לעמוד הקורס דרך הכפתור למטה
+                                ניתן להיכנס לעמוד האקדמיה דרך הכפתור למטה
                             </p>
                         </div>
                         <br>
-                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-
                         <a href="{{ config('app.client_url') }}/courses/{{ $data['course_id'] }}">
                             <button>
-                                היכנס לקורס
+                                היכנס לאקדמיה
                             </button>
                         </a>
-
                         <br>
                         <br>
+                        <br>
+                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
                         <br>
                         <br>
                     </div>

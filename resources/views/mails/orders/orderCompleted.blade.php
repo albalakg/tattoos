@@ -84,11 +84,11 @@
                                 המספר הזמנה הינו: {{ $data['order_number'] }}
                             </small>
                             <p>
-                                תודה רבה שרכשת את הקורס "{{ $data['course_name'] }}".
+                                תודה רבה שרכשת את האקדמיה "{{ $data['course_name'] }}".
                                 <br>
-                                עלות הקורס הינה {{ $data ['price'] }} ש"ח.
+                                עלות האקדמיה הינה {{ $data ['price'] }} ש"ח.
                                 <br>
-                                הקורס זמין עד התאריך "{{ $data['end_at'] }}".
+                                האקדמיה זמין עד התאריך "{{ $data['end_at'] }}".
                             </p>
 
                         </div>
@@ -101,7 +101,7 @@
 
                         <a href="{{ config('app.client_url') }}/courses/{{ $data['course_id'] }}">
                             <button>
-                                היכנס לקורס
+                                היכנס לאקדמיה
                             </button>
                         </a>
 
