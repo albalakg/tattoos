@@ -166,7 +166,7 @@ class UserService
     $user_courses   = $user_courses->select('id', 'course_id', 'progress', 'created_at')->get();
     $courses        = $this->content_service->getCoursesFullContent($user_courses->pluck('course_id')->toArray());
     $user_schedules = $this->user_course_schedule_service->getUserCourseScheduleWithScheduleCourseByUserId($user_id); 
-
+    
     foreach($courses AS $course) {
       $user_course = $user_courses->where('course_id', $course->id)->first();
       $course->schedule_start_date = $user_course->created_at;
