@@ -293,7 +293,7 @@ class CourseLessonService implements IContentService
   public function create(array $data, int $created_by): ?CourseLesson
   {
     $lesson                   = new CourseLesson;
-    $lesson->image            = FileService::create($data['image'], self::FILES_PATH);
+    $lesson->image            = FileService::create($data['image'], self::FILES_PATH, 's3');
     $lesson->course_id        = $this->course_area_service->getById($data['course_area_id'])->course_id;
     $lesson->view_order       = $this->getLessonViewOrder($data['course_area_id']);
     $lesson->course_area_id   = $data['course_area_id'];
@@ -322,7 +322,7 @@ class CourseLessonService implements IContentService
       }
 
     } catch(Exception $ex) {
-      FileService::delete($lesson->image);
+      FileService::delete($lesson->image, 's3');
       throw $ex;
     }
 
@@ -346,8 +346,8 @@ class CourseLessonService implements IContentService
     };
 
     if(!empty($data['image'])) {
-      FileService::delete($lesson->image);
-      $lesson->image        = FileService::create($data['image'], self::FILES_PATH);
+      FileService::delete($lesson->image, 's3');
+      $lesson->image = FileService::create($data['image'], self::FILES_PATH, 's3');
     }
 
     $lesson->course_id      = $this->course_area_service->getById($data['course_area_id'])->course_id;
@@ -516,7 +516,7 @@ class CourseLessonService implements IContentService
   {
     $this->validateIfCanDelete($lesson_id);
 
-    FileService::delete($this->lesson->image);
+    FileService::delete($this->lesson->image, 's3');
     $result = $this->lesson->forceDelete();
     $this->log_service->info('Lesson ' . $lesson_id . ' has been forced deleted');
     return $result;
