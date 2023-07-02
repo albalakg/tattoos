@@ -3,6 +3,7 @@
 namespace App\Domain\Orders\Controllers;
 
 use Exception;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Users\Services\UserService;
@@ -48,10 +49,30 @@ class OrderController extends Controller
     }
   }
 
-  public function completed(OrderCompletedRequest $request)
+  public function success(Request $request)
   {
     try {
-      $response = $this->service->completed($request->input('token'));
+      $response = $this->service->completed($request);
+      return $this->successResponse('Order\'s status updated successfully to completed', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function failure(Request $request)
+  {
+    try {
+      $response = $this->service->completed($request);
+      return $this->successResponse('Order\'s status updated successfully to completed', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function callback(Request $request)
+  {
+    try {
+      $response = $this->service->completed($request);
       return $this->successResponse('Order\'s status updated successfully to completed', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

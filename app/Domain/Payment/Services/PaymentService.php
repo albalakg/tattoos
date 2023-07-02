@@ -37,9 +37,9 @@ class PaymentService
     }
 
     /**
-     * @return string;
+     * @return array;
      */
-    public function startTransaction(): string
+    public function startTransaction(): array
     {
         $this->log_service->info('Starting the order\'s process', ['order_id' => $this->order->id]);
         $this->payment_provider->buildPayment($this->order);
@@ -50,7 +50,10 @@ class PaymentService
 
         $this->updatePaymentOrder($this->payment_provider->getTransactionResponse());
         $this->log_service->info('Finished the order\'s process successfully', ['order_id' => $this->order->id]);
-        return $this->payment_provider->getGeneratedPageLink();
+        return [
+            'token' => $this->payment_provider->getGeneratedPageToken(),
+            'link'  => $this->payment_provider->getGeneratedPageLink() 
+        ];
     }
 
     /**
@@ -65,6 +68,7 @@ class PaymentService
             $provider_class = self::PROVIDERS[$provider];
             $this->payment_provider = new $provider_class;
         } catch (Exception $ex) {
+            $this->log_service->error($ex);
             throw new Exception('Failed to set provider with: ' . $provider);
         }
     }

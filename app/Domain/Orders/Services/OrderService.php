@@ -1,11 +1,12 @@
 <?php
 namespace App\Domain\Orders\Services;
 
-use App\Domain\Content\Models\Coupon;
 use Exception;
+use Illuminate\Http\Request;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\MailService;
 use App\Domain\Orders\Models\Order;
+use App\Domain\Content\Models\Coupon;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Orders\Models\OrderLog;
 use App\Events\Orders\OrderCreatedEvent;
@@ -119,14 +120,14 @@ class OrderService
     }
     
     if(!$this->canCreateOrder($data['content_id'], $created_by)) {
-      $this->log_service->error('The requested content ' . $data['content_id'] . ' is already active or pending');
+      $this->log_service->info('The requested content is already active or pending', ['content_id' => $data['content_id']]);
       throw new Exception('User cannot create this order, there has already an active or pending order of this content'); 
     }
 
     $coupon           = $data['coupon_code'] ? $this->content_service->getCoupon($data['coupon_code']) : null;
     $marketing_token  = isset($data['marketing_token']) ? $this->marketing_token_service->getMarketingTokenByToken($data['marketing_token']) : null;
 
-    if($marketing_token->status !== StatusService::ACTIVE) {
+    if($marketing_token && $marketing_token->status !== StatusService::ACTIVE) {
       $this->log_service->info('The marketing token received is inactive', ['id' => $marketing_token->id, 'status' => $marketing_token->status]);
       $marketing_token = null;
     }
@@ -143,35 +144,41 @@ class OrderService
     $order->save();
 
     $this->log_service->info('Order has been created: ' . json_encode($order));
-    $generated_page_link = $this->startPaymentTransaction($order);
+
+    $payment_response = $this->startPaymentTransaction($order);
+    $order->token     = $payment_response['token'];
+    $order->save();
 
     return [
-      'page_link' => $generated_page_link
+      'page_link' => $payment_response['link']
     ];
   }
   
   /**
    * When order is completed we will update the order state
    *
-   * @param  mixed $token
+   * @param  Request $token
    * @return void
   */
-  public function completed(string $token)
+  public function completed(Request $req)
   {
-    $order = Order::where('token', $token)
-                  ->select('content_id', 'user_id')
-                  ->first();
+    $this->log_service->info('RESPONSE: ', $req->all());
+    $this->log_service->info('RESPONSE: ' . json_encode($req));
+    return;
+    // $order = Order::where('token', $token)
+    //               ->select('content_id', 'user_id')
+    //               ->first();
 
-    if(!$order) {
-      $this->log_service->error('Failed to complete the order with the token ' . $token);
-      return null;
-    }
+    // if(!$order) {
+    //   $this->log_service->error('Failed to complete the order with the token ' . $token);
+    //   return null;
+    // }
                   
-    $this->user_service->assignCourseToUser($order->user_id, $order->content_id);
-    $order->update([
-      'status' => StatusService::ACTIVE
-    ]);
-    $this->log_service->info('Order ' . $order->id . ' has been completed');
+    // $this->user_service->assignCourseToUser($order->user_id, $order->content_id);
+    // $order->update([
+    //   'status' => StatusService::ACTIVE
+    // ]);
+    // $this->log_service->info('Order ' . $order->id . ' has been completed');
   }
   
   /**
@@ -202,9 +209,9 @@ class OrderService
    * 
    * @param Order $order
    * @param string $provider
-   * @return ?string
+   * @return ?array
   */
-  private function startPaymentTransaction(Order $order, string $provider = 'visa'): ?string
+  private function startPaymentTransaction(Order $order, string $provider = 'visa'): ?array
   {
     try {
       $this->payment_service = new PaymentService($order, $provider);

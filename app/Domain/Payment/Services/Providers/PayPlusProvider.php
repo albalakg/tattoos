@@ -15,7 +15,7 @@ class PayPlusProvider implements IPaymentProvider
     const ID                    = 1;
     const PAYMENT_METHOD_CHARGE = 1;
     const DEFAULT_CHARGE_METHOD = 'credit-card';
-    const PAGE_GENERATION_PATH  = '/api/v1.0/PaymentPages/generateLink';
+    const PAGE_GENERATION_PATH  = 'PaymentPages/generateLink';
     const CURRENCY_CODE         = 'ILS';
 
     private Order $order;
@@ -24,17 +24,7 @@ class PayPlusProvider implements IPaymentProvider
 
     private LogService $log_service;
 
-    public function __construct()
-    {
-        $this->log_service = new LogService('payment');
-    }
-
-    /**
-     * The payload that will be sent to the provider
-     *
-     * @var array
-     */
-    private $payment_payload = [
+    private array $payment_payload = [
         'payment_page_uid'          => '',
         'charge_method'             => self::PAYMENT_METHOD_CHARGE,
         'charge_default'            => self::DEFAULT_CHARGE_METHOD,
@@ -51,6 +41,11 @@ class PayPlusProvider implements IPaymentProvider
         ]
     ];
 
+    public function __construct()
+    {
+        $this->log_service = new LogService('payment');
+    }
+
     /**
      * @return int
      */
@@ -65,6 +60,14 @@ class PayPlusProvider implements IPaymentProvider
     public function getTransactionResponse()
     {
         return $this->transaction_response;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGeneratedPageToken(): string
+    {
+        return $this->transaction_response->data->page_request_uid;
     }
 
     /**
@@ -96,9 +99,21 @@ class PayPlusProvider implements IPaymentProvider
      */
     public function startTransaction()
     {
-        $this->transaction_response = Http::withHeaders([
-            'Authorization' => $this->getAuthorization()
-        ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);
+        $this->transaction_response = (object) [
+            "results"=> (object) [
+              "status"=> "success",
+              "code"=> 0,
+              "description"=> "payment page link is been generated"
+            ],
+            "data"=> (object) [
+              "page_request_uid"=> "f33f7a1f-5ea7-4857-992a-2da95b369f53",
+              "payment_page_link"=> "https://payments.payplus.co.il/f33f7a1f-5ea7-4857-992a-2da95b369f53",
+              "qr_code_image"=> "https://restapi.payplus.co.il/api/payment-pages/payment-request/f33f7a1f-5ea7-4857-992a-2da95b369f53/qr-code"
+            ]
+        ];
+        // $this->transaction_response = Http::withHeaders([
+        //     'Authorization' => $this->getAuthorization()
+        // ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);
     }
 
     /**

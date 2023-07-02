@@ -8,6 +8,7 @@ interface IPaymentProvider
 {
     public function getProviderID(): int;
     public function getTransactionResponse();
+    public function getGeneratedPageToken(): string;
     public function getGeneratedPageLink(): string;
     public function buildPayment(Order $order);
     public function startTransaction();
