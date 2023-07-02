@@ -256,25 +256,23 @@ class UserService
   */
   public function setLessonProgress(array $data, int $user_id)
   {
-    $this->log_service->info('test1');
     if(!$this->hasAccessToLesson($user_id, $data['lesson_id'])) {
-      $this->log_service->info('no access');
       throw new Exception('User doesn\'t have access to the lesson: ' . $data['lesson_id']);
     }
 
-    $video = $this->content_service->getVideoByLessonId($data['lesson_id']);
+    $video    = $this->content_service->getVideoByLessonId($data['lesson_id']);
     $end_time = $data['end_time'] > $video->video_length ? $video->video_length : $data['end_time'];
     $progress = $this->calcVideoProgress($video->video_length, $end_time);
 
     if($user_lesson = $this->getUserLesson($user_id, $data['lesson_id'])) {
-      $user_lesson = $this->updateLessonProgress($user_lesson, $progress, $user_id);
+      $user_lesson  = $this->updateLessonProgress($user_lesson, $progress, $user_id);
     } else {
-      $user_lesson = $this->createLessonProgress($data['lesson_id'], $user_id, $progress);
+      $user_lesson  = $this->createLessonProgress($data['lesson_id'], $user_id, $progress);
     }
 
     $this->setLessonWatchRecord($user_lesson, $data['start_time'], $end_time);
 
-    $course_id = $this->content_service->getLessonCourseId($data['lesson_id']);
+    $course_id                    = $this->content_service->getLessonCourseId($data['lesson_id']);
     $user_lesson->course_progress = $this->updateUserCourseProgress($course_id, $user_lesson->user_course_id);
 
     return $user_lesson;
@@ -904,17 +902,13 @@ class UserService
   */
   private function hasAccessToLesson(int $user_id, int $lesson_id): bool
   {
-    $course_ID = $this->content_service->getLessonCourseId($lesson_id);
-    $this->log_service->info('$course_ID', ['$course_ID' => $course_ID, '$user_id' => $user_id , '$lesson_id' => $lesson_id]);
+    $course_id = $this->content_service->getLessonCourseId($lesson_id);
 
     $this->user_course = UserCourse::query()
                                   ->where('user_id', $user_id)
-                                  ->where('course_id', $course_ID)
+                                  ->where('course_id', $course_id)
                                   ->where('status', StatusService::ACTIVE)
                                   ->first();
-
-    $this->log_service->info('$this->user_course', ['$this->user_course' => $this->user_course]);
-    $this->log_service->info('isnull', ['!is_null($this->user_course)' => !is_null($this->user_course)]);
 
     return !is_null($this->user_course);
   }
@@ -1014,6 +1008,7 @@ class UserService
       $user_lessons_progress = UserCourseLesson::where('user_course_id', $user_course_id)
                                                 ->select('course_lesson_id', 'progress')
                                                 ->get();
+                                                
       for($course_lesson_index = 0; $course_lesson_index < count($lessons); $course_lesson_index++) {
         $lesson = $lessons[$course_lesson_index];
         
