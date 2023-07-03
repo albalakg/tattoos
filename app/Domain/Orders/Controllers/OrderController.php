@@ -52,7 +52,7 @@ class OrderController extends Controller
   public function success(Request $request)
   {
     try {
-      $response = $this->service->completed($request);
+      $response = $this->service->completed($request, 'success');
       return $this->successResponse('Order\'s status updated successfully to completed', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
@@ -62,7 +62,7 @@ class OrderController extends Controller
   public function failure(Request $request)
   {
     try {
-      $response = $this->service->completed($request);
+      $response = $this->service->completed($request, 'failure');
       return $this->successResponse('Order\'s status updated successfully to completed', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
@@ -72,7 +72,7 @@ class OrderController extends Controller
   public function callback(Request $request)
   {
     try {
-      $response = $this->service->completed($request);
+      $response = $this->service->completed($request, 'callback');
       return $this->successResponse('Order\'s status updated successfully to completed', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
