@@ -163,7 +163,8 @@ class OrderService
   */
   public function completed(Request $req, string $status)
   {
-    $this->log_service->info("RESPONSE $status -> " . json_encode($req));
+    $this->log_service->info("RESPONSE 1 $status -> ", $req->all());
+    $this->log_service->info("RESPONSE 2 $status -> " . json_encode($req));
     return;
     // $order = Order::where('token', $token)
     //               ->select('content_id', 'user_id')
