@@ -15,6 +15,8 @@ class Order extends Model
     ];
 
     protected $guarded = [];
+
+    public $course;
     
     public function logs()
     {

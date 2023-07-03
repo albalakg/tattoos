@@ -121,9 +121,10 @@ class PayPlusProvider implements IPaymentProvider
         //       "qr_code_image"=> "https://restapi.payplus.co.il/api/payment-pages/payment-request/f33f7a1f-5ea7-4857-992a-2da95b369f53/qr-code"
         //     ]
         // ];
-        $this->transaction_response = Http::withHeaders([
+        $response = Http::withHeaders([
             'Authorization' => $this->getAuthorization()
         ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);
+        $this->transaction_response = json_decode($response->body());
     }
 
     /**
@@ -174,9 +175,9 @@ class PayPlusProvider implements IPaymentProvider
      */
     private function setCallbackUrls(): self
     {
-        $this->payment_payload['refURL_success']    = 'https://goldensacademy.com/api/orders/success';
-        $this->payment_payload['refURL_failure']    = 'https://goldensacademy.com/api/orders/failure';
-        $this->payment_payload['refURL_callback']   = 'https://goldensacademy.com/api/orders/callback';
+        $this->payment_payload['refURL_success']    = 'https://server.goldensacademy.com/api/orders/success';
+        $this->payment_payload['refURL_failure']    = 'https://server.goldensacademy.com/api/orders/failure';
+        $this->payment_payload['refURL_callback']   = 'https://server.goldensacademy.com/api/orders/callback';
         // $this->payment_payload['refURL_success']    = config('app.url') . '/api/orders/success';
         // $this->payment_payload['refURL_failure']    = config('app.url') . '/api/orders/failure';
         // $this->payment_payload['refURL_callback']   = config('app.url') . '/api/orders/callback';
@@ -213,6 +214,6 @@ class PayPlusProvider implements IPaymentProvider
      */
     private function getAuthorization(): string
     {
-        return json_encode(["api_key" => config('payment.payplus.token'), "secret_key" => config('payment.payplus.token')]);
+        return json_encode(["api_key" => config('payment.payplus.api_key'), "secret_key" => config('payment.payplus.secret_key')]);
     }
 }
