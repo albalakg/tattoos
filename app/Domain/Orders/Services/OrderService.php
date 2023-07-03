@@ -145,6 +145,7 @@ class OrderService
 
     $this->log_service->info('Order has been created: ' . json_encode($order));
 
+    $order->course    = $course;
     $payment_response = $this->startPaymentTransaction($order);
     $order->token     = $payment_response['token'];
     $order->save();
@@ -160,10 +161,10 @@ class OrderService
    * @param  Request $token
    * @return void
   */
-  public function completed(Request $req)
+  public function completed(Request $req, string $status)
   {
-    $this->log_service->info('RESPONSE: ', $req->all());
-    $this->log_service->info('RESPONSE: ' . json_encode($req));
+    $this->log_service->info("RESPONSE $status -> ", $req->all());
+    $this->log_service->info("RESPONSE $status -> " . json_encode($req));
     return;
     // $order = Order::where('token', $token)
     //               ->select('content_id', 'user_id')

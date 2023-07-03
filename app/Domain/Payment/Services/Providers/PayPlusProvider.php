@@ -34,11 +34,20 @@ class PayPlusProvider implements IPaymentProvider
         'sendEmailApproval'         => true,
         'sendEmailFailure'          => true,
         'sendEmailApproval'         => true,
+        'refURL_success'            => '',
+        'refURL_failure'            => '',
         'refURL_callback'           => '',
         'customer'                  => [
             'customer_name'         => '',
             'email'                 => '',
-        ]
+        ],
+        'items'                     => [
+            [
+                'name'              => '',
+                'quantity'          => 1,
+                'price'             => null,
+            ]
+        ],
     ];
 
     public function __construct()
@@ -87,9 +96,10 @@ class PayPlusProvider implements IPaymentProvider
         $this->order = $order;
 
         $this->setPrice()
-            ->setPageUid()
-            ->setCallbackUrl()
-            ->setCustomer();
+            ->setPageUuid()
+            ->setCallbackUrls()
+            ->setCustomer()
+            ->setItem();
 
         return $this;
     }
@@ -99,21 +109,22 @@ class PayPlusProvider implements IPaymentProvider
      */
     public function startTransaction()
     {
-        $this->transaction_response = (object) [
-            "results"=> (object) [
-              "status"=> "success",
-              "code"=> 0,
-              "description"=> "payment page link is been generated"
-            ],
-            "data"=> (object) [
-              "page_request_uid"=> "f33f7a1f-5ea7-4857-992a-2da95b369f53",
-              "payment_page_link"=> "https://payments.payplus.co.il/f33f7a1f-5ea7-4857-992a-2da95b369f53",
-              "qr_code_image"=> "https://restapi.payplus.co.il/api/payment-pages/payment-request/f33f7a1f-5ea7-4857-992a-2da95b369f53/qr-code"
-            ]
-        ];
-        // $this->transaction_response = Http::withHeaders([
-        //     'Authorization' => $this->getAuthorization()
-        // ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);
+        // $this->transaction_response = (object) [
+        //     "results"=> (object) [
+        //       "status"=> "success",
+        //       "code"=> 0,
+        //       "description"=> "payment page link is been generated"
+        //     ],
+        //     "data"=> (object) [
+        //       "page_request_uid"=> "f33f7a1f-5ea7-4857-992a-2da95b369f53",
+        //       "payment_page_link"=> "https://payments.payplus.co.il/f33f7a1f-5ea7-4857-992a-2da95b369f53",
+        //       "qr_code_image"=> "https://restapi.payplus.co.il/api/payment-pages/payment-request/f33f7a1f-5ea7-4857-992a-2da95b369f53/qr-code"
+        //     ]
+        // ];
+        dd($this->payment_payload);
+        $this->transaction_response = Http::withHeaders([
+            'Authorization' => $this->getAuthorization()
+        ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);
     }
 
     /**
@@ -142,18 +153,34 @@ class PayPlusProvider implements IPaymentProvider
     /**
      * @return self
      */
-    private function setPageUid(): self
+    private function setItem(): self
     {
-        $this->payment_payload['payment_page_uid'] = Str::uuid();
+        $this->payment_payload['amount']            = $this->order->price;
+        $this->payment_payload['items'][0]['name']  = $this->order->course->name;
+        $this->payment_payload['items'][0]['price'] = $this->order->price;
         return $this;
     }
 
     /**
      * @return self
      */
-    private function setCallbackUrl(): self
+    private function setPageUuid(): self
     {
-        $this->payment_payload['refURL_callback'] = config('app.url') . '/api/orders/completed';
+        $this->payment_payload['payment_page_uid'] = config('payment.payplus.page_uuid');
+        return $this;
+    }
+
+    /**
+     * @return self
+     */
+    private function setCallbackUrls(): self
+    {
+        $this->payment_payload['refURL_success']    = 'https://goldensacademy.com/api/orders/success';
+        $this->payment_payload['refURL_failure']    = 'https://goldensacademy.com/api/orders/failure';
+        $this->payment_payload['refURL_callback']   = 'https://goldensacademy.com/api/orders/callback';
+        // $this->payment_payload['refURL_success']    = config('app.url') . '/api/orders/success';
+        // $this->payment_payload['refURL_failure']    = config('app.url') . '/api/orders/failure';
+        // $this->payment_payload['refURL_callback']   = config('app.url') . '/api/orders/callback';
         return $this;
     }
 
