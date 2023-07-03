@@ -123,10 +123,14 @@ class PayPlusProvider implements IPaymentProvider
         //       "qr_code_image"=> "https://restapi.payplus.co.il/api/payment-pages/payment-request/f33f7a1f-5ea7-4857-992a-2da95b369f53/qr-code"
         //     ]
         // ];
+
+        $this->log_service->info('Send a request to Payplus provider', $this->payment_payload);
         $response = Http::withHeaders([
             'Authorization' => $this->getAuthorization()
-        ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);
+            ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);
         $this->transaction_response = json_decode($response->body());
+        $this->log_service->info('Response from Payplus provider', (array) $this->transaction_response);
+
         // $response = Http::get('https://server.goldensacademy.com/api/payment/callback?name=123&price=123&id=92929');
         // $this->transaction_response = json_decode($response->body());
         // dd($response, $this->transaction_response);
@@ -180,8 +184,8 @@ class PayPlusProvider implements IPaymentProvider
      */
     private function setCallbackUrls(): self
     {
-        $this->payment_payload['refURL_success']    = 'https://goldensacademy.com/api/orders/success';
-        $this->payment_payload['refURL_failure']    = 'https://goldensacademy.com/api/orders/failure';
+        $this->payment_payload['refURL_success']    = 'http://localhost:8080/api/orders/success';
+        $this->payment_payload['refURL_failure']    = 'http://localhost:8080/api/orders/failure';
         $this->payment_payload['refURL_callback']   = 'https://server.goldensacademy.com/api/payment/callback';
         // $this->payment_payload['refURL_success']    = config('app.url') . '/api/orders/success';
         // $this->payment_payload['refURL_failure']    = config('app.url') . '/api/orders/failure';

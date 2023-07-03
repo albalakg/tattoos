@@ -6,6 +6,7 @@ use Exception;
 use App\Domain\Users\Models\User;
 use App\Mail\Application\ApplicationErrorMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class LogService
@@ -13,7 +14,7 @@ class LogService
     const SEPARATOR         = ' | ',
           DEFAULT_CHANNEL   = 'custom',
           MESSAGE           = 'MESSAGE: ',
-          TRACK_ID          = 'TRACK_ID: ',
+          TRACK_ID          = 'track_id',
           error             = 'ERROR: ',
           LOCAL_IP          = '127.0.0.1';
 
@@ -165,6 +166,7 @@ class LogService
                 'ip'        => request()->ip(),
                 'browser'   => request()->header('user-agent'),
                 'url'       => request()->url(),
+                'track_id'  => Cache::get(self::TRACK_ID)
             ];
         } catch (Exception $ex) {
             Log::channel(self::DEFAULT_CHANNEL)->critical($ex->__toString());

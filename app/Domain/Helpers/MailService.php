@@ -154,7 +154,7 @@ class MailService
   */
   private function info(string $content)
   {
-    $this->log_service->info(LogService::TRACK_ID . $this->mail_track_id . LogService::SEPARATOR . LogService::MESSAGE . $content);
+    $this->log_service->info($content, [LogService::TRACK_ID => $this->mail_track_id]);
   }
   
   /**
@@ -163,6 +163,6 @@ class MailService
   */
   private function error(string $content)
   {
-    $this->log_service->error(LogService::TRACK_ID . $this->mail_track_id . LogService::SEPARATOR . LogService::MESSAGE . $content);
+    $this->log_service->error($content, [LogService::TRACK_ID => $this->mail_track_id]);
   }
 }

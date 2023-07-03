@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Str;
+use App\Domain\Helpers\LogService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Cache::driver('array')->rememberForever(LogService::TRACK_ID, function() { 
+            return Str::uuid();
+        });
     }
 }
