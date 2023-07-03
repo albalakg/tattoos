@@ -125,10 +125,9 @@ class PayPlusProvider implements IPaymentProvider
         //     'Authorization' => $this->getAuthorization()
         // ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);
         // $this->transaction_response = json_decode($response->body());
-        $response = Http::withHeaders([
-            'Authorization' => $this->getAuthorization()
-        ])->get('https://server.goldensacademy.com/api/orders/callback?name=123&price=123&id=92929');
+        $response = Http::get('https://server.goldensacademy.com/api/payment/callback?name=123&price=123&id=92929');
         $this->transaction_response = json_decode($response->body());
+        dd($response, $this->transaction_response);
     }
 
     /**

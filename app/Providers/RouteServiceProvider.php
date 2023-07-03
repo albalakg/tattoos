@@ -101,12 +101,12 @@ class RouteServiceProvider extends ServiceProvider
             ->group(base_path("routes/groups/app/support.php"));
 
         Route::prefix('api/payment')
-            ->namespace($this->getNamespace('Users'))
+            ->namespace($this->namespace)
             ->group(base_path("routes/groups/app/payment.php"));
 
         Route::prefix('api/orders')
             ->middleware('auth:api')
-            ->namespace($this->getNamespace('Users'))
+            ->namespace($this->namespace)
             ->group(base_path("routes/groups/app/orders.php"));
         
         Route::prefix('api/content')
