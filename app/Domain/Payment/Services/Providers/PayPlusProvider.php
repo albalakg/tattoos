@@ -34,9 +34,9 @@ class PayPlusProvider implements IPaymentProvider
         'sendEmailApproval'         => true,
         'sendEmailFailure'          => true,
         'sendEmailApproval'         => true,
-        'refURL_success'            => '',
-        'refURL_failure'            => '',
-        'refURL_callback'           => '',
+        // 'refURL_success'            => '',
+        // 'refURL_failure'            => '',
+        // 'refURL_callback'           => '',
         'customer'                  => [
             'customer_name'         => '',
             'email'                 => '',
@@ -97,7 +97,7 @@ class PayPlusProvider implements IPaymentProvider
 
         $this->setPrice()
             ->setPageUuid()
-            ->setCallbackUrls()
+            // ->setCallbackUrls()
             ->setCustomer()
             ->setItem();
 
