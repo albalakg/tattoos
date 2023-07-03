@@ -13,9 +13,7 @@ class LogService
 {    
     const SEPARATOR         = ' | ',
           DEFAULT_CHANNEL   = 'custom',
-          MESSAGE           = 'MESSAGE: ',
           TRACK_ID          = 'track_id',
-          error             = 'ERROR: ',
           LOCAL_IP          = '127.0.0.1';
 
     /**
