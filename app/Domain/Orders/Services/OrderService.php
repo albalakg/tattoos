@@ -164,7 +164,6 @@ class OrderService
   public function completed(Request $req, string $status)
   {
     $this->log_service->info("RESPONSE $status -> ", $req->all());
-    $this->log_service->info("RESPONSE $status -> " . $req->headers());
     return;
     // $order = Order::where('token', $token)
     //               ->select('content_id', 'user_id')
