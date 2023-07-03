@@ -121,7 +121,6 @@ class PayPlusProvider implements IPaymentProvider
         //       "qr_code_image"=> "https://restapi.payplus.co.il/api/payment-pages/payment-request/f33f7a1f-5ea7-4857-992a-2da95b369f53/qr-code"
         //     ]
         // ];
-        // dd($this->payment_payload);
         $this->transaction_response = Http::withHeaders([
             'Authorization' => $this->getAuthorization()
         ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);

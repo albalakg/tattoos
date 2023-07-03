@@ -258,21 +258,20 @@ class OrderService
     $taxes                      = 1.17;
 
     if($course->discount) {
-      $course_discount = ($course->discount / 100) * $course->price;
+      $course_discount = floor(($course->discount / 100) * $course->price);
     }
-
+    
     if($coupon) {
       $coupon_discount =  $coupon->type === Coupon::TYPE_PERCENTAGE ? 
-                          ($coupon->value / 100) * $course->price : 
-                          $coupon->value;
+      ($coupon->value / 100) * $course->price : 
+      $coupon->value;
     }
-
+    
     if($marketing_token) {
       $marketing_token_discount = $marketing_token->discount;
     }
-
+    
     $total_price = floor(($course->price - $course_discount - $coupon_discount - $marketing_token_discount) * $taxes);
-
     $this->log_service->info('Calc order price', [
       'course_price'              => $course->price,
       'course_discount'           => $course_discount,

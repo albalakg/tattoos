@@ -97,7 +97,7 @@ class CourseService implements IContentService
   {
     return  Course::with('guestActiveAreasWithActiveLessons', 'category', 'details', 'recommendations')
                   ->where('status', StatusService::ACTIVE)
-                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order', 'price')
+                  ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order', 'price', 'discount')
                   ->get();
   }
   
