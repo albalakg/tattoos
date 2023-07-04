@@ -99,8 +99,7 @@ class PayPlusProvider implements IPaymentProvider
     {
         $this->order = $order;
 
-        $this->setPrice()
-            ->setPageUuid()
+        $this->setPageUuid()
             ->setCallbackUrls()
             ->setCustomer()
             ->setItem();
@@ -175,9 +174,12 @@ class PayPlusProvider implements IPaymentProvider
      */
     private function setItem(): self
     {
-        $this->payment_payload['amount']            = $this->order->price;
+        $this->payment_payload['amount']            = 1;
         $this->payment_payload['items'][0]['name']  = $this->order->course->name;
-        $this->payment_payload['items'][0]['price'] = $this->order->price;
+        $this->payment_payload['items'][0]['price'] = 1;
+        // $this->payment_payload['amount']            = $this->order->price;
+        // $this->payment_payload['items'][0]['name']  = $this->order->course->name;
+        // $this->payment_payload['items'][0]['price'] = $this->order->price;
         return $this;
     }
 
@@ -215,15 +217,6 @@ class PayPlusProvider implements IPaymentProvider
 
         $this->payment_payload['customer']['customer_name'] = $user->details->fullName;
         $this->payment_payload['customer']['email']         = $user->email;
-        return $this;
-    }
-
-    /**
-     * @return self
-     */
-    private function setPrice(): self
-    {
-        $this->payment_payload['price'] = $this->order->price;
         return $this;
     }
 
