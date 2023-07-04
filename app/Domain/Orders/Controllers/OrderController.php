@@ -70,6 +70,7 @@ class OrderController extends Controller
         'status'            => $request->input('status'),
         'user_agent'        => $request->header('user-agent')
       ];
+      dd($data, $request->fullUrl());
       $response = $this->service->orderCompleted($data);
       return $this->successResponse('Order\'s status updated successfully to completed', $response);
     } catch (Exception $ex) {
