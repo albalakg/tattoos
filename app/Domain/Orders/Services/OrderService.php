@@ -193,7 +193,7 @@ class OrderService
     }
 
     if($is_valid) {
-      $this->updateOrderToCompletedSuccessfully($order, $data['approval_num']);
+      $this->updateOrderToCompletedSuccessfully($order, $data['approval_number']);
     } else {
       $this->updateOrderToFailed($order);
     }
@@ -203,13 +203,13 @@ class OrderService
   
   /**
    * @param Order $order
-   * @param string $approval_num
+   * @param string $approval_number
    * @return void
   */
-  private function updateOrderToCompletedSuccessfully(Order $order, string $approval_num)
+  private function updateOrderToCompletedSuccessfully(Order $order, string $approval_number)
   {
     $order->status        = StatusService::ACTIVE;
-    $order->approval_num  = $approval_num;
+    $order->approval_number  = $approval_number;
     $order->save();
     
     $this->user_service->assignCourseToUser($order->user_id, $order->content_id);

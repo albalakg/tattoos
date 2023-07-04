@@ -15,7 +15,7 @@ class OrderCallbackRequest extends FormRequest
     {
         $this->merge([
             'page_request_uid'  => $this->page_request_uid,
-            'approval_num'      => $this->approval_num,
+            'approval_number'   => $this->approval_number,
             'status'            => $this->status,
         ]);
     }
@@ -24,7 +24,7 @@ class OrderCallbackRequest extends FormRequest
     {
         return [
             'page_request_uid'  => ['required', 'string', 'uuid'],
-            'approval_num'      => ['required', 'string'],
+            'approval_number'   => ['required', 'string'],
             'status'            => ['required', 'string'],
         ];
     }

@@ -65,10 +65,9 @@ class OrderController extends Controller
   {
     try {
       $data = [
-        'page_request_uid'  => $request->input('page_request_uid'),
-        'approval_num'      => $request->input('approval_num'),
-        'status'            => $request->input('status'),
-        'user_agent'        => $request->header('user-agent')
+        'page_request_uid'  => $request->input('payment_page_request_uid'),
+        'approval_number'   => $request->input('approval_number'),
+        'browser'           => $request->input('browser')
       ];
       // dd($data, $request->fullUrl());
       $response = $this->service->orderCompleted($data);
