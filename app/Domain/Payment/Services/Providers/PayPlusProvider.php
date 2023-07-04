@@ -153,20 +153,15 @@ class PayPlusProvider implements IPaymentProvider
      */
     public function isPaymentCallbackValid(array $response): bool
     {
-        try {
-            if ($response['status'] !== self::APPROVED_RESPONSE_CALLBACK_STATUS) {
-                throw new Exception('The response status is invalid: '. $response['status']);
-            }
-
-            if ($response['user_agent'] !== self::APPROVED_RESPONSE_CALLBACK_USER_AGENT) {
-                throw new Exception('The response user agent is invalid: '. $response['user_agent']);
-            }
-
-            return true;
-        } catch (Exception $ex) {
-            $this->log_service->critical($ex);
-            return false;
+        if ($response['status'] !== self::APPROVED_RESPONSE_CALLBACK_STATUS) {
+            throw new Exception('The response status is invalid: '. $response['status']);
         }
+
+        if ($response['user_agent'] !== self::APPROVED_RESPONSE_CALLBACK_USER_AGENT) {
+            throw new Exception('The response user agent is invalid: '. $response['user_agent']);
+        }
+
+        return true;
     }
 
     /**

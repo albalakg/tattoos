@@ -61,11 +61,15 @@ class OrderController extends Controller
     }
   }
 
-  public function callback(OrderCallbackRequest $request)
+  public function callback(Request $request)
   {
     try {
-      $data               = $request->validated();
-      $data['user_agent'] = request()->header('user-agent');
+      $data = [
+        'page_request_uid'  => $request->input('page_request_uid'),
+        'approval_num'      => $request->input('approval_num'),
+        'status'            => $request->input('status'),
+        'user_agent'        => $request->header('user-agent')
+      ];
       $response = $this->service->orderCompleted($data);
       return $this->successResponse('Order\'s status updated successfully to completed', $response);
     } catch (Exception $ex) {
