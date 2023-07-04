@@ -13,6 +13,7 @@ use App\Domain\Orders\Requests\CreateOrderRequest;
 use App\Domain\Orders\Requests\OrderCallbackRequest;
 use App\Domain\Orders\Services\MarketingTokenService;
 use App\Domain\Content\Requests\CourseCoupon\GetSuccessOrderRequest;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {  
@@ -64,6 +65,7 @@ class OrderController extends Controller
   public function callback(Request $request)
   {
     try {
+      Log::info('test => ', $request->all());
       $transition = $request->input('transaction');
       $data = [
         'page_request_uid'  => $transition['payment_page_request_uid'],
