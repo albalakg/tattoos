@@ -64,10 +64,11 @@ class OrderController extends Controller
   public function callback(Request $request)
   {
     try {
+      $transition = $request->input('transaction');
       $data = [
-        'page_request_uid'  => $request->input('payment_page_request_uid'),
-        'approval_number'   => $request->input('approval_number'),
-        'browser'           => $request->input('browser')
+        'page_request_uid'  => $transition['payment_page_request_uid'],
+        'approval_number'   => $transition['approval_number'],
+        'browser'           => $transition['browser']
       ];
       // dd($data, $request->fullUrl());
       $response = $this->service->orderCompleted($data);
