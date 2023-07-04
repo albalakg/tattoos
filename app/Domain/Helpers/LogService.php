@@ -3,11 +3,12 @@
 namespace App\Domain\Helpers;
 
 use Exception;
+use Illuminate\Support\Str;
 use App\Domain\Users\Models\User;
-use App\Mail\Application\ApplicationErrorMail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use App\Mail\Application\ApplicationErrorMail;
 
 class LogService
 {    
@@ -159,12 +160,14 @@ class LogService
                 return;
             }
 
+            $track_id = Cache::get(self::TRACK_ID);
+
             $this->log_meta_data = [
                 'user'      => $this->getUser(),
                 'ip'        => request()->ip(),
                 'browser'   => request()->header('user-agent'),
                 'url'       => request()->url(),
-                'track_id'  => Cache::get(self::TRACK_ID)->toString()
+                'track_id'  => $track_id ? $track_id->toString() : Str::uuid()->toString()
             ];
         } catch (Exception $ex) {
             Log::channel(self::DEFAULT_CHANNEL)->critical($ex->__toString());
