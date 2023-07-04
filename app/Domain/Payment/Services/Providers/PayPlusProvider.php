@@ -199,7 +199,7 @@ class PayPlusProvider implements IPaymentProvider
     {
         $this->payment_payload['refURL_success']     = config('app.client_url') . '/orders/success';
         $this->payment_payload['refURL_failure']     = config('app.client_url') . '/orders/failure';
-        $this->payment_payload['refURL_callback']    = config('app.url') . '/api/orders/callback';
+        $this->payment_payload['refURL_callback']    = config('app.url') . '/api/payment/callback';
         $this->payment_payload['refURL_cancel']      = config('app.client_url');
         return $this;
     }
