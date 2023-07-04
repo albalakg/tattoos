@@ -13,4 +13,5 @@ interface IPaymentProvider
     public function buildPayment(Order $order);
     public function startTransaction();
     public function isValid(): bool;
+    public function isPaymentCallbackValid(array $response): bool;
 }

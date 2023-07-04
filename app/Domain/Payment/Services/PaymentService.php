@@ -25,22 +25,22 @@ class PaymentService
     private IPaymentProvider $payment_provider;
 
     /**
-     * @param Order $order
      * @param string $provider
      * @return void
      */
-    public function __construct(Order $order, string $provider)
+    public function __construct(string $provider)
     {
         $this->log_service  = new LogService('payment');
-        $this->order        = $order;
         $this->setProvider($provider);
     }
 
     /**
+     * @param Order $order
      * @return array;
      */
-    public function startTransaction(): array
+    public function startTransaction(Order $order): array
     {
+        $this->order = $order;
         $this->log_service->info('Starting the order\'s process', ['order_id' => $this->order->id]);
         $this->payment_provider->buildPayment($this->order);
         $this->payment_provider->startTransaction();
@@ -54,6 +54,21 @@ class PaymentService
             'token' => $this->payment_provider->getGeneratedPageToken(),
             'link'  => $this->payment_provider->getGeneratedPageLink() 
         ];
+    }
+    
+    /**
+     * @param array $response
+     * @return bool
+    */
+    public function isPaymentCallbackValid(array $response): bool
+    {
+        try {
+            $this->payment_provider->isPaymentCallbackValid($response);
+            return true;
+        } catch(Exception $ex) {
+            $this->log_service->critical($ex);
+            return false;
+        }
     }
 
     /**

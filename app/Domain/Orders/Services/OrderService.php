@@ -3,6 +3,7 @@ namespace App\Domain\Orders\Services;
 
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\MailService;
 use App\Domain\Orders\Models\Order;
@@ -22,30 +23,17 @@ use App\Domain\Orders\Services\MarketingTokenService;
 
 class OrderService
 {
-  /**
-   * @var LogService
-  */
-  private $log_service;
+  const ORDER_PAGE_EXPIRATION_TIME = 25; // minutes
 
-  /**
-   * @var UserService|null
-  */
-  private $user_service;
+  private LogService $log_service;
 
-  /**
-   * @var PaymentService|null
-  */
-  private $payment_service;
+  private UserService|null $user_service;
 
-  /**
-   * @var ContentService|null
-  */
-  private $content_service;
+  private PaymentService|null $payment_service;
 
-  /**
-   * @var MarketingTokenService|null
-  */
-  private $marketing_token_service;
+  private ContentService|null $content_service;
+
+  private MarketingTokenService|null $marketing_token_service;
 
   public function __construct(UserService $user_service = null, ContentService $content_service = null, MarketingTokenService $marketing_token_service = null)
   {
@@ -103,6 +91,30 @@ class OrderService
       $order
     );
   }
+  
+  /**
+   * @param string $token
+   * @param array|null $select
+   * @return Order|null
+  */
+  public function getOrderByToken(string $token, ?array $select = null): ?Order
+  {
+    $order = Order::where('token', $token);
+    if($select) {
+      $order = $order->select($select);
+    }    
+    return $order->first(); 
+  }
+  
+  /**
+   * @param int $user_id
+   * @param int $content_id
+   * @return Order|null
+  */
+  public function getOrderByUserAndContent(int $user_id, int $content_id): ?Order
+  {
+    return Order::where('user_id', $user_id)->where('content_id', $content_id)->first(); 
+  }
     
   /**
    * @param array $data
@@ -118,11 +130,17 @@ class OrderService
       $this->log_service->error('The requested content ' . $data['content_id'] . ' was not found');
       throw new Exception('The requested content does not exists');
     }
-    
+
     if(!$this->canCreateOrder($data['content_id'], $created_by)) {
       $this->log_service->info('The requested content is already active or pending', ['content_id' => $data['content_id']]);
+      $order = $this->getOrderByUserAndContent($created_by, $data['content_id']);
+      if($order && $current_order_page = $this->getOrderPageLink($order)) {
+        return $current_order_page;
+      }
+
       throw new Exception('User cannot create this order, there has already an active or pending order of this content'); 
     }
+
 
     $coupon           = $data['coupon_code'] ? $this->content_service->getCoupon($data['coupon_code']) : null;
     $marketing_token  = isset($data['marketing_token']) ? $this->marketing_token_service->getMarketingTokenByToken($data['marketing_token']) : null;
@@ -158,30 +176,55 @@ class OrderService
   /**
    * When order is completed we will update the order state
    *
-   * @param  Request $token
+   * @param array $data
    * @return void
   */
-  public function completed(Request $req, string $status)
+  public function orderCompleted(array $data)
   {
-    $this->log_service->info("RESPONSE 1 $status -> ", $req->all());
-    $this->log_service->info("RESPONSE 2 $status -> " . json_encode($req));
-    return;
-    // $order = Order::where('token', $token)
-    //               ->select('content_id', 'user_id')
-    //               ->first();
+    $this->log_service->info('Callback received from the payment provider', $data);
 
-    // if(!$order) {
-    //   $this->log_service->error('Failed to complete the order with the token ' . $token);
-    //   return null;
-    // }
-                  
-    // $this->user_service->assignCourseToUser($order->user_id, $order->content_id);
-    // $order->update([
-    //   'status' => StatusService::ACTIVE
-    // ]);
-    // $this->log_service->info('Order ' . $order->id . ' has been completed');
+    $is_valid = $this->isOrderCallbackValid($data);
+    $order    = $this->getOrderByToken($data['page_request_uid']);
+
+    if(!$order) {
+      $this->log_service->error('Order not found with token', ['token' => $data['page_request_uid']]);
+      return;
+    }
+
+    if($is_valid) {
+      $this->updateOrderToCompletedSuccessfully($order, $data['approval_num']);
+    } else {
+      $this->updateOrderToFailed($order);
+    }
+
+    $this->log_service->info('Order completed successfully', ['id' => $order->id]);
   }
   
+  /**
+   * @param Order $order
+   * @param string $approval_num
+   * @return void
+  */
+  private function updateOrderToCompletedSuccessfully(Order $order, string $approval_num)
+  {
+    $order->status        = StatusService::ACTIVE;
+    $order->approval_num  = $approval_num;
+    $order->save();
+    
+    $this->user_service->assignCourseToUser($order->user_id, $order->content_id);
+  }
+  
+  /**
+   * @param Order $order
+   * @return void
+  */
+  private function updateOrderToFailed(Order $order)
+  {
+    $order->status = StatusService::INACTIVE;
+    $order->save();
+  }
+
+
   /**
    * @param Order $order
    * @param int $created_by
@@ -215,8 +258,8 @@ class OrderService
   private function startPaymentTransaction(Order $order, string $provider = 'visa'): ?array
   {
     try {
-      $this->payment_service = new PaymentService($order, $provider);
-      return $this->payment_service->startTransaction();
+      $this->payment_service = new PaymentService($provider);
+      return $this->payment_service->startTransaction($order);
     } catch(Exception $ex) {
       $this->log_service->critical($ex);
       return null;
@@ -285,27 +328,36 @@ class OrderService
 
   /**
    * @param int $content_id
-   * @param int $created_by
-   * @return boolean
+   * @param int $user_id
+   * @return bool
   */
-  private function canCreateOrder(int $content_id, int $created_by): bool
+  private function canCreateOrder(int $content_id, int $user_id): bool
   {
-    $has_active_order = $this->userHasAValidOrderForThatCourse($content_id, $created_by);
+    $is_user_already_assigned = $this->user_service->isUserAssignedToCourse($user_id, $content_id);
     // add more rules here...
 
-    return !$has_active_order;
+    return !$is_user_already_assigned;
   }
 
   /**
-   * @param int $content_id
-   * @param int $created_by
-   * @return boolean
+   * @param Order $order
+   * @return array|null
   */
-  private function userHasAValidOrderForThatCourse(int $content_id, int $created_by): bool
+  private function getOrderPageLink(Order $order): ?array
   {
-    return Order::where('user_id', $created_by)
-                ->where('content_id', $content_id)
-                ->whereIn('status', [StatusService::ACTIVE, StatusService::PENDING, StatusService::IN_PROGRESS])
-                ->exists();
+    $created_at = Carbon::createFromFormat('Y-m-d H:i:s', $order->created_at);
+    return Carbon::now()->diffInMinutes($created_at) > self::ORDER_PAGE_EXPIRATION_TIME ? null : [
+      'page_link' => config('payment.payplus.page_address') . $order['token']
+    ]; 
+  }
+
+  /**
+   * @param array $response
+   * @return bool
+  */
+  private function isOrderCallbackValid(array $response): bool
+  {
+    $this->payment_service = new PaymentService('visa');
+    return $this->payment_service->isPaymentCallbackValid($response);
   }
 }

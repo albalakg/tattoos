@@ -149,7 +149,7 @@ class CourseService implements IContentService
   {
     return Course::whereIn('id', $courses_ids)
                  ->with('activeAreasWithActiveLessons', 'category', 'details', 'recommendations', 'schedules')
-                 ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order')
+                 ->select('id', 'name', 'category_id', 'status', 'image', 'trailer', 'description', 'view_order', 'price', 'discount')
                  ->orderBy('view_order')
                  ->get();
   }

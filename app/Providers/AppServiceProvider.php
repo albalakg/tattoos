@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Cache::driver('array')->rememberForever(LogService::TRACK_ID, function() { 
-            return Str::uuid();
+            return Str::uuid()->toString();
         });
     }
 }

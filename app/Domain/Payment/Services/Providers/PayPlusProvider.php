@@ -12,11 +12,13 @@ use App\Domain\Payment\Interfaces\IPaymentProvider;
 
 class PayPlusProvider implements IPaymentProvider
 {
-    const ID                    = 1;
-    const PAYMENT_METHOD_CHARGE = 1;
-    const DEFAULT_CHARGE_METHOD = 'credit-card';
-    const PAGE_GENERATION_PATH  = 'PaymentPages/generateLink';
-    const CURRENCY_CODE         = 'ILS';
+    const ID                                    = 1;
+    const PAYMENT_METHOD_CHARGE                 = 1;
+    const DEFAULT_CHARGE_METHOD                 = 'credit-card';
+    const PAGE_GENERATION_PATH                  = 'PaymentPages/generateLink';
+    const CURRENCY_CODE                         = 'ILS';
+    const APPROVED_RESPONSE_CALLBACK_STATUS     = 'approved';
+    const APPROVED_RESPONSE_CALLBACK_USER_AGENT = 'PayPlus';
 
     private Order $order;
 
@@ -34,9 +36,11 @@ class PayPlusProvider implements IPaymentProvider
         'sendEmailApproval'         => true,
         'sendEmailFailure'          => true,
         'sendEmailApproval'         => true,
+        'create_hash'               => true,
         'refURL_success'            => '',
         'refURL_failure'            => '',
         'refURL_callback'           => '',
+        'refURL_cancel'             => '',
         'customer'                  => [
             'customer_name'         => '',
             'email'                 => '',
@@ -111,29 +115,12 @@ class PayPlusProvider implements IPaymentProvider
      */
     public function startTransaction()
     {
-        // $this->transaction_response = (object) [
-        //     "results"=> (object) [
-        //       "status"=> "success",
-        //       "code"=> 0,
-        //       "description"=> "payment page link is been generated"
-        //     ],
-        //     "data"=> (object) [
-        //       "page_request_uid"=> "f33f7a1f-5ea7-4857-992a-2da95b369f53",
-        //       "payment_page_link"=> "https://payments.payplus.co.il/f33f7a1f-5ea7-4857-992a-2da95b369f53",
-        //       "qr_code_image"=> "https://restapi.payplus.co.il/api/payment-pages/payment-request/f33f7a1f-5ea7-4857-992a-2da95b369f53/qr-code"
-        //     ]
-        // ];
-
         $this->log_service->info('Send a request to Payplus provider', $this->payment_payload);
         $response = Http::withHeaders([
             'Authorization' => $this->getAuthorization()
             ])->post(config('payment.payplus.address') . self::PAGE_GENERATION_PATH, $this->payment_payload);
         $this->transaction_response = json_decode($response->body());
         $this->log_service->info('Response from Payplus provider', (array) $this->transaction_response);
-
-        // $response = Http::get('https://server.goldensacademy.com/api/payment/callback?name=123&price=123&id=92929');
-        // $this->transaction_response = json_decode($response->body());
-        // dd($response, $this->transaction_response);
     }
 
     /**
@@ -150,6 +137,30 @@ class PayPlusProvider implements IPaymentProvider
 
             if (empty($this->transaction_response->data->payment_page_link) || !is_string($this->transaction_response->data->payment_page_link)) {
                 throw new Exception('The response page link from the transaction is invalid');
+            }
+
+            return true;
+        } catch (Exception $ex) {
+            $this->log_service->critical($ex);
+            return false;
+        }
+    }
+
+    /**
+     * check if the payment callback is finished successfully
+     *
+     * @param array $response
+     * @return bool
+     */
+    public function isPaymentCallbackValid(array $response): bool
+    {
+        try {
+            if ($response['status'] !== self::APPROVED_RESPONSE_CALLBACK_STATUS) {
+                throw new Exception('The response status is invalid: '. $response['status']);
+            }
+
+            if ($response['user_agent'] !== self::APPROVED_RESPONSE_CALLBACK_USER_AGENT) {
+                throw new Exception('The response user agent is invalid: '. $response['user_agent']);
             }
 
             return true;
@@ -184,12 +195,10 @@ class PayPlusProvider implements IPaymentProvider
      */
     private function setCallbackUrls(): self
     {
-        $this->payment_payload['refURL_success']    = 'http://localhost:8080/api/orders/success';
-        $this->payment_payload['refURL_failure']    = 'http://localhost:8080/api/orders/failure';
-        $this->payment_payload['refURL_callback']   = 'https://server.goldensacademy.com/api/payment/callback';
-        // $this->payment_payload['refURL_success']    = config('app.url') . '/api/orders/success';
-        // $this->payment_payload['refURL_failure']    = config('app.url') . '/api/orders/failure';
-        // $this->payment_payload['refURL_callback']   = config('app.url') . '/api/orders/callback';
+        $this->payment_payload['refURL_success']     = config('app.client_url') . '/orders/success';
+        $this->payment_payload['refURL_failure']     = config('app.client_url') . '/orders/failure';
+        $this->payment_payload['refURL_callback']    = config('app.url') . '/api/orders/callback';
+        $this->payment_payload['refURL_cancel']      = config('app.client_url');
         return $this;
     }
 

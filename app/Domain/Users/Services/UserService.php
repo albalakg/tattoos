@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Users\Models\UserCourseLesson;
 use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Content\Services\ContentService;
+use App\Domain\Content\Services\CourseService;
 use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Models\UserCourseLessonWatch;
 use App\Domain\Users\Models\UserEmailVerification;
@@ -232,11 +233,30 @@ class UserService
   public function assignCourseToUser(int $user_id, int $content_id): ?UserCourse
   {
     try {
-      $user_course_service = new UserCourseService();
+      $user_course_service = new UserCourseService(
+        new CourseService(),
+        $this
+      );
       return $user_course_service->assignCourseToUser($user_id, $content_id);
     } catch(Exception $ex) {
       $this->log_service->error($ex);
       return null;
+    }
+  }
+  
+  /**
+   * @param int $user_id
+   * @param int $content_id
+   * @return bool
+  */
+  public function isUserAssignedToCourse(int $user_id, int $content_id): bool
+  {
+    try {
+      $user_course_service = new UserCourseService();
+      return $user_course_service->isUserAssignedToCourse($user_id, $content_id);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return false;
     }
   }
   

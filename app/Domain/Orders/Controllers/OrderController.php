@@ -10,8 +10,9 @@ use App\Domain\Users\Services\UserService;
 use App\Domain\Orders\Services\OrderService;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Orders\Requests\CreateOrderRequest;
-use App\Domain\Orders\Requests\OrderCompletedRequest;
+use App\Domain\Orders\Requests\OrderCallbackRequest;
 use App\Domain\Orders\Services\MarketingTokenService;
+use App\Domain\Content\Requests\CourseCoupon\GetSuccessOrderRequest;
 
 class OrderController extends Controller
 {  
@@ -33,7 +34,7 @@ class OrderController extends Controller
   {
     try {
       $response = $this->service->getAll();
-      return $this->successResponse('Orders fetched', $response);
+      return $this->successResponse('Order has been fetched successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -49,30 +50,23 @@ class OrderController extends Controller
     }
   }
 
-  public function success(Request $request)
+  public function getSuccessOrder(GetSuccessOrderRequest $request)
   {
     try {
-      $response = $this->service->completed($request, 'success');
-      return $this->successResponse('Order\'s status updated successfully to completed', $response);
+      $coupon = $this->service->getOrderByToken($request->input('token'), ['order_number']);
+      unset($coupon->id);
+      return $this->successResponse('Order has been fetched successfully', $coupon);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
   }
 
-  public function failure(Request $request)
+  public function callback(OrderCallbackRequest $request)
   {
     try {
-      $response = $this->service->completed($request, 'failure');
-      return $this->successResponse('Order\'s status updated successfully to completed', $response);
-    } catch (Exception $ex) {
-      return $this->errorResponse($ex);
-    }
-  }
-
-  public function callback(Request $request)
-  {
-    try {
-      $response = $this->service->completed($request, 'callback');
+      $data               = $request->validated();
+      $data['user_agent'] = request()->header('user-agent');
+      $response = $this->service->orderCompleted($data);
       return $this->successResponse('Order\'s status updated successfully to completed', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

@@ -257,6 +257,19 @@ class UserCourseService
   /**
    * @param int $user_id
    * @param int $content_id
+   * @return bool
+  */
+  public function isUserAssignedToCourse(int $user_id, int $content_id): bool
+  {
+    return UserCourse::where('user_id', $user_id)
+                     ->where('content', $content_id)
+                     ->where('status', StatusService::ACTIVE)
+                     ->exists();
+  }
+
+  /**
+   * @param int $user_id
+   * @param int $content_id
    * @return UserCourse|null
   */
   public function assignCourseToUser(int $user_id, int $content_id): ?UserCourse
@@ -264,6 +277,7 @@ class UserCourseService
     try {
       if($this->isUserHasCourse($user_id, $content_id)) {
         $this->log_service->warning('User already has an active course', ['user_id' => $user_id, 'content_id' => $content_id]);
+        throw new Exception('User already has an active course');
       }
 
       $user_course              = new UserCourse;
@@ -376,6 +390,7 @@ class UserCourseService
   {
     return UserCourse::where('user_id', $user_id)
                      ->where('course_id', $course_id)
+                     ->where('status', StatusService::ACTIVE)
                      ->exists();
   }
   

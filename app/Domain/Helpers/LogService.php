@@ -164,7 +164,7 @@ class LogService
                 'ip'        => request()->ip(),
                 'browser'   => request()->header('user-agent'),
                 'url'       => request()->url(),
-                'track_id'  => Cache::get(self::TRACK_ID)
+                'track_id'  => Cache::get(self::TRACK_ID)->toString()
             ];
         } catch (Exception $ex) {
             Log::channel(self::DEFAULT_CHANNEL)->critical($ex->__toString());
