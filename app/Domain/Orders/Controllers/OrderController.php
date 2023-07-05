@@ -4,6 +4,8 @@ namespace App\Domain\Orders\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
+use App\Domain\Helpers\LogService;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Domain\Users\Services\UserService;
@@ -13,7 +15,6 @@ use App\Domain\Orders\Requests\CreateOrderRequest;
 use App\Domain\Orders\Requests\OrderCallbackRequest;
 use App\Domain\Orders\Services\MarketingTokenService;
 use App\Domain\Content\Requests\CourseCoupon\GetSuccessOrderRequest;
-use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {  
@@ -65,7 +66,9 @@ class OrderController extends Controller
   public function callback(Request $request)
   {
     try {
-      Log::info('test => ', $request->all());
+      $log_service = new LogService('orders');
+      $log_service->info('Callback received from the payment provider request ', request()->all());
+      
       $transition = $request->input('transaction');
       $data = [
         'page_request_uid'  => $transition['payment_page_request_uid'] ?? null,

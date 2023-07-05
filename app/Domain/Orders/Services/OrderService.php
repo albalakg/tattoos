@@ -181,9 +181,6 @@ class OrderService
   */
   public function orderCompleted(array $data)
   {
-    $this->log_service->info('Callback received from the payment provider request =>  ', request()->all());
-    $this->log_service->info('Callback received from the payment provider', $data);
-
     $is_valid = $this->isOrderCallbackValid($data);
     $order    = $this->getOrderByToken($data['page_request_uid']);
 
