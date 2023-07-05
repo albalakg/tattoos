@@ -17,7 +17,6 @@ class PayPlusProvider implements IPaymentProvider
     const DEFAULT_CHARGE_METHOD                 = 'credit-card';
     const PAGE_GENERATION_PATH                  = 'PaymentPages/generateLink';
     const CURRENCY_CODE                         = 'ILS';
-    const APPROVED_RESPONSE_CALLBACK_STATUS     = 'approved';
     const APPROVED_RESPONSE_CALLBACK_USER_AGENT = 'PayPlus';
 
     private Order $order;
@@ -153,12 +152,12 @@ class PayPlusProvider implements IPaymentProvider
      */
     public function isPaymentCallbackValid(array $response): bool
     {
-        if ($response['status'] !== self::APPROVED_RESPONSE_CALLBACK_STATUS) {
-            throw new Exception('The response status is invalid: '. $response['status']);
+        if (is_string($response['approval_number'])) {
+            throw new Exception('The approval number is invalid: '. $response['status']);
         }
 
-        if ($response['user_agent'] !== self::APPROVED_RESPONSE_CALLBACK_USER_AGENT) {
-            throw new Exception('The response user agent is invalid: '. $response['user_agent']);
+        if ($response['browser'] !== self::APPROVED_RESPONSE_CALLBACK_USER_AGENT) {
+            throw new Exception('The response user agent is invalid: '. $response['browser']);
         }
 
         return true;

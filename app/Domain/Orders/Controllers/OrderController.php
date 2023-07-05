@@ -68,11 +68,10 @@ class OrderController extends Controller
       Log::info('test => ', $request->all());
       $transition = $request->input('transaction');
       $data = [
-        'page_request_uid'  => $transition['payment_page_request_uid'],
-        'approval_number'   => $transition['approval_number'],
-        'browser'           => $transition['browser']
+        'page_request_uid'  => $transition['payment_page_request_uid'] ?? null,
+        'approval_number'   => $transition['approval_number'] ?? null,
+        'browser'           => $request->header('user-agent')
       ];
-      // dd($data, $request->fullUrl());
       $response = $this->service->orderCompleted($data);
       return $this->successResponse('Order\'s status updated successfully to completed', $response);
     } catch (Exception $ex) {
