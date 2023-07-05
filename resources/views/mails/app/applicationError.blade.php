@@ -46,7 +46,7 @@
                 <td align="left">
                     <p>
                         {{
-                            $data['error']->getMessage()
+                            $data->getMessage()
                         }}
                     </p>
                 </td>
@@ -60,7 +60,7 @@
                 <td align="left">
                     <p>
                         {{
-                            $data['error']->getFile()
+                            $data->getFile()
                         }}
                     </p>
                 </td>
@@ -74,7 +74,7 @@
                 <td align="left">
                     <p>
                         {{
-                            $data['error']->getLine()
+                            $data->getLine()
                         }}
                     </p>
                 </td>
@@ -88,7 +88,7 @@
                 <td align="left">
                     <p>
                         {{
-                            $data['error']->__toString()
+                            $data->__toString()
                         }}
                     </p>
                 </td>
