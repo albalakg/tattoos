@@ -68,13 +68,14 @@ class OrderController extends Controller
     try {
       $log_service = new LogService('orders');
       $log_service->info('Callback received from the payment provider request ', request()->all());
-      
+
       $transition = $request->input('transaction');
       $data = [
         'page_request_uid'  => $transition['payment_page_request_uid'] ?? null,
         'approval_number'   => $transition['approval_number'] ?? null,
         'browser'           => $request->header('user-agent')
       ];
+      $log_service->info('Callback received data preparation ', $data);
       $response = $this->service->orderCompleted($data);
       return $this->successResponse('Order\'s status updated successfully to completed', $response);
     } catch (Exception $ex) {

@@ -152,8 +152,8 @@ class PayPlusProvider implements IPaymentProvider
      */
     public function isPaymentCallbackValid(array $response): bool
     {
-        if (is_string($response['approval_number'])) {
-            throw new Exception('The approval number is invalid: '. $response['status']);
+        if (!is_string($response['approval_number'])) {
+            throw new Exception('The approval number is invalid: '. $response['approval_number']);
         }
 
         if ($response['browser'] !== self::APPROVED_RESPONSE_CALLBACK_USER_AGENT) {

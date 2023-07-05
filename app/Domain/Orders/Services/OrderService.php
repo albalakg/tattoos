@@ -195,7 +195,7 @@ class OrderService
       $this->updateOrderToFailed($order);
     }
 
-    $this->log_service->info('Order completed successfully', ['id' => $order->id]);
+    $this->log_service->info('Order completed successfully', ['id' => $order->id, 'is_valid' => $is_valid]);
   }
   
   /**
