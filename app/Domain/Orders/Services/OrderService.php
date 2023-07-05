@@ -206,7 +206,7 @@ class OrderService
   private function updateOrderToCompletedSuccessfully(Order $order, string $approval_number)
   {
     $order->status        = StatusService::ACTIVE;
-    $order->approval_number  = $approval_number;
+    $order->approval_num  = $approval_number;
     $order->save();
     
     $this->user_service->assignCourseToUser($order->user_id, $order->content_id);
