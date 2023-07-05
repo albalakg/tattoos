@@ -168,9 +168,9 @@ class PayPlusProvider implements IPaymentProvider
      */
     private function setItem(): self
     {
-        $this->payment_payload['amount']            = 1;
+        $this->payment_payload['amount']            = 0.2;
         $this->payment_payload['items'][0]['name']  = $this->order->course->name;
-        $this->payment_payload['items'][0]['price'] = 1;
+        $this->payment_payload['items'][0]['price'] = 0.2;
         // $this->payment_payload['amount']            = $this->order->price;
         // $this->payment_payload['items'][0]['name']  = $this->order->course->name;
         // $this->payment_payload['items'][0]['price'] = $this->order->price;

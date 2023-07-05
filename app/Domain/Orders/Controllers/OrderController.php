@@ -55,7 +55,7 @@ class OrderController extends Controller
   public function getSuccessOrder(GetSuccessOrderRequest $request)
   {
     try {
-      $coupon = $this->service->getOrderByToken($request->input('token'), ['order_number', 'status']);
+      $coupon = $this->service->getOrderByToken($request->input('token'), ['order_number']);
       unset($coupon->id);
       return $this->successResponse('Order has been fetched successfully', $coupon);
     } catch (Exception $ex) {
