@@ -25,6 +25,7 @@ class UpdateProfileRequest extends FormRequest
             'phone'         => ['nullable', 'bail', new PhoneRule],
             'gender'        => ['nullable', new GenderRule],
             'birth_date'    => ['nullable', 'date'],
+            'is_subscribed' => ['required', 'boolean'],
             'team'          => ['nullable', new TeamRule],
             'city'          => ['nullable', new CityRule],
         ];

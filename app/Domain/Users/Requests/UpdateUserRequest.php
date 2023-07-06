@@ -31,6 +31,7 @@ class UpdateUserRequest extends FormRequest
             'city'          => ['nullable', new CityRule],
             'phone'         => ['required', 'bail', new PhoneRule, 'unique:user_details,phone,' . request()->id . ',user_id'],
             'status'        => ['required', new StatusRule],
+            'is_subscribed' => ['required', 'boolean'],
             'gender'        => ['nullable', new GenderRule],
             'birth_date'    => ['nullable', 'date'],
         ];

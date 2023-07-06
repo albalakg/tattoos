@@ -88,6 +88,7 @@ class UserService
                 'user_details.last_name',
                 'user_details.gender',
                 'user_details.birth_date',
+                'user_details.is_subscribed',
                 'lu_teams.name AS team',
                 'lu_cities.name AS city',
                 'roles.name AS role'
@@ -462,12 +463,20 @@ class UserService
   */
   public function updateUser(array $data, ?int $updated_by)
   {
-    $user             = User::find($data['id']);
+    if(!$user = User::find($data['id'])) {
+      throw new Exception('User ' . $data['id'] . ' not found');
+    }
+
     $user->role_id    = Role::ROLES_LIST[strtolower($data['role'])];
     $user->status     = $data['status'];
     $user->save();
 
-    $this->log_service->info('User main data was updated by and admin', ['id' => $data['id'], 'adminId' => $updated_by]);
+    $this->log_service->info('User main data was updated by and admin', [
+      'id'      => $data['id'], 
+      'adminId' => $updated_by, 
+      'status'  => $data['status'],
+      'role_id' => $data['role'],
+    ]);
 
     $data['user_id'] = $user->id;
     $this->updateUserDetails($data, $updated_by);
@@ -483,13 +492,14 @@ class UserService
   public function updateProfile(array $data, int $user_id)
   {
     $user = UserDetail::where('user_id', $user_id)->first();
-    $user->first_name = $data['first_name'];
-    $user->last_name  = $data['last_name'];
-    $user->phone      = $data['phone'];
-    $user->gender     = $data['gender'];
-    $user->birth_date = $data['birth_date'];
-    $user->team_id    = $this->getTeamId($data['team'] ?? null, $user->id);
-    $user->city_id    = $this->getCityId($data['city'] ?? null, $user->id);
+    $user->first_name     = $data['first_name'];
+    $user->is_subscribed  = $data['is_subscribed'];
+    $user->last_name      = $data['last_name'];
+    $user->phone          = $data['phone'];
+    $user->gender         = $data['gender'];
+    $user->birth_date     = $data['birth_date'];
+    $user->team_id        = $this->getTeamId($data['team'] ?? null, $user->id);
+    $user->city_id        = $this->getCityId($data['city'] ?? null, $user->id);
 
     $user->save();
 
@@ -903,13 +913,14 @@ class UserService
   */
   private function saveUserDetails(UserDetail $user_details, array $data): UserDetail
   {
-    $user_details->first_name = $data['first_name'];
-    $user_details->last_name  = $data['last_name'];
-    $user_details->phone      = $data['phone']                  ?? null;
-    $user_details->gender     = $data['gender']                 ?? null;
-    $user_details->birth_date = $data['birth_date']             ?? null;
-    $user_details->team_id    = $this->getTeamId($data['team']  ?? null, $user_details->user_id);
-    $user_details->city_id    = $this->getCityId($data['city']  ?? null, $user_details->user_id);
+    $user_details->is_subscribed  = $data['is_subscribed'];
+    $user_details->first_name     = $data['first_name'];
+    $user_details->last_name      = $data['last_name'];
+    $user_details->phone          = $data['phone']                  ?? null;
+    $user_details->gender         = $data['gender']                 ?? null;
+    $user_details->birth_date     = $data['birth_date']             ?? null;
+    $user_details->team_id        = $this->getTeamId($data['team']  ?? null, $user_details->user_id);
+    $user_details->city_id        = $this->getCityId($data['city']  ?? null, $user_details->user_id);
 
     $user_details->save();
     return $user_details;
