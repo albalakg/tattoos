@@ -22,7 +22,7 @@ class CreateCourseLessonRequest extends FormRequest
             'video_id'                  => ['required', 'bail', new IDRule, 'exists:videos,id'],
             'image'                     => ['required', 'file', 'max:50000'],
             'content'                   => ['nullable', 'string', 'between:1,100000'],
-            'description'               => ['required', 'string', 'between:1,100000'],
+            'description'               => ['nullable', 'string', 'between:1,100000'],
             'skills'                    => ['nullable', 'array','max:50'],
             'skills.*'                  => [new IDRule()],
             'terms'                     => ['nullable', 'array','max:50'],

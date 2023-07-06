@@ -12,7 +12,6 @@ use App\Domain\Users\Services\UserService;
 use App\Domain\Orders\Services\OrderService;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Orders\Requests\CreateOrderRequest;
-use App\Domain\Orders\Requests\OrderCallbackRequest;
 use App\Domain\Orders\Services\MarketingTokenService;
 use App\Domain\Content\Requests\CourseCoupon\GetSuccessOrderRequest;
 
@@ -52,12 +51,11 @@ class OrderController extends Controller
     }
   }
 
-  public function getSuccessOrder(GetSuccessOrderRequest $request)
+  public function getRecentOrder()
   {
     try {
-      $coupon = $this->service->getOrderByToken($request->input('token'), ['order_number']);
-      unset($coupon->id);
-      return $this->successResponse('Order has been fetched successfully', $coupon);
+      $response = $this->service->getUserRecentOrder(Auth::user()->id);
+      return $this->successResponse('Order has been fetched successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

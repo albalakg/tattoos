@@ -2,7 +2,6 @@
 namespace App\Domain\Orders\Services;
 
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Domain\Helpers\LogService;
 use App\Domain\Helpers\MailService;
@@ -10,11 +9,10 @@ use App\Domain\Orders\Models\Order;
 use App\Domain\Content\Models\Coupon;
 use App\Domain\Helpers\StatusService;
 use App\Domain\Orders\Models\OrderLog;
-use App\Events\Orders\OrderCreatedEvent;
+use App\Mail\User\AddCourseToUserMail;
 use App\Mail\Tests\OrderStatusUpdateMail;
 use App\Domain\Users\Services\UserService;
 use App\Domain\General\Models\LuContentType;
-use App\Domain\Orders\Models\MarketingToken;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Helpers\DataManipulationService;
@@ -90,6 +88,19 @@ class OrderService
       OrderStatusUpdateMail::class,
       $order
     );
+  }
+  
+  /**
+   * @param int $user_id
+   * @return Order|null
+  */
+  public function getUserRecentOrder(int $user_id): ?Order
+  {
+    return Order::where('user_id', $user_id)
+                ->where('created_at', '>=', Carbon::now()->subHours(2)->toDateTimeString())
+                ->select('order_number', 'status', 'price')
+                ->orderBy('created_at', 'desc')
+                ->first();
   }
   
   /**
@@ -191,6 +202,12 @@ class OrderService
 
     if($is_valid) {
       $this->updateOrderToCompletedSuccessfully($order, $data['approval_number']);
+      $mail_service = new MailService;
+      $mail_service->send(
+        $order->user->email,
+        AddCourseToUserMail::class,
+        $order
+      );
     } else {
       $this->updateOrderToFailed($order);
     }
