@@ -192,22 +192,23 @@ class OrderService
   */
   public function orderCompleted(array $data)
   {
-    $is_valid = $this->isOrderCallbackValid($data);
     $order    = $this->getOrderByToken($data['page_request_uid']);
+    $is_valid = !$this->isOrderCallbackValid($data);
 
     if(!$order) {
       $this->log_service->error('Order not found with token', ['token' => $data['page_request_uid']]);
       return;
     }
 
+    if($order->status !== StatusService::IN_PROGRESS) {
+      $this->log_service->error('Order\'s status has already been updated', ['id' => $order->id, 'status' => $order->status]);
+      return;
+    }
+
     if($is_valid) {
       $this->updateOrderToCompletedSuccessfully($order, $data['approval_number']);
-      $mail_service = new MailService;
-      $mail_service->send(
-        $order->user->email,
-        AddCourseToUserMail::class,
-        $order
-      );
+      $user = $this->user_service->getUserByID($order->user_id);
+      $this->sendOrderCompletionMails($order, $user);
     } else {
       $this->updateOrderToFailed($order);
     }
@@ -238,7 +239,25 @@ class OrderService
     $order->status = StatusService::INACTIVE;
     $order->save();
   }
-
+  
+  /**
+   * @param ?Order $order
+   * @param ?Object $user
+   * @return void
+  */
+  private function sendOrderCompletionMails(Order $order, ?Object $user)
+  {
+    $mail_service = new MailService;
+    $mail_service->send(
+      $user->email,
+      AddCourseToUserMail::class,
+      [
+        'name'      => $this->user_service->getFullName($user->details),
+        'end_at'    => $this->getOrderEndAt($order),
+        'course_id' => $order->content_id
+      ]
+    );
+  }
 
   /**
    * @param Order $order
@@ -279,6 +298,17 @@ class OrderService
       $this->log_service->critical($ex);
       return null;
     }
+  }
+  
+  /**
+   * Get the order end at, add 1 year to the creation date of the order
+   *
+   * @return string
+  */
+  private function getOrderEndAt(Order $order): string
+  {
+    $date = new Carbon($order->created_at);
+    return $date->addYear()->format('d/m/Y');
   }
   
   /**

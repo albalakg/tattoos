@@ -466,7 +466,6 @@ class UserService
     if(!$user = User::find($data['id'])) {
       throw new Exception('User ' . $data['id'] . ' not found');
     }
-
     $user->role_id    = Role::ROLES_LIST[strtolower($data['role'])];
     $user->status     = $data['status'];
     $user->save();

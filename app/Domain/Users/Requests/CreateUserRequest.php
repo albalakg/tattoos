@@ -29,6 +29,7 @@ class CreateUserRequest extends FormRequest
             'gender'        => ['nullable', new GenderRule],
             'team'          => ['nullable', new TeamRule],
             'city'          => ['nullable', new CityRule],
+            'is_subscribed' => ['required', 'boolean'],
             'birth_date'    => ['nullable', 'date'],
             'phone'         => ['required', 'bail', new PhoneRule, 'unique:user_details,phone'],
             'password'      => ['required', new PasswordRule],
