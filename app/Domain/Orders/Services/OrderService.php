@@ -179,8 +179,11 @@ class OrderService
     $order->course    = $course;
     $order->user      = $user;
     $payment_response = $this->startPaymentTransaction($order);
-    $order->token     = $payment_response['token'];
-    $order->save();
+   
+    Order::where('id', $order->id)->update([
+      'token'       => $payment_response['token'],
+      'supplier_id' => $payment_response['supplier_id'],
+    ]);
 
     return [
       'page_link' => $payment_response['link']

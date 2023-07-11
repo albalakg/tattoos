@@ -48,11 +48,11 @@ class PaymentService
             throw new Exception('The transaction failed in the order process');
         }
 
-        $this->updatePaymentOrder($this->payment_provider->getTransactionResponse());
         $this->log_service->info('Finished the order\'s process successfully', ['order_id' => $this->order->id]);
         return [
-            'token' => $this->payment_provider->getGeneratedPageToken(),
-            'link'  => $this->payment_provider->getGeneratedPageLink() 
+            'token'         => $this->payment_provider->getGeneratedPageToken(),
+            'link'          => $this->payment_provider->getGeneratedPageLink(),
+            'provider_id'   => $this->payment_provider->getProviderID()
         ];
     }
         
@@ -98,19 +98,5 @@ class PaymentService
             $this->log_service->error($ex);
             throw new Exception('Failed to set provider with: ' . $provider);
         }
-    }
-
-    /**
-     * update the payment status
-     *
-     * @param Object $payment_response
-     * @return void
-     */
-    private function updatePaymentOrder(Object $payment_response)
-    {
-        $this->order->supplier_id   = $this->payment_provider->getProviderID();
-        $this->order->token         = $payment_response->data->page_request_uid;
-        $this->order->save();
-        $this->log_service->info('Order updated payment', ['order_id' => $this->order->id]);
     }
 }

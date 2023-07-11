@@ -102,7 +102,7 @@ class Course extends Model
                     ->where('status', StatusService::ACTIVE)
                     ->with('guestActiveLessons')
                     ->orderBy('view_order')
-                    ->select('id', 'name', 'course_id', 'description', 'view_order');
+                    ->select('id', 'name', 'course_id', 'description', 'view_order', 'image');
     }
 
     public function activeAreasWithActiveLessons()
@@ -111,7 +111,7 @@ class Course extends Model
                     ->where('status', StatusService::ACTIVE)
                     ->with('activeLessons', 'trainer')
                     ->orderBy('view_order')
-                    ->select('id', 'trainer_id', 'name', 'course_id', 'description', 'view_order');
+                    ->select('id', 'trainer_id', 'name', 'course_id', 'description', 'view_order', 'image');
     }
 
     public function activeLessons()
