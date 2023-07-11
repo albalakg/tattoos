@@ -33,11 +33,17 @@ class OrderService
 
   private MarketingTokenService|null $marketing_token_service;
 
-  public function __construct(UserService $user_service = null, ContentService $content_service = null, MarketingTokenService $marketing_token_service = null)
+  public function __construct(
+    UserService $user_service                       = null, 
+    ContentService $content_service                 = null, 
+    MarketingTokenService $marketing_token_service  = null,
+    PaymentService $payment_service                 = null
+  )
   {
     $this->user_service             = $user_service;
     $this->content_service          = $content_service;
     $this->marketing_token_service  = $marketing_token_service;
+    $this->payment_service          = $payment_service;
     $this->log_service              = new LogService('orders');
   }
   
@@ -283,15 +289,14 @@ class OrderService
    * @param Order $order
    * @param Object $user
    * @param Object $course
-   * @param string $provider
    * @return void
   */
-  private function sendInvoice(Order $order, Object $user, Object $course, string $provider = 'visa')
+  private function sendInvoice(Order $order, Object $user, Object $course)
   {
     try {
       $order->user           = $user;
       $order->course         = $course;
-      $this->payment_service = new PaymentService($provider);
+      $this->payment_service = new PaymentService();
       $this->log_service->info('Invoice has been sent successfully');
       $this->payment_service->sendInvoice($order);
     } catch(Exception $ex) {
@@ -323,16 +328,14 @@ class OrderService
   /**
    * visa is the default provider and at the moment the only provider
    * returns the generated page link
-   * TODO: when adding a new provider need to make it more dynamic
    * 
    * @param Order $order
-   * @param string $provider
    * @return ?array
   */
-  private function startPaymentTransaction(Order $order, string $provider = 'visa'): ?array
+  private function startPaymentTransaction(Order $order): ?array
   {
     try {
-      $this->payment_service = new PaymentService($provider);
+      $this->payment_service = new PaymentService();
       return $this->payment_service->startTransaction($order);
     } catch(Exception $ex) {
       $this->log_service->critical($ex);

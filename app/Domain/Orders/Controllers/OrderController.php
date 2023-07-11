@@ -69,9 +69,10 @@ class OrderController extends Controller
 
       $transition = $request->input('transaction');
       $data = [
-        'page_request_uid'  => $transition['payment_page_request_uid'] ?? null,
-        'approval_number'   => $transition['approval_number'] ?? null,
-        'browser'           => $request->header('user-agent')
+        'page_request_uid'  => $transition['payment_page_request_uid']  ?? null,
+        'approval_number'   => $transition['approval_number']           ?? null,
+        'browser'           => $request->header('user-agent'),
+        'hash'              => $request->header('hash'),
       ];
       $log_service->info('Callback received data preparation ', $data);
       $response = $this->service->orderCompleted($data);

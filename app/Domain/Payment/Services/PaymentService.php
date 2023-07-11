@@ -28,7 +28,7 @@ class PaymentService
      * @param string $provider
      * @return void
      */
-    public function __construct(string $provider)
+    public function __construct(string $provider = 'visa')
     {
         $this->log_service  = new LogService('payment');
         $this->setProvider($provider);
@@ -89,7 +89,7 @@ class PaymentService
      * @param string $provider
      * @return void
      */
-    private function setProvider(string $provider)
+    public function setProvider(string $provider)
     {
         try {
             $provider_class = self::PROVIDERS[$provider];

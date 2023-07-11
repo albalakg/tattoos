@@ -200,11 +200,18 @@ class PayPlusProvider implements IPaymentProvider
     public function isPaymentCallbackValid(array $response): bool
     {
         if (!is_string($response['approval_number'])) {
-            throw new Exception('The approval number is invalid: '. $response['approval_number']);
+            $this->log_service->error('The approval number is invalid', ['approval_number' => $response['approval_number']]);
+            return false;
+        }
+        
+        if ($response['browser'] !== $this->provider_browser) {
+            $this->log_service->error('The response user agent is invalid', ['browser' => $response['browser']]);
+            return false;
         }
 
-        if ($response['browser'] !== $this->provider_browser) {
-            throw new Exception('The response user agent is invalid: '. $response['browser']);
+        if(!$this->isHashValid($response['hash'])) {
+            $this->log_service->error('The response hash is invalid', ['hash' => $response['hash']]);
+            return false;
         }
 
         return true;
@@ -287,6 +294,27 @@ class PayPlusProvider implements IPaymentProvider
                 ]
             ]
         ];
+    }
+
+    /**
+     * @param string $hash
+     * @return bool
+     */
+    private function isHashValid(string $hash): bool
+    {
+        $message = request()->getContent();
+        if(!$message) {
+            $this->log_service->error('Hash is invalid, no message found');
+            return false;
+        }
+        
+        $message        = json_encode(json_decode($message, true));
+        $genHash        = hash_hmac('sha256', $message, config('payment.payplus.secret_key'), true);
+        $this->log_service->info('Hash gen hash', ['hash' => $genHash]);
+        $genHash_base64 = base64_encode($genHash);
+        $this->log_service->info('Hash base64 gen hash', ['hash' => $genHash_base64]);
+    
+        return $genHash_base64 === $hash;
     }
 
     /**
