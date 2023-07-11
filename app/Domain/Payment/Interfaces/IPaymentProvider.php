@@ -12,6 +12,8 @@ interface IPaymentProvider
     public function getGeneratedPageLink(): string;
     public function buildPayment(Order $order);
     public function startTransaction();
-    public function isValid(): bool;
+    public function sendInvoice(Order $order);
+    public function isTransactionValid(): bool;
+    public function isInvoiceValid(): bool;
     public function isPaymentCallbackValid(array $response): bool;
 }

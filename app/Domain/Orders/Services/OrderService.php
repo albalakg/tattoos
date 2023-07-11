@@ -134,10 +134,12 @@ class OrderService
   */
   public function create(array $data, int $created_by)
   {
-    $course = null;
-    $coupon = null;
-
     if(!$course = $this->content_service->getCourse($data['content_id'])) {
+      $this->log_service->error('The requested content ' . $data['content_id'] . ' was not found');
+      throw new Exception('The requested content does not exists');
+    }
+
+    if(!$user = $this->user_service->getUserByID($created_by)) {
       $this->log_service->error('The requested content ' . $data['content_id'] . ' was not found');
       throw new Exception('The requested content does not exists');
     }
@@ -175,6 +177,7 @@ class OrderService
     $this->log_service->info('Order has been created: ' . json_encode($order));
 
     $order->course    = $course;
+    $order->user      = $user;
     $payment_response = $this->startPaymentTransaction($order);
     $order->token     = $payment_response['token'];
     $order->save();
@@ -192,10 +195,7 @@ class OrderService
   */
   public function orderCompleted(array $data)
   {
-    $order    = $this->getOrderByToken($data['page_request_uid']);
-    $is_valid = !$this->isOrderCallbackValid($data);
-
-    if(!$order) {
+    if(!$order = $this->getOrderByToken($data['page_request_uid'])) {
       $this->log_service->error('Order not found with token', ['token' => $data['page_request_uid']]);
       return;
     }
@@ -205,10 +205,22 @@ class OrderService
       return;
     }
 
+    if(!$user = $this->user_service->getUserByID($order->user_id)) {
+      $this->log_service->error('The requested user ' . $order->user_id . ' was not found');
+      throw new Exception('User not found in order completed');
+    }
+
+    if(!$course = $this->content_service->getCourse($order->content_id)) {
+      $this->log_service->error('The requested content ' . $order->content_id . ' was not found');
+      throw new Exception('The requested content does not exists');
+    }
+
+    $is_valid = $this->isOrderCallbackValid($data);
     if($is_valid) {
       $this->updateOrderToCompletedSuccessfully($order, $data['approval_number']);
-      $user = $this->user_service->getUserByID($order->user_id);
+      
       $this->sendOrderCompletionMails($order, $user);
+      $this->sendInvoice($order, $user, $course);
     } else {
       $this->updateOrderToFailed($order);
     }
@@ -242,21 +254,46 @@ class OrderService
   
   /**
    * @param ?Order $order
-   * @param ?Object $user
+   * @param Object $user
    * @return void
   */
-  private function sendOrderCompletionMails(Order $order, ?Object $user)
+  private function sendOrderCompletionMails(Order $order, Object $user)
   {
-    $mail_service = new MailService;
-    $mail_service->send(
-      $user->email,
-      AddCourseToUserMail::class,
-      [
-        'name'      => $this->user_service->getFullName($user->details),
-        'end_at'    => $this->getOrderEndAt($order),
-        'course_id' => $order->content_id
-      ]
-    );
+    try {
+      $mail_service = new MailService;
+      $mail_service->send(
+        $user->email,
+        AddCourseToUserMail::class,
+        [
+          'name'      => $this->user_service->getFullName($user->details),
+          'end_at'    => $this->getOrderEndAt($order),
+          'course_id' => $order->content_id
+        ]
+      );
+      $this->log_service->info('New course mail has been successfully');
+    } catch(Exception $ex) {
+      $this->log_service->critical($ex);
+    }
+  }
+  
+  /**
+   * @param Order $order
+   * @param Object $user
+   * @param Object $course
+   * @param string $provider
+   * @return void
+  */
+  private function sendInvoice(Order $order, Object $user, Object $course, string $provider = 'visa')
+  {
+    try {
+      $order->user           = $user;
+      $order->course         = $course;
+      $this->payment_service = new PaymentService($provider);
+      $this->log_service->info('Invoice has been sent successfully');
+      $this->payment_service->sendInvoice($order);
+    } catch(Exception $ex) {
+      $this->log_service->critical($ex);
+    }
   }
 
   /**

@@ -44,7 +44,7 @@ class PaymentService
         $this->log_service->info('Starting the order\'s process', ['order_id' => $this->order->id]);
         $this->payment_provider->buildPayment($this->order);
         $this->payment_provider->startTransaction();
-        if (!$this->payment_provider->isValid()) {
+        if (!$this->payment_provider->isTransactionValid()) {
             throw new Exception('The transaction failed in the order process');
         }
 
@@ -54,6 +54,18 @@ class PaymentService
             'token' => $this->payment_provider->getGeneratedPageToken(),
             'link'  => $this->payment_provider->getGeneratedPageLink() 
         ];
+    }
+        
+    /**
+     * @param Order $order
+     * @return void
+    */ 
+    public function sendInvoice(Order $order)
+    {
+        $this->payment_provider->sendInvoice($order);
+        if (!$this->payment_provider->isInvoiceValid()) {
+            throw new Exception('The invoice failed in the order process');
+        }
     }
     
     /**
