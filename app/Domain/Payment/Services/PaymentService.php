@@ -52,7 +52,7 @@ class PaymentService
         return [
             'token'         => $this->payment_provider->getGeneratedPageToken(),
             'link'          => $this->payment_provider->getGeneratedPageLink(),
-            'provider_id'   => $this->payment_provider->getProviderID()
+            'supplier_id'   => $this->payment_provider->getProviderID()
         ];
     }
         
