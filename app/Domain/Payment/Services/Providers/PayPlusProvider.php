@@ -309,7 +309,8 @@ class PayPlusProvider implements IPaymentProvider
         }
         
         $this->log_service->info('Hash Validation message', ['message' => $message]);
-        $message        = json_encode(json_decode($message, true));
+        // $message        = json_encode(json_decode($message, true));
+        $message        = json_encode(json_decode($message, true), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $this->log_service->info('Hash Validation message as string', ['message' => $message]);
         $genHash        = hash_hmac('sha256', $message, config('payment.payplus.secret_key'), true);
         $this->log_service->info('Hash Validation gen hash', ['hash' => $genHash]);
