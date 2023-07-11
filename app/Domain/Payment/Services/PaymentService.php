@@ -69,6 +69,7 @@ class PaymentService
     }
     
     /**
+     * TODO: change it to return the value from the payment_provider
      * @param array $response
      * @return bool
     */
