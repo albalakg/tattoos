@@ -69,15 +69,13 @@ class PaymentService
     }
     
     /**
-     * TODO: change it to return the value from the payment_provider
      * @param array $response
      * @return bool
     */
     public function isPaymentCallbackValid(array $response): bool
     {
         try {
-            $this->payment_provider->isPaymentCallbackValid($response);
-            return true;
+            return $this->payment_provider->isPaymentCallbackValid($response);
         } catch(Exception $ex) {
             $this->log_service->critical($ex);
             return false;

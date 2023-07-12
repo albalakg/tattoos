@@ -102,7 +102,7 @@
                             </p>
                         </div>
                         <br>
-                        <a href="{{ config('app.client_url') }}/email-confirmation?token={{ $data['token'] }}&email={{ $data['email'] }}">
+                        <a href="{{ config('app.client_url') }}/email-confirmation?token={{ $data['token'] }}&email={{ $data['email'] }}{{ $data['redirect'] ? '&redirect=' . $data['redirect'] : ''}}">
                             <button>
                                 התחל ללמוד
                             </button>

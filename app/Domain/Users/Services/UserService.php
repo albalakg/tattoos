@@ -394,9 +394,10 @@ class UserService
       $this->log_service->info('User completed sign up, part 2', ['id' => $user->id]);
       $email_verification = $this->saveEmailVerification($user, $user->email);
       $user_signed_up_mail_data = [
-        'email' => $data['email'],
-        'token' => $email_verification['token'],
-        'name'  => $data['first_name'] . ' ' . $data['last_name']
+        'email'     => $data['email'],
+        'token'     => $email_verification['token'],
+        'name'      => $data['first_name'] . ' ' . $data['last_name'],
+        'redirect'  => $data['redirect']
       ];
       $this->mail_service->delay()->send($user->email, UserSignedUpMail::class, $user_signed_up_mail_data);
       $this->log_service->info('User completed sign up, part 3', ['id' => $user->id]);
