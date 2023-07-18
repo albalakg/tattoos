@@ -98,12 +98,12 @@ class SupportService
     $support->save();
     $support->load('user');
     
-    $mail_service = new MailService;
-    $mail_service->delay()->send(
-      $support->user->email,
-      SupportStatusUpdateMail::class,
-      $support
-    );
+    // $mail_service = new MailService;
+    // $mail_service->delay()->send(
+    //   $support->user->email,
+    //   SupportStatusUpdateMail::class,
+    //   $support
+    // );
 
     $this->saveSupportTicketLog($support, $updated_by);
   }
@@ -123,7 +123,7 @@ class SupportService
     $support_ticket->email                = $data['email'] ?? null;
     $support_ticket->file_path            = !empty($data['file']) ? FileService::create($data['file'], self::SUPPORT_TICKET_MESSAGES_FILES_PATH) : null;
     $support_ticket->description          = $data['description'];
-    $support_ticket->status               = StatusService::ACTIVE;
+    $support_ticket->status               = StatusService::PENDING;
     $support_ticket->save();
 
     $this->log_service->info('Support ticket has been created: ' . json_encode($support_ticket));
