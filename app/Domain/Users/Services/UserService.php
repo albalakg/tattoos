@@ -934,12 +934,14 @@ class UserService
   private function hasAccessToLesson(int $user_id, int $lesson_id): bool
   {
     $course_id = $this->content_service->getLessonCourseId($lesson_id);
-
+    $this->log_service->info('asd', ['id' => $course_id]);
     $this->user_course = UserCourse::query()
                                   ->where('user_id', $user_id)
                                   ->where('course_id', $course_id)
                                   ->where('status', StatusService::ACTIVE)
                                   ->first();
+                                  
+    $this->log_service->info('bsd', ['id' => $this->user_course]);
 
     return !is_null($this->user_course);
   }
