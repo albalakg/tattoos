@@ -103,6 +103,13 @@ return [
             'days' => 1,
         ],
 
+        'challenges' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/content/challenges/challenges.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'courseCategories' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/courseCategories/courseCategories.log'),

@@ -77,7 +77,7 @@ class CouponService
     $coupon->save();
 
 
-    $this->log_service->info('Coupon has been created: ' . json_encode($coupon));
+    $this->log_service->info('Coupon has been created', $coupon->toArray());
 
     return $coupon;
   }
@@ -95,7 +95,7 @@ class CouponService
     $coupon->status     = $data['status'];
     $coupon->save();
 
-    $this->log_service->info('Coupon has been updated: ' . json_encode($coupon));
+    $this->log_service->info('Coupon has been updated', $coupon->toArray());
 
     return $coupon;
   }
@@ -112,7 +112,7 @@ class CouponService
       'status' => $status
     ]);
 
-    $this->log_service->info('Coupon ' . $id . ' status has been updated to ' . $status);
+    $this->log_service->info('Coupon status has been updated', ['id' => $id, 'status' => $status]);
 
     return $result;
   }
@@ -138,7 +138,7 @@ class CouponService
   public function delete(int $coupon_id, int $deleted_by): bool
   {
     $result = Coupon::where('id', $coupon_id)->delete();
-    $this->log_service->info('Coupon ' . $coupon_id . ' has been deleted');
+    $this->log_service->info('Coupon has been deleted', ['id' => $coupon_id]);
     return $result;
   }
   
@@ -150,7 +150,7 @@ class CouponService
   public function forceDelete(int $coupon_id, int $deleted_by): bool
   {
     $result = Coupon::where('id', $coupon_id)->forceDelete();
-    $this->log_service->info('Coupon ' . $coupon_id . ' has been force deleted');
+    $this->log_service->info('Coupon has been force deleted', ['id' => $coupon_id]);
     return $result;
   }
   

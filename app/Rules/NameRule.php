@@ -6,10 +6,9 @@ use Illuminate\Contracts\Validation\Rule;
 
 class NameRule implements Rule
 {
-    /**
-     * @var string
-    */
-    private $name;
+    private string $name;
+
+    private string $max_chars;
     
     /**
      * @var string
@@ -20,11 +19,13 @@ class NameRule implements Rule
      * Create a new rule instance.
      * 
      * @param string $name
+     * @param int $max_chars
      * @return void
      */
-    public function __construct(string $name = 'Name')
+    public function __construct(string $name = 'Name', int $max_chars = 40)
     {
-        $this->name = $name;
+        $this->name         = $name;
+        $this->max_chars    = $max_chars;
     }
 
     /**
@@ -41,7 +42,7 @@ class NameRule implements Rule
         }
 
         $value_length = mb_strlen($value, 'UTF-8');
-        return $value_length >= 2 && $value_length <= 40;
+        return $value_length >= 2 && $value_length <= $this->max_chars;
     }
 
     /**
