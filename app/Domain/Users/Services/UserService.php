@@ -29,6 +29,7 @@ use App\Domain\Content\Services\CourseService;
 use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Models\UserCourseLessonWatch;
 use App\Domain\Users\Models\UserEmailVerification;
+use App\Domain\Users\Models\UserLogAttempt;
 
 class UserService
 {  
@@ -151,6 +152,17 @@ class UserService
   public function isUserExistsByEmail(string $email): bool
   {
     return User::where('email', $email)->exists();
+  }
+  
+  /**
+   * @param int $user_id
+   * @return Collection
+  */
+  public function getLogsHistory(int $user_id): Collection
+  {
+    return UserLogAttempt::where('user_id', $user_id)
+                         ->select('user_agent','ip','status','created_at')
+                         ->get();
   }
   
   /**

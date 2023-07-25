@@ -20,6 +20,7 @@ use App\Domain\Users\Requests\UserFavoriteRequest;
 use App\Domain\Users\Services\UserFavoriteService;
 use App\Domain\Users\Requests\UpdateProfileRequest;
 use App\Domain\Users\Requests\ChangePasswordRequest;
+use App\Domain\Users\Requests\GetLogsHistoryRequest;
 use App\Domain\Users\Requests\UpdateUserEmailRequest;
 use App\Domain\Support\Services\SupportCategoryService;
 use App\Domain\Users\Requests\UpdateUserPasswordRequest;
@@ -351,6 +352,17 @@ class UserController extends Controller
     try {
       $user_course_schedule_service = new UserCourseScheduleService;
       $response = $user_course_schedule_service->deleteTrainingSchedule($request->input('id'), Auth::user()->id);
+      return $this->successResponse('User training schedule has been deleted successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function getLogsHistory(GetLogsHistoryRequest $request)
+  {
+    try {
+      $user_course_schedule_service = new UserCourseScheduleService;
+      $response = $user_course_schedule_service->getLogsHistory($request->input('user_id'));
       return $this->successResponse('User training schedule has been deleted successfully', $response);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
