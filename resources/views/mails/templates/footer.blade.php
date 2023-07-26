@@ -17,8 +17,9 @@
             margin: auto;
         }
 
-        img {
+        .link img {
             width: 30px;
+            max-width: 30px;
         }
         
     </style>

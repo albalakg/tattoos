@@ -8,13 +8,14 @@
     <style>
         .header {
             background-color: #173656;
+            box-shadow: inset 0 0 0px 80px #fff;
             height: 250px;
             border-radius: 10px;
             padding: 20px;
         }
 
         .header img {
-            width: 30%;
+            width: 50%;
             margin: auto;
         }
 
@@ -34,7 +35,8 @@
     <thead>
         <tr>
             <td class="header" align="center">
-                <img src="{{ URL::to('/') }}/files/general/white-logo.png" />
+                <!-- <img src="{{ URL::to('/') }}/files/general/white-logo.png" /> -->
+                <img src="{{ URL::to('/') }}/files/general/gstar.png" />
             </td>
         </tr>
     </thead>

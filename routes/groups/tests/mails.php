@@ -1,15 +1,21 @@
 <?php
 
 use Illuminate\Support\Carbon;
+use App\Mail\Auth\UserSignedUpMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user-signedup', function() {
     $data = [
-        'name'  => 'עדן',
-        'email' => 'test@goldens.com',
-        'token' => 'ASD3FV32f233fdfsadfdsf'
+        'name'      => 'עדן',
+        'email'     => 'test@goldens.com',
+        'token'     => 'ASD3FV32f233fdfsadfdsf',
+        'redirect'  => ''
     ];
-    
+
+    if(request()->query('to')) {
+        Mail::to(request()->query('to'))->send(new UserSignedUpMail($data));
+    }
     return view('mails.auth.userSignedUp', ['data' => $data]);
 });
 
@@ -58,6 +64,7 @@ Route::get('/course-almost-expired', function() {
         'course_id'     => 1,
         'end_at'        => $date->addYear()->format('d/m/Y'),
     ];
+
     return view('mails.user.courseAlmostExpired', ['data' => $data]);
 });
 

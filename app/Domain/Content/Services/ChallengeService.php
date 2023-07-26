@@ -6,17 +6,18 @@ use Exception;
 use App\Domain\Helpers\LogService;
 use Illuminate\Support\Collection;
 use App\Domain\Content\Models\Challenge;
+use App\Domain\Users\Services\UserService;
 
 class ChallengeService
 {
-  /**
-   * @var LogService
-  */
-  private $log_service;
+  private LogService $log_service;
 
-  public function __construct()
+  private UserService $user_service;
+
+  public function __construct(UserService $user_service)
   {
-    $this->log_service = new LogService('challenges');
+    $this->user_service = $user_service;
+    $this->log_service  = new LogService('challenges');
   }
 
   /**
@@ -24,9 +25,13 @@ class ChallengeService
   */
   public function getAll(): Collection
   {
-    return Challenge::query()
+    $challenges = Challenge::query()
                     ->orderBy('id', 'desc')
                     ->get();
+
+    $user_challenges = $this->user_service->getUserChallengesCounters($challenges->pluck('id')->toArray());
+
+    return $challenges;
   }
 
   /**
@@ -79,5 +84,42 @@ class ChallengeService
     $this->log_service->info('Challenge has been updated', $challenge->toArray());
 
     return $challenge;
+  }
+  
+  /**
+   * @param string $path
+   * @param int $deleted_by
+   * @return void
+  */
+  public function multipleDelete(array $ids, int $deleted_by)
+  {
+    foreach($ids AS $coupon_id) {
+      $this->delete($coupon_id, $deleted_by);
+    }
+  } 
+  
+  /**
+   * Soft delete the item 
+   * @param int $coupon_id
+   * @param int $deleted_by
+   * @return bool
+  */
+  public function delete(int $coupon_id): bool
+  {
+    $result = Challenge::where('id', $coupon_id)->delete();
+    $this->log_service->info('Challenge has been deleted', ['id' => $coupon_id, 'result' => $result]);
+    return $result;
+  }
+  
+  /**
+   * @param int $coupon_id
+   * @param int $deleted_by
+   * @return bool
+  */
+  public function forceDelete(int $coupon_id, int $deleted_by): bool
+  {
+    $result = Challenge::where('id', $coupon_id)->forceDelete();
+    $this->log_service->info('Challenge has been force deleted', ['id' => $coupon_id, 'result' => $result]);
+    return $result;
   }
 }

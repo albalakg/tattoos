@@ -216,7 +216,7 @@ class RouteServiceProvider extends ServiceProvider
     private function setTestsRoutes()
     {
         Route::prefix('tests/mails')
-            ->middleware('testing')
+            // ->middleware('testing')
             ->namespace($this->namespace)
             ->group(base_path("routes/groups/tests/mails.php"));
     }

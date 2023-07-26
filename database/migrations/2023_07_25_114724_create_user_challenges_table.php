@@ -16,6 +16,7 @@ class CreateUserChallengesTable extends Migration
         Schema::create('user_challenges', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id')->index()->unsigned();
+            $table->integer('challenge_id')->index()->unsigned();
             $table->integer('status')->index()->unsigned();
             $table->timestamps();
         });

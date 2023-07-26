@@ -27,6 +27,8 @@ use App\Domain\Users\Models\UserResetPassword;
 use App\Domain\Content\Services\ContentService;
 use App\Domain\Content\Services\CourseService;
 use App\Domain\Support\Services\SupportService;
+use App\Domain\Users\Models\UserChallenge;
+use App\Domain\Users\Models\UserChallengeAttempt;
 use App\Domain\Users\Models\UserCourseLessonWatch;
 use App\Domain\Users\Models\UserEmailVerification;
 use App\Domain\Users\Models\UserLogAttempt;
@@ -163,6 +165,21 @@ class UserService
     return UserLogAttempt::where('user_id', $user_id)
                          ->select('user_agent','ip','status','created_at')
                          ->get();
+  }
+  
+  /**
+   * @param array $challenges_id
+   * @return array
+  */
+  public function getUserChallengesCounters(array $challenges_id): array
+  {
+    $user_challenges = UserChallenge::whereIn('challenge_id', $challenges_id)
+                                    ->withCount('attempts')
+                                    ->select('id', 'challenge_id')
+                                    ->get();
+    return [
+      
+    ];
   }
   
   /**

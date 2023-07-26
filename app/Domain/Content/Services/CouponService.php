@@ -138,7 +138,7 @@ class CouponService
   public function delete(int $coupon_id, int $deleted_by): bool
   {
     $result = Coupon::where('id', $coupon_id)->delete();
-    $this->log_service->info('Coupon has been deleted', ['id' => $coupon_id]);
+    $this->log_service->info('Coupon has been deleted', ['id' => $coupon_id, 'result' => $result]);
     return $result;
   }
   
@@ -150,7 +150,7 @@ class CouponService
   public function forceDelete(int $coupon_id, int $deleted_by): bool
   {
     $result = Coupon::where('id', $coupon_id)->forceDelete();
-    $this->log_service->info('Coupon has been force deleted', ['id' => $coupon_id]);
+    $this->log_service->info('Coupon has been force deleted', ['id' => $coupon_id, 'result' => $result]);
     return $result;
   }
   

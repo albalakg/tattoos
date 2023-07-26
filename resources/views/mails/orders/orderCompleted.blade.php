@@ -93,7 +93,7 @@
 
                         </div>
                         <br>
-                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
+                        <img src="{{ URL::to('/') }}/files/general/logo.png" />
                         <br>
                         <br>
                         <br>

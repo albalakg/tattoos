@@ -15,17 +15,14 @@
         }
 
         table {
-            width: 40%;
+            width: 30%;
             margin: auto;
         }
 
         .content {
-            position: relative;
-            top: -200px;
             background-color: #fff;
-            width: 94%;
+            width: 100%;
             border-radius: 10px;
-            box-shadow: 0 0 10px 2px #8885;
         }
 
         .content div {
@@ -110,7 +107,7 @@
                         <br>
                         <br>
                         <br>
-                        <img src="{{ URL::to('/') }}/files/general/dark-logo.png" />
+                        <img src="{{ URL::to('/') }}/files/general/logo.png" />
                         <br>
                         <br>
                     </div>
