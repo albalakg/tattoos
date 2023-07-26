@@ -7,15 +7,23 @@
 
     <style>
         .header {
-            background-color: #173656;
-            box-shadow: inset 0 0 0px 80px #fff;
             height: 250px;
             border-radius: 10px;
             padding: 20px;
         }
 
-        .header img {
+        thead td {
+            width: 33%;
+            background-color: #173656;
+        }
+
+        .header div {
             width: 50%;
+            margin: auto;
+        }
+
+        .header div img {
+            width: 100%;
             margin: auto;
         }
 
@@ -35,8 +43,10 @@
     <thead>
         <tr>
             <td class="header" align="center">
-                <!-- <img src="{{ URL::to('/') }}/files/general/white-logo.png" /> -->
-                <img src="{{ URL::to('/') }}/files/general/gstar.png" />
+                <div>
+                    <!-- <img src="{{ URL::to('/') }}/files/general/white-logo.png" /> -->
+                    <img src="{{ URL::to('/') }}/files/general/gstar.png" />
+                </div>
             </td>
         </tr>
     </thead>
