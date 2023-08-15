@@ -11,6 +11,7 @@ use App\Domain\Content\Services\ChallengeService;
 use App\Domain\Content\Requests\Challenge\UpdateChallengeRequest;
 use App\Domain\Content\Requests\Challenge\CreateChallengeRequest;
 use App\Domain\Content\Requests\Challenge\UpdateChallengeStatusRequest;
+use App\Domain\Content\Services\TrainingOptionService;
 use App\Domain\Users\Services\UserService;
 
 class ChallengeController extends Controller
@@ -20,7 +21,8 @@ class ChallengeController extends Controller
   public function __construct()
   {
     $this->challenge_service = new ChallengeService(
-      new UserService()
+      new UserService(),
+      new TrainingOptionService()
     );
   }
 

@@ -16,6 +16,7 @@ class Challenges extends Migration
         Schema::create('challenges', function (Blueprint $table) {
             $table->id();
             $table->integer('video_id')->index()->unsigned();
+            $table->integer('status')->index()->unsigned();
             $table->string('name', 80)->unique();
             $table->text('description');
             $table->dateTime('expired_at');

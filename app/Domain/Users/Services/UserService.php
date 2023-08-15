@@ -174,12 +174,20 @@ class UserService
   public function getUserChallengesCounters(array $challenges_id): array
   {
     $user_challenges = UserChallenge::whereIn('challenge_id', $challenges_id)
-                                    ->withCount('attempts')
                                     ->select('id', 'challenge_id')
                                     ->get();
-    return [
-      
-    ];
+
+    $result = [];
+
+    foreach($user_challenges AS $user_challenge) {
+      if(!$result[$user_challenge['challenge_id']]) {
+        $user_challenge[$user_challenge['challenge_id']] = 1;
+      } else {
+        $user_challenge[$user_challenge['challenge_id']]++;
+      }
+    }
+
+    return $result;
   }
   
   /**

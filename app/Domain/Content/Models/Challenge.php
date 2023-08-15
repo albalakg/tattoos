@@ -14,12 +14,12 @@ class Challenge extends Model
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
     
-    protected $appends = ['expiredAt'];
+    // protected $appends = ['timeTillExpiration'];
 
-    public function getExpiredAtAttribute()
-    {
-        return Carbon::parse($this->expired_at)->diffForHumans;
-    }
+    // public function getTimeTillExpirationAttribute()
+    // {
+    //     return gettype($this->expired_at) === 'object' ? $this->expired_at->diffForHumans() : Carbon::parse($this->expired_at)->diffForHumans();
+    // }
 
     public function video()
     {
