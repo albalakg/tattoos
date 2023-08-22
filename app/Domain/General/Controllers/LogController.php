@@ -4,7 +4,6 @@ namespace App\Domain\General\Controllers;
 
 use Exception;
 use App\Http\Controllers\Controller;
-use App\Domain\General\Requests\BackupLogsRequest;
 use App\Domain\General\Services\BackupLogsService;
 
 class LogController extends Controller

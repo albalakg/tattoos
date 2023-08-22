@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class BackupLogsService
-{    
-    const URL_PATH              = 'general/logs/backup';
+{
+    const URL_PATH              = '/api/general/logs/backup';
     const EXCLUDED_LOGS_FILES   = ['.gitignore', 'logsBp'];
 
     private string $address;
@@ -20,14 +20,14 @@ class BackupLogsService
     {
         $this->log_service = new LogService('logsBp');
     }
-    
+
     /**
      * Send a request to backup logs
      *
      * @param string $address
      * @param string $token
      * @return void
-    */
+     */
     public function send(string $address, string $token)
     {
         $response = Http::withHeaders([
@@ -36,21 +36,21 @@ class BackupLogsService
 
         return json_decode($response->body());
     }
-    
+
     /**
      * Send a request to backup logs
      *
      * @return void
-    */
+     */
     public function backup()
     {
         $logs_path = $this->getAllRelevantLogsFilesPath();
-        foreach($logs_path AS $log_path) {
+        foreach ($logs_path as $log_path) {
             try {
-                if(FileService::exists($log_path, FileService::S3_DISK)) {
+                if (FileService::exists($log_path, FileService::S3_DISK)) {
                     FileService::delete($log_path, FileService::S3_DISK);
                 }
-    
+
                 FileService::createWithName(
                     Storage::disk('logs')->get($log_path),
                     'logs',
@@ -59,7 +59,7 @@ class BackupLogsService
                 );
 
                 $this->log_service->info('Log backed up successfully', ['log' => $log_path]);
-            } catch(Exception $ex) {
+            } catch (Exception $ex) {
                 $this->log_service->critical($ex);
             }
         }
@@ -69,11 +69,11 @@ class BackupLogsService
      * fetch all the relevant logs files paths, filter all the non-necessary
      *
      * @return array
-    */
+     */
     private function getAllRelevantLogsFilesPath(): array
     {
         $files = Storage::disk('logs')->allFiles();
-        return array_filter($files, function($file_path) {
+        return array_filter($files, function ($file_path) {
             return !in_array($file_path, self::EXCLUDED_LOGS_FILES);
         });
     }
