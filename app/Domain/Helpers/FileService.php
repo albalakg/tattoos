@@ -12,6 +12,7 @@ class FileService
 {    
   const DEFAULT_DISK  = 'pub';
   const S3_DISK       = 's3';
+  const LOGS_DISK     = 'logs';
 
   /**
    * Create a file
@@ -59,8 +60,29 @@ class FileService
       'name: ' . $name . ', ' .
       'disk: ' . $disk);
       
-      
       return Storage::disk($disk)->putFileAs($path, $file, $name);
+    } catch(Exception $ex) {
+      self::writeErrorLog($ex);
+      return '';
+    }
+  }
+
+  /**
+   * Create a file
+   *
+   * @param string $from_disk
+   * @param string $from_path
+   * @param string $to_disk
+   * @param string $to_path
+   * @return string
+  */
+  static public function copyFileByStream(string $from_disk, string $from_path, string $to_disk, string $to_path) :string
+  {
+    try {
+      $inputStream = Storage::disk($from_disk)->getDriver()->readStream($from_path);
+      $destination = Storage::disk($to_disk)->getDriver()->getAdapter()->getPathPrefix() . $to_path;
+
+      return Storage::disk($to_disk)->getDriver()->putStream($destination, $inputStream);
     } catch(Exception $ex) {
       self::writeErrorLog($ex);
       return '';

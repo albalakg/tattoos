@@ -51,11 +51,12 @@ class BackupLogsService
                     FileService::delete($log_path, FileService::S3_DISK);
                 }
 
-                $file = FileService::createWithName(
-                    Storage::disk('logs')->get($log_path),
-                    'logs',
-                    FileService::getLogFileName($log_path),
-                    FileService::S3_DISK
+
+                $file = FileService::copyFileByStream(
+                    FileService::LOGS_DISK,
+                    $log_path,
+                    FileService::S3_DISK,
+                    FileService::LOGS_DISK . '/' . $log_path,
                 );
 
                 if(!$file) {
