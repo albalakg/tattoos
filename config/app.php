@@ -137,6 +137,19 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'internal_token' => env('APP_INTERNAL_TOKEN'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Production Info
+    |--------------------------------------------------------------------------
+    |
+    | This will hold all of the production information that is required
+    |
+    */
+
+    'prod_url' => env('APP_PROD_URL'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers

@@ -20,7 +20,7 @@ use App\Domain\Users\Models\UserCourseLesson;
  * 
  * The point is to avoid duplication of completed lessons minimum queries.
  */
-class CompleteUserCourse
+class CompleteUserCourseService
 {
   private LogService $log_service;
 
@@ -63,7 +63,7 @@ class CompleteUserCourse
     $this->user_course_service    = $user_course_service;
     $this->course_service         = $course_service;
     $this->user_service           = $user_service;
-    $this->log_service            = new LogService('completeUserCourse');
+    $this->log_service            = new LogService('CompleteUserCourseService');
   }
     
   /**

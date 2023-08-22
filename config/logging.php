@@ -42,30 +42,31 @@ return [
         ],
 
         'single' => [
-            'driver' => 'single',
-            'path' => storage_path('logs/laravel.log'),
+            'driver' => 'daily',
+            'path' => storage_path('logs/laravel/laravel.log'),
             'level' => 'debug',
+            'days' => 1,
         ],
 
         'daily' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path('logs/laravel/laravel.log'),
             'level' => 'debug',
-            'days' => 14,
+            'days' => 1,
         ],
 
         'login' => [
             'driver' => 'daily',
             'path' => storage_path('logs/login/login.log'),
             'level' => 'debug',
-            'days' => 14,
+            'days' => 1,
         ],
 
         'mail' => [
             'driver' => 'daily',
             'path' => storage_path('logs/mail/mail.log'),
             'level' => 'debug',
-            'days' => 14,
+            'days' => 1,
         ],
 
         'users' => [
@@ -85,6 +86,13 @@ return [
         'custom' => [
             'driver' => 'daily',
             'path' => storage_path('logs/custom/custom.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
+        'logsBp' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/logsBp/logsBp.log'),
             'level' => 'debug',
             'days' => 1,
         ],
@@ -173,9 +181,9 @@ return [
             'days' => 1,
         ],
 
-        'completeUserCourse' => [
+        'CompleteUserCourseService' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/completeUserCourse/completeUserCourse.log'),
+            'path' => storage_path('logs/CompleteUserCourseService/CompleteUserCourseService.log'),
             'level' => 'debug',
             'days' => 1,
         ],
@@ -335,7 +343,10 @@ return [
         ],
 
         'emergency' => [
-            'path' => storage_path('logs/laravel.log'),
+            'driver' => 'daily',
+            'path' => storage_path('logs/laravel/laravel.log'),
+            'level' => 'debug',
+            'days' => 1,
         ],
     ],
 

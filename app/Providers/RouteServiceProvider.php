@@ -59,6 +59,7 @@ class RouteServiceProvider extends ServiceProvider
         $this->setAppRoutes();
         $this->setTestsRoutes();
         $this->setCMSRoutes();
+        $this->setGeneralRoutes();
     }
 
     /**
@@ -82,9 +83,6 @@ class RouteServiceProvider extends ServiceProvider
         return "App\\Domain\\$component\\Controllers";
     }
     
-    /**
-     * @return void
-    */
     private function setAppRoutes()
     {
         Route::prefix('api/auth')
@@ -119,9 +117,6 @@ class RouteServiceProvider extends ServiceProvider
             ->group(base_path("routes/groups/app/policies.php"));
     }
     
-    /**
-     * @return void
-    */
     private function setCMSRoutes()
     {
         Route::prefix('api/cms/course-areas')
@@ -215,9 +210,14 @@ class RouteServiceProvider extends ServiceProvider
             ->group(base_path("routes/groups/cms/courses.php"));
     }
     
-    /**
-     * @return void
-    */
+    private function setGeneralRoutes()
+    {
+        Route::prefix('api/general/logs')
+            ->middleware('internalToken')
+            ->namespace($this->namespace)
+            ->group(base_path("routes/groups/general/logs.php"));
+    }
+    
     private function setTestsRoutes()
     {
         Route::prefix('tests/mails')

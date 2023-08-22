@@ -45,7 +45,7 @@ class MoveLessonsImagesToS3 extends Command
         foreach($lessons AS $lesson) {
             try {
                 $file_path = Storage::disk('pub')->path($lesson->image);
-                Storage::disk('s3')->put($lesson->image, file_get_contents($file_path));
+                Storage::disk(FileService::S3_DISK)->put($lesson->image, file_get_contents($file_path));
                 $this->info('Finished moving lesson: ' . $lesson->name);
             } catch(Exception $ex) {
                 $this->error('Failed moving the file: ' . $lesson->name);

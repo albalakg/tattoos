@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Storage;
 
 class FileService
 {    
-  const DEFAULT_DISK = 'pub';
+  const DEFAULT_DISK  = 'pub';
+  const S3_DISK       = 's3';
 
   /**
    * Create a file
@@ -150,6 +151,23 @@ class FileService
   }
   
   /**
+   * Check if the file exists
+   *
+   * @param string $path
+   * @param string $disk
+   * @return bool
+   */
+  static public function exists(string $path, string $disk = self::DEFAULT_DISK): bool
+  {
+    try {
+      return Storage::disk($disk)->exists($path);
+    } catch(Exception $ex) {
+      self::writeErrorLog($ex);
+      return false;
+    }
+  }
+  
+  /**
    * Extract the file extension from the uploaded file
    *
    * @param object $file
@@ -161,10 +179,22 @@ class FileService
     $file_name_array    = explode('.', $file_name);
     return $file_name_array[count($file_name_array) - 1];
   }
+  
+  /**
+   * Get the basename of the file from the path
+   *
+   * @param string $file_path
+   * @return string
+  */
+  static public function getLogFileName(string $file_path): string
+  {
+      return basename($file_path);
+  }
 
   static private function writeErrorLog(Exception $ex)
   {
     $logger_service = new LogService('files');
     $logger_service->critical($ex);
   }
+
 }
