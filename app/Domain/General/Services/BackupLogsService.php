@@ -51,12 +51,16 @@ class BackupLogsService
                     FileService::delete($log_path, FileService::S3_DISK);
                 }
 
-                FileService::createWithName(
+                $file = FileService::createWithName(
                     Storage::disk('logs')->get($log_path),
                     'logs',
                     FileService::getLogFileName($log_path),
                     FileService::S3_DISK
                 );
+
+                if(!$file) {
+                    throw new Exception('Failed to save the file: ' . $log_path);
+                }
 
                 $this->log_service->info('Log backed up successfully', ['log' => $log_path]);
             } catch (Exception $ex) {
