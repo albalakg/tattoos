@@ -53,7 +53,7 @@ class FileService
   static public function createWithName(mixed $file, string $path, string $name, string $disk = self::DEFAULT_DISK) :string
   {
     try {
-      $logger_service = new LogService('files');
+      $logger_service = new LogService('logsBp');
       $logger_service->info('file: ' . $file . ', ' .
       'path: ' . $path . ', ' .
       'name: ' . $name . ', ' .
