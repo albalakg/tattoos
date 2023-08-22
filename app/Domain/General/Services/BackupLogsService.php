@@ -13,7 +13,6 @@ class BackupLogsService
     const URL_PATH              = '/api/general/logs/backup';
     const EXCLUDED_LOGS_FILES   = ['.gitignore', 'logsBp'];
 
-    private string $address;
     private LogService $log_service;
 
     public function __construct()
@@ -50,7 +49,6 @@ class BackupLogsService
                 if (FileService::exists($log_path, FileService::S3_DISK)) {
                     FileService::delete($log_path, FileService::S3_DISK);
                 }
-
 
                 $file = FileService::copyFileByStream(
                     FileService::LOGS_DISK,
