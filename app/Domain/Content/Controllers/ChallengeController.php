@@ -6,13 +6,13 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Domain\Users\Services\UserExternalService;
 use App\Domain\Content\Requests\DeleteRequest;
 use App\Domain\Content\Services\ChallengeService;
-use App\Domain\Content\Requests\Challenge\UpdateChallengeRequest;
-use App\Domain\Content\Requests\Challenge\CreateChallengeRequest;
-use App\Domain\Content\Requests\Challenge\UpdateChallengeStatusRequest;
 use App\Domain\Content\Services\TrainingOptionService;
-use App\Domain\Users\Services\UserService;
+use App\Domain\Content\Requests\Challenge\CreateChallengeRequest;
+use App\Domain\Content\Requests\Challenge\UpdateChallengeRequest;
+use App\Domain\Content\Requests\Challenge\GetChallengeAttemptsRequest;
 
 class ChallengeController extends Controller
 {
@@ -21,7 +21,7 @@ class ChallengeController extends Controller
   public function __construct()
   {
     $this->challenge_service = new ChallengeService(
-      new UserService(),
+      new UserExternalService(),
       new TrainingOptionService()
     );
   }
@@ -35,12 +35,21 @@ class ChallengeController extends Controller
       return $this->errorResponse($ex);
     }
   }
+
+  public function getAttempts(GetChallengeAttemptsRequest $request)
+  {
+    try {
+      $challenges = $this->challenge_service->getAttempts($request->input('id'));
+      return $this->successResponse('Challenge attempts has been fetched successfully', $challenges);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
   
   public function getActiveChallenge(Request $request)
   {
     try {
       $challenge = $this->challenge_service->getActiveChallenge($request->input('code'));
-      unset($challenge->id);
       return $this->successResponse('Challenge has been fetched successfully', $challenge);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

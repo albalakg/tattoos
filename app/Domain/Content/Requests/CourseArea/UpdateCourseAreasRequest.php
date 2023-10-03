@@ -23,7 +23,7 @@ class UpdateCourseAreasRequest extends FormRequest
             'course_id'         => ['required', new IDRule],
             'trainer_id'        => ['required', new IDRule],
             'description'       => ['nullable', new DescriptionRule],
-            'image'             => ['nullable', 'file', 'max:50000'],
+            'image'             => ['nullable', 'file', 'max:10000'],
             'trailer'           => ['nullable', 'file', 'max:10000'],
             'status'            => ['required', new StatusRule],
             'lessons'           => 'nullable|array|between:0,100',

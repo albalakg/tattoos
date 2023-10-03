@@ -21,7 +21,7 @@ class UpdateCourseCategoryRequest extends FormRequest
             'id'            => ['required', 'bail', new IDRule, 'exists:course_categories,id'],
             'name'          => ['required', 'bail', new NameRule, 'unique:course_categories,name,' . request()->id . ',id,deleted_at,NULL'],
             'description'   => ['nullable', new DescriptionRule],
-            'image'         => ['nullable', 'file', 'max:50000'],
+            'image'         => ['nullable', 'file', 'max:10000'],
             'status'        => ['required', new StatusRule],
         ];
     }

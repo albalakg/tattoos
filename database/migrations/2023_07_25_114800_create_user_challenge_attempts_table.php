@@ -17,6 +17,7 @@ class CreateUserChallengeAttemptsTable extends Migration
             $table->id();
             $table->integer('user_challenge_id')->index()->unsigned();
             $table->integer('is_public')->index()->unsigned();
+            $table->string('video', 100);
             $table->integer('status')->index()->unsigned();
             $table->timestamps();
         });

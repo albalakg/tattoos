@@ -160,4 +160,34 @@ class ContentService
       return null;
     }
   }
+  
+  /**
+   * @param array $challenges_id
+   * @return Collection
+  */
+  public function getChallenges(array $challenges_id): Collection
+  {
+    try {
+      $challenge_service = new ChallengeService();
+      return $challenge_service->getChallengesById($challenges_id);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return null;
+    }
+  }
+  
+  /**
+   * @param int $challenge_id
+   * @return bool
+  */
+  public function isChallengeActive(int $challenge_id): bool
+  {
+    try {
+      $challenge_service = new ChallengeService();
+      return $challenge_service->isChallengeActive($challenge_id);
+    } catch(Exception $ex) {
+      $this->log_service->error($ex);
+      return null;
+    }
+  }
 }

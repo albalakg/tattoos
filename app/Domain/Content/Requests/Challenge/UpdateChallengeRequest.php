@@ -20,9 +20,10 @@ class UpdateChallengeRequest extends FormRequest
         return [
             'id'                => ['required', 'bail', new IDRule(), 'exists:challenges,id'],
             'video_id'          => ['required', 'bail', new IDRule(), 'exists:videos,id'],
-            'name'              => ['required', new NameRule('Name', 80), 'unique:challenges,name,NULL,id,deleted_at,NULL'],
+            'name'              => ['required', new NameRule('Name', 80), 'unique:challenges,name,' . request()->id . ',id,deleted_at,NULL'],
             'status'            => ['required', new StatusRule],
             'description'       => ['required', 'string', 'between:1,20000'],
+            'image'             => ['nullable', 'file', 'max:10000'],
             'expired_at'        => ['required', 'date'],
             'options.*.id'      => [new IDRule()],
             'options.*.value'   => [new TrainingOptionValue],

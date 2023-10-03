@@ -14,23 +14,27 @@ use App\Domain\Content\Services\ContentService;
 use App\Domain\Support\Services\SupportService;
 use App\Domain\Users\Requests\CreateUserRequest;
 use App\Domain\Users\Requests\UpdateUserRequest;
+use App\Domain\Content\Services\ChallengeService;
 use App\Domain\Users\Requests\DeleteUsersRequest;
 use App\Domain\Users\Requests\UpdateEmailRequest;
 use App\Domain\Users\Requests\UserFavoriteRequest;
 use App\Domain\Users\Services\UserFavoriteService;
 use App\Domain\Users\Requests\UpdateProfileRequest;
+use App\Domain\Users\Services\UserChallengeService;
 use App\Domain\Users\Requests\ChangePasswordRequest;
-use App\Domain\Users\Requests\GetLogsHistoryRequest;
 use App\Domain\Users\Requests\UpdateUserEmailRequest;
 use App\Domain\Support\Services\SupportCategoryService;
+use App\Domain\Users\Requests\GetUserChallengesRequest;
 use App\Domain\Users\Requests\UpdateUserPasswordRequest;
 use App\Domain\Users\Requests\UserLessonProgressRequest;
 use App\Domain\Users\Services\UserCourseScheduleService;
 use App\Domain\Users\Requests\AddTrainingScheduleRequest;
+use App\Domain\Users\Requests\GetActionLogsHistoryRequest;
 use App\Domain\Users\Requests\LandedOnPageNotFoundRequest;
 use App\Domain\Users\Requests\DeleteTrainingScheduleRequest;
 use App\Domain\Users\Requests\UpdateTrainingScheduleRequest;
 use App\Domain\Users\Requests\ScheduleUserCourseLessonRequest;
+use App\Domain\Content\Requests\Challenge\SubmitChallengeRequest;
 
 class UserController extends Controller
 {
@@ -358,12 +362,51 @@ class UserController extends Controller
     }
   }
 
-  public function getLogsHistory(GetLogsHistoryRequest $request)
+  public function getActionLogsHistory(GetActionLogsHistoryRequest $request)
   {
     try {
-      $user_course_schedule_service = new UserCourseScheduleService;
-      $response = $user_course_schedule_service->getLogsHistory($request->input('user_id'));
-      return $this->successResponse('User training schedule has been deleted successfully', $response);
+      $user_service = new UserService();
+      $response = $user_service->GetActionLogsHistoryRequest($request->input('id'));
+      return $this->successResponse('User logs has been fetched successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+
+  public function getUserChallengesHistory(GetUserChallengesRequest $request)
+  {
+    try {
+      $user_service = new UserChallengeService(
+        new ContentService()
+      );
+      $response = $user_service->getUserChallengesHistory($request->input('id'));
+      return $this->successResponse('User challenges has been fetched successfully', $response);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+  
+  public function submitChallenge(SubmitChallengeRequest $request)
+  {
+    try {
+      $user_service = new UserChallengeService(
+        new ContentService()
+      );
+      $challenge = $user_service->submitChallenge($request->validated(), Auth::user()->id);
+      return $this->successResponse('Challenge has been submitted successfully', $challenge);
+    } catch (Exception $ex) {
+      return $this->errorResponse($ex);
+    }
+  }
+  
+  public function getUserChallenges()
+  {
+    try {
+      $user_service = new UserChallengeService(
+        new ContentService()
+      );
+      $challenge = $user_service->getUserChallenges(Auth::user()->id);
+      return $this->successResponse('Challenge has been submitted successfully', $challenge);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

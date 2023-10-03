@@ -10,6 +10,8 @@ class ChallengeTrainingOption extends Model
 {
     use SoftDeletes;
 
+    public $timestamps = false;
+
     public function getExpiredAtAttribute()
     {
         return Carbon::parse($this->expired_at)->diffForHumans;

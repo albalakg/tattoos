@@ -17,7 +17,7 @@ class CreateChallengeTrainingOptionsTable extends Migration
             $table->integer('challenge_id')->index()->unsigned();
             $table->integer('training_option_id')->index()->unsigned();
             $table->integer('value')->index()->unsigned();
-            $table->timestamps();
+            $table->datetime('created_at');
             $table->softDeletes();
             $table->integer('created_by')->index()->unsigned();
         });

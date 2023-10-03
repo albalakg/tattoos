@@ -166,30 +166,7 @@ class UserService
                          ->select('user_agent','ip','status','created_at')
                          ->get();
   }
-  
-  /**
-   * @param array $challenges_id
-   * @return array
-  */
-  public function getUserChallengesCounters(array $challenges_id): array
-  {
-    $user_challenges = UserChallenge::whereIn('challenge_id', $challenges_id)
-                                    ->select('id', 'challenge_id')
-                                    ->get();
-
-    $result = [];
-
-    foreach($user_challenges AS $user_challenge) {
-      if(!$result[$user_challenge['challenge_id']]) {
-        $user_challenge[$user_challenge['challenge_id']] = 1;
-      } else {
-        $user_challenge[$user_challenge['challenge_id']]++;
-      }
-    }
-
-    return $result;
-  }
-  
+ 
   /**
    * @param int $user_id
    * @param int $status

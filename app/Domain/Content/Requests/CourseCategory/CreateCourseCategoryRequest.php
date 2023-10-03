@@ -18,7 +18,7 @@ class CreateCourseCategoryRequest extends FormRequest
         return [
             'name'          => ['required', 'bail', new NameRule, 'unique:course_categories,name,NULL,id,deleted_at,NULL'],
             'description'   => ['nullable', new DescriptionRule],
-            'image'         => ['required', 'file', 'max:50000'],
+            'image'         => ['required', 'file', 'max:10000'],
         ];
     }
 }

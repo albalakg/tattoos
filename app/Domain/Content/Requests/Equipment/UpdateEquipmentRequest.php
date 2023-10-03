@@ -22,7 +22,7 @@ class UpdateEquipmentRequest extends FormRequest
             'name'          => ['required', new NameRule],
             'description'   => ['nullable', new DescriptionRule],
             'status'        => ['required', new StatusRule],
-            'image'         => ['nullable', 'file', 'max:50000']
+            'image'         => ['nullable', 'file', 'max:10000']
         ];
     }
 }

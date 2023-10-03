@@ -20,6 +20,7 @@ class CreateChallengeRequest extends FormRequest
             'video_id'          => ['required', 'bail', new IDRule(), 'exists:videos,id'],
             'name'              => ['required', new NameRule('Name', 80), 'unique:challenges,name'],
             'description'       => ['required', 'string', 'between:1,20000'],
+            'image'             => ['required', 'file', 'max:10000'],
             'expired_at'        => ['required', 'date'],
             'options.*.id'      => [new IDRule()],
             'options.*.value'   => [new TrainingOptionValue],

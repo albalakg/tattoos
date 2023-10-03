@@ -14,6 +14,13 @@ class UserChallenge extends Model
   
   public function attempts()
   {
-    return $this->hasOne(UserChallengeAttempt::class, 'id', 'user_challenge_id');
+    return $this->hasMany(UserChallengeAttempt::class, 'id', 'user_challenge_id');
+  }
+  
+  public function lastAttempt()
+  {
+    return $this->hasOne(UserChallengeAttempt::class, 'id', 'user_challenge_id')
+                ->select('id', 'user_challenge_id', 'video', 'status', 'created_at')
+                ->orderBy('id', 'desc');
   }
 }

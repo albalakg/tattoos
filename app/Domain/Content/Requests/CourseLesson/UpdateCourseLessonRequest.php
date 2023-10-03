@@ -25,7 +25,7 @@ class UpdateCourseLessonRequest extends FormRequest
             'status'                    => ['required', new StatusRule],
             'content'                   => ['nullable', 'string',  'between:1,100000'],
             'description'               => ['nullable', 'string',  'between:1,100000'],
-            'image'                     => ['nullable', 'file', 'max:50000'],
+            'image'                     => ['nullable', 'file', 'max:10000'],
             'skills'                    => ['nullable', 'array','max:50'],
             'skills.*'                  => [new IDRule()],
             'terms'                     => ['nullable', 'array','max:50'],
