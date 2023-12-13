@@ -17,12 +17,7 @@ use App\Domain\Users\Requests\ForgotPasswordRequest;
 
 class AuthController extends Controller
 {
-  private LogService $log_service;
-
-  public function __construct()
-  {
-    $this->log_service = new LogService('auth');
-  }
+  protected string $log_channel = 'auth';
   
   public function login(LoginRequest $request, LoginService $login_service)
   {
@@ -30,7 +25,6 @@ class AuthController extends Controller
       $userData = $login_service->attempt($request)->getResponse();
       return $this->successResponse('Logged', $userData);
     } catch (Exception $ex) {
-      $ex->service = 'auth';
       return $this->errorResponse($ex, null, $ex->getCode());
     }
   }
@@ -44,7 +38,6 @@ class AuthController extends Controller
       $created_user = $user_service->signup($request->validated());
       return $this->successResponse('You have Signed Up Successfully', $created_user);
     } catch (Exception $ex) {
-      $ex->service = 'auth';
       return $this->errorResponse($ex);
     }
   }
@@ -56,7 +49,6 @@ class AuthController extends Controller
       $user_service->resetPassword($request->email, $request->token, $request->password);
       return $this->successResponse('You have reset your password');
     } catch (Exception $ex) {
-      $ex->service = 'auth';
       return $this->errorResponse($ex);
     }
   }
@@ -70,7 +62,6 @@ class AuthController extends Controller
       $user_service->forgotPassword($request->email);
       return $this->successResponse('An email has been sent to the requested address');
     } catch (Exception $ex) {
-      $ex->service = 'auth';
       return $this->errorResponse($ex);
     }
   }
@@ -82,7 +73,6 @@ class AuthController extends Controller
       $user_service->verifyEmail($request->email, $request->token);
       return $this->successResponse('You have verified your email successfully');
     } catch (Exception $ex) {
-      $ex->service = 'auth';
       return $this->errorResponse($ex, null, Response::HTTP_UNPROCESSABLE_ENTITY);
     }
   }

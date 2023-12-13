@@ -29,7 +29,8 @@ class Challenge extends Model
 
     public function video()
     {
-        return $this->hasOne(Video::class, 'id', 'video_id');
+        return $this->hasOne(Video::class, 'id', 'video_id')
+                    ->select('id', 'name', 'video_path');
     }
 
     public function trainingOptions()

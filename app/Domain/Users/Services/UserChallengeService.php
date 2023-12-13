@@ -16,13 +16,17 @@ class UserChallengeService
 {
     private ContentService|null $content_service;
 
+    private SubmitChallengeService|null $submit_challenge_service;
+
     private LogService $log_service;
 
     public function __construct(
         ?ContentService $content_service = null,
+        ?SubmitChallengeService $submit_challenge_service = null
     ) {
-        $this->content_service  = $content_service;
-        $this->log_service      = new LogService('users');
+        $this->content_service          = $content_service;
+        $this->submit_challenge_service = $submit_challenge_service;
+        $this->log_service              = new LogService('users');
     }
 
     /**
@@ -34,14 +38,18 @@ class UserChallengeService
         $user_challenges = UserChallenge::where('user_id', $user_id)
             ->with('lastAttempt')
             ->select('id', 'challenge_id', 'status')
+            ->withCount('attempts')
             ->get();
 
-        $challenges = $this->content_service->getChallenges($user_challenges->pluck('id')->toArray());
-
-        foreach ($user_challenges as $user_challenge) {
-            $user_challenge->challenge = $challenges->where('id', $user_challenge->challenge_id)->first();
+        if($challenges = $this->content_service->getChallenges($user_challenges->pluck('challenge_id')->toArray())) {
+            foreach ($user_challenges as $user_challenge) {
+                if($user_challenge->lastAttempt) {
+                    $user_challenge->lastAttempt->human_time = $user_challenge->lastAttempt->created_at->diffForHumans();
+                }
+                $user_challenge->challenge  = $challenges->where('id', $user_challenge->challenge_id)->first();
+            }
         }
-
+        
         return $user_challenges;
     }
 
@@ -55,12 +63,6 @@ class UserChallengeService
             ->with('attempts')
             ->select('id', 'challenge_id', 'status', 'created_at')
             ->get();
-
-        // $challenges = $this->content_service->getChallenges($user_challenges->pluck('id')->toArray());
-
-        // foreach($user_challenges AS $user_challenge) {
-        //     $user_challenge->challenge = $challenges->where('id', $user_challenge->challenge_id)->first();
-        // }
 
         return $user_challenges;
     }
@@ -76,15 +78,29 @@ class UserChallengeService
             ->get();
 
         $result = [];
+
         foreach ($user_challenges as $user_challenge) {
             if (empty($result[$user_challenge->challenge_id])) {
-                $user_challenge[$user_challenge->challenge_id] = 1;
+                $result[$user_challenge->challenge_id] = 1;
             } else {
-                $user_challenge[$user_challenge->challenge_id]++;
+                $result[$user_challenge->challenge_id]++;
             }
         }
 
         return $result;
+    }
+
+    /**
+     * @param int $challenge_id
+     * @param int $user_id
+     * @return ?UserChallenge
+     */
+    public function getUserChallengeProgress(int $challenge_id, int $user_id): ?UserChallenge
+    {
+        return UserChallenge::where('challenge_id', $challenge_id)
+            ->with('attempts')
+            ->select('id', 'challenge_id', 'status', 'created_at')
+            ->first();
     }
 
     /**
@@ -96,6 +112,7 @@ class UserChallengeService
         return UserChallenge::where('challenge_id', $challenge_id)
             ->join('user_details', 'user_details.user_id', 'user_challenges.user_id')
             ->select('user_challenges.id', 'challenge_id', 'user_challenges.user_id', 'status', 'created_at', DB::raw('CONCAT(first_name, " ", last_name) AS full_name'))
+            ->with('attempts')
             ->get();
     }
 
@@ -122,68 +139,30 @@ class UserChallengeService
     /**
      * @param array $data
      * @param int $user_id
-     * @return void
-     */
-    public function submitChallenge(array $data, int $user_id)
-    {
-        if (!$this->content_service->isChallengeActive($data['challenge_id'])) {
-            $this->log_service->error('Attempt to submit a challenge to non-active challenge', ['id' => $data['challenge_id']]);
-            throw new Exception('Not allowed to submit the challenge');
-        }
-
-        if (!$user_challenge = $this->getUserChallenge($data['challenge_id'], $user_id)) {
-            $user_challenge = $this->createUserChallenge($data['challenge_id'], $user_id);
-        }
-
-        $this->createUserChallengeAttempt($user_challenge->id, $data['video'], $data['is_public']);
-    }
-
-    /**
-     * @param int $challenge_id
-     * @param int $user_id
-     * @return ?UserChallenge
-     */
-    private function getUserChallenge(int $challenge_id, int $user_id): ?UserChallenge
-    {
-        return UserChallenge::where('challenge_id', $challenge_id)
-            ->where('user_id', $user_id)
-            ->first();
-    }
-
-    /**
-     * Create the record that related the user to the challenge without the attempt it self
-     *
-     * @param int $challenge_id
-     * @param int $user_id
+     * 
+     * @throws Exception
      * @return UserChallenge
      */
-    private function createUserChallenge(int $challenge_id, int $user_id): UserChallenge
+    public function submitChallenge(array $data, int $user_id): UserChallenge
     {
-        $user_challenge                 = new UserChallenge();
-        $user_challenge->user_id        = $user_id;
-        $user_challenge->challenge_id   = $challenge_id;
-        $user_challenge->status         = StatusService::PENDING;
-        $user_challenge->save();
+        try {
+            $user_challenge = $this->submit_challenge_service
+                                    ->attempt($user_id, $data['id'])
+                                    ->validateIfCanSubmit()
+                                    ->submit($data)
+                                    ->getUserChallenge();
 
-        return $user_challenge;
-    }
+            $user_challenge->loadCount('attempts');
+            $user_challenge->lastAttempt->human_time = $user_challenge->lastAttempt->created_at->diffForHumans();
 
-    /**
-     * @param int $user_challenge_id
-     * @param mixed $video
-     * @param int $is_public
-     * @return UserChallengeAttempt
-     */
-    private function createUserChallengeAttempt(int $user_challenge_id, $video, int $is_public): UserChallengeAttempt
-    {
-        $user_challenge_attempt                     = new UserChallengeAttempt();
-        $user_challenge_attempt->user_challenge_id  = $user_challenge_id;
-        $user_challenge_attempt->is_public          = $is_public;
-        $user_challenge_attempt->status             = StatusService::PENDING;
-        $user_challenge_attempt->video              = FileService::create($video, 'content/challenges/users', FileService::S3_DISK);
-        $user_challenge_attempt->save();
-
-        $this->log_service->info('New challenge attempt', $user_challenge_attempt->toArray());
-        return $user_challenge_attempt;
+            if($challenges = $this->content_service->getChallenges([$user_challenge->challenge_id])) {
+                $user_challenge->challenge = $challenges->where('id', $user_challenge->challenge_id)->first();
+            }
+            
+            return $user_challenge;
+        } catch(Exception $ex) {
+            $this->log_service->error($ex->getMessage(), ['id' => $data['id']]);
+            throw new Exception($ex->getMessage());
+        }
     }
 }

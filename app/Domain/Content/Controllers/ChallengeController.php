@@ -49,7 +49,7 @@ class ChallengeController extends Controller
   public function getActiveChallenge(Request $request)
   {
     try {
-      $challenge = $this->challenge_service->getActiveChallenge($request->input('code'));
+      $challenge = $this->challenge_service->getActiveChallenge(Auth::user()->id);
       return $this->successResponse('Challenge has been fetched successfully', $challenge);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);

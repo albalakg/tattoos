@@ -19,6 +19,8 @@ class Controller extends BaseController
     
     const DEFAULT_ERROR = 'Sorry, we encountered an error. Please let us know';
 
+    protected string $log_channel = LogService::DEFAULT_CHANNEL;
+
     /**
      * Service class
      *
@@ -65,9 +67,8 @@ class Controller extends BaseController
     */
     protected function errorResponse(Exception $exception, $data = null, $status = Response::HTTP_BAD_REQUEST) : JsonResponse
     {
-        $logger     = new LogService($exception->service ?? LogService::DEFAULT_CHANNEL, Auth::user());
-        $log_level  = isset($exception->log_level) ? $exception->log_level : 'error';
-        $logger->$log_level($exception);
+        $logger = new LogService($this->log_channel, Auth::user());
+        $logger->error($exception);
 
         $debug_error = [
             'ErrorMessage'  => $exception->getMessage(),
@@ -76,7 +77,7 @@ class Controller extends BaseController
         ];
         
         $error_data = [
-            'message'   => $debug_error['ErrorMessage'],
+            'message'   => EnvService::isNotProd() ? $debug_error['ErrorMessage'] : self::DEFAULT_ERROR,
             'status'    => false,
             'data'      => $data
         ];

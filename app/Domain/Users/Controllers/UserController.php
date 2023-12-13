@@ -22,7 +22,9 @@ use App\Domain\Users\Services\UserFavoriteService;
 use App\Domain\Users\Requests\UpdateProfileRequest;
 use App\Domain\Users\Services\UserChallengeService;
 use App\Domain\Users\Requests\ChangePasswordRequest;
+use App\Domain\Users\Requests\SubmitChallengeRequest;
 use App\Domain\Users\Requests\UpdateUserEmailRequest;
+use App\Domain\Users\Services\SubmitChallengeService;
 use App\Domain\Support\Services\SupportCategoryService;
 use App\Domain\Users\Requests\GetUserChallengesRequest;
 use App\Domain\Users\Requests\UpdateUserPasswordRequest;
@@ -34,11 +36,10 @@ use App\Domain\Users\Requests\LandedOnPageNotFoundRequest;
 use App\Domain\Users\Requests\DeleteTrainingScheduleRequest;
 use App\Domain\Users\Requests\UpdateTrainingScheduleRequest;
 use App\Domain\Users\Requests\ScheduleUserCourseLessonRequest;
-use App\Domain\Content\Requests\Challenge\SubmitChallengeRequest;
 
 class UserController extends Controller
 {
-  const LOG_FILE = 'users';
+  protected string $log_channel = 'users';
   
   public function logout()
   {
@@ -47,7 +48,6 @@ class UserController extends Controller
       $user_service->logout(Auth::user());
       return $this->successResponse('Logged out');
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -59,7 +59,6 @@ class UserController extends Controller
       $user_service->changePassword(Auth::user(), $request->old_password, $request->password);
       return $this->successResponse('User\'s password has updated');
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -71,7 +70,6 @@ class UserController extends Controller
       $user_service->updateUserEmail($request->validated(), Auth::user()->id);
       return $this->successResponse('User\'s email updated');
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -83,7 +81,6 @@ class UserController extends Controller
       $user_service->updateUserPassword($request->validated(), Auth::user()->id);
       return $this->successResponse('User\'s password updated');
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -95,7 +92,6 @@ class UserController extends Controller
       $response = $user_service->createUserByAdmin($request->validated(), Auth::user()->id);
       return $this->successResponse('User created', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -107,7 +103,6 @@ class UserController extends Controller
       $response = $user_service->updateUser($request->validated(), Auth::user()->id);
       return $this->successResponse('User updated', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -119,7 +114,6 @@ class UserController extends Controller
       $updated_user = $user_service->updateProfile($request->validated(), Auth::user()->id);
       return $this->successResponse('User updated', $updated_user);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -131,7 +125,6 @@ class UserController extends Controller
       $response     = $user_service->deleteUsers($request->ids, Auth::user()->id);
       return $this->successResponse('Users deleted', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -143,7 +136,6 @@ class UserController extends Controller
       $response     = $user_service->getAll();
       return $this->successResponse('Users fetched', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -154,7 +146,6 @@ class UserController extends Controller
       $user_service = new UserService;
       return $this->successResponse('Users profile fetched', $user_service->getProfile(Auth::user()));
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -172,7 +163,6 @@ class UserController extends Controller
       $response = $user_service->getUserCourses(Auth::user()->id, StatusService::ACTIVE);
       return $this->successResponse('Fetched user active courses', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -184,7 +174,6 @@ class UserController extends Controller
       $response = $user_service->getUserProgress(Auth::user(), StatusService::ACTIVE);
       return $this->successResponse('Fetched user progress', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -201,7 +190,6 @@ class UserController extends Controller
       $response = $user_service->getUserOrders(Auth::user());
       return $this->successResponse('Fetched user orders', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -219,7 +207,6 @@ class UserController extends Controller
       $response = $user_service->getUserSupportTickets(Auth::user(), StatusService::ACTIVE);
       return $this->successResponse('Fetched user support tickets', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -235,7 +222,6 @@ class UserController extends Controller
       $response = $user_service->getUserFavoriteContent(Auth::user(), StatusService::ACTIVE);
       return $this->successResponse('Fetched user favorite content', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -251,7 +237,6 @@ class UserController extends Controller
       $response = $user_service->addToFavorite($request->input('lesson_id'), Auth::user()->id);
       return $this->successResponse('Lesson has been added to the favorite list successfully', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -267,7 +252,6 @@ class UserController extends Controller
       $response = $user_service->removeFromFavorite($request->input('lesson_id'), Auth::user()->id);
       return $this->successResponse('Lesson has been removed from the favorite list successfully', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -282,7 +266,6 @@ class UserController extends Controller
       $response = $user_service->setLessonProgress($request->validated(), Auth::user()->id);
       return $this->successResponse('Set the user\'s lesson progress', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -300,7 +283,6 @@ class UserController extends Controller
       $user_service->changeEmail(Auth::user(), $request->email);
       return $this->successResponse('An email has been sent for verification');
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -362,16 +344,16 @@ class UserController extends Controller
     }
   }
 
-  public function getActionLogsHistory(GetActionLogsHistoryRequest $request)
-  {
-    try {
-      $user_service = new UserService();
-      $response = $user_service->GetActionLogsHistoryRequest($request->input('id'));
-      return $this->successResponse('User logs has been fetched successfully', $response);
-    } catch (Exception $ex) {
-      return $this->errorResponse($ex);
-    }
-  }
+  // public function getActionLogsHistory(GetActionLogsHistoryRequest $request)
+  // {
+  //   try {
+  //     $user_service = new UserService();
+  //     $response = $user_service->GetActionLogsHistoryRequest($request->input('id'));
+  //     return $this->successResponse('User logs has been fetched successfully', $response);
+  //   } catch (Exception $ex) {
+  //     return $this->errorResponse($ex);
+  //   }
+  // }
 
   public function getUserChallengesHistory(GetUserChallengesRequest $request)
   {
@@ -390,10 +372,11 @@ class UserController extends Controller
   {
     try {
       $user_service = new UserChallengeService(
-        new ContentService()
+        new ContentService(),
+        new SubmitChallengeService(new ContentService())
       );
-      $challenge = $user_service->submitChallenge($request->validated(), Auth::user()->id);
-      return $this->successResponse('Challenge has been submitted successfully', $challenge);
+      $user_challenge = $user_service->submitChallenge($request->validated(), Auth::user()->id);
+      return $this->successResponse('Challenge has been submitted successfully', $user_challenge);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }
@@ -406,7 +389,7 @@ class UserController extends Controller
         new ContentService()
       );
       $challenge = $user_service->getUserChallenges(Auth::user()->id);
-      return $this->successResponse('Challenge has been submitted successfully', $challenge);
+      return $this->successResponse('User challenges has been fetched successfully', $challenge);
     } catch (Exception $ex) {
       return $this->errorResponse($ex);
     }

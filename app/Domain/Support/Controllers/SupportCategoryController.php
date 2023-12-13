@@ -13,7 +13,7 @@ use App\Domain\Support\Requests\UpdateSupportCategoryStatusRequest;
 
 class SupportCategoryController extends Controller
 {  
-  const LOG_FILE = 'support';
+  protected string $log_channel = 'support';
 
   /**
    * @var SupportCategoryService
@@ -31,7 +31,6 @@ class SupportCategoryController extends Controller
       $response = $this->service->getAll();
       return $this->successResponse('Support Categories fetched', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -42,7 +41,6 @@ class SupportCategoryController extends Controller
       $response = $this->service->getByStatus(StatusService::ACTIVE);
       return $this->successResponse('Support Categories fetched', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -53,7 +51,6 @@ class SupportCategoryController extends Controller
       $response = $this->service->create($request->validated(), Auth::user()->id);
       return $this->successResponse('Support Category created', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -64,7 +61,6 @@ class SupportCategoryController extends Controller
       $response = $this->service->multipleDelete($request->ids, Auth::user()->id);
       return $this->successResponse('Support Categories deleted', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }
@@ -75,7 +71,6 @@ class SupportCategoryController extends Controller
       $response = $this->service->updateStatus($request->id, $request->status, Auth::user()->id);
       return $this->successResponse('Support Categories status updated', $response);
     } catch (Exception $ex) {
-      $ex->service = self::LOG_FILE;
       return $this->errorResponse($ex);
     }
   }

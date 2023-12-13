@@ -13,6 +13,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('favorites',                         [UserController::class, 'getUserFavoriteContent']);
     Route::get('progress',                          [UserController::class, 'getUserProgress']);
     Route::get('orders',                            [UserController::class, 'getUserOrders']);
+    Route::get('challenges',                        [UserController::class, 'getUserChallenges']);
     Route::get('support-tickets',                   [UserController::class, 'getUserSupportTickets']);
     Route::get('landed-on-page-not-found',          [UserController::class, 'landedOnPageNotFound']);
     
@@ -26,6 +27,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('lesson/schedule',                  [UserController::class, 'scheduleLesson']);
     Route::post('lesson/training-schedule',         [UserController::class, 'addTrainingSchedule']);
     Route::post('lesson/training-schedule/{id}',    [UserController::class, 'updateTrainingSchedule']);
+    Route::post('challenge/submit/{id}',            [UserController::class, 'submitChallenge']);
     Route::delete('lesson/training-schedule/{id}',  [UserController::class, 'deleteTrainingSchedule']);
     
 });

@@ -43,7 +43,6 @@ class ChallengeService
                     ->get();
 
     $user_challenges = $this->user_external_service->getUserChallengesCounters($challenges->pluck('id')->toArray());
-
     foreach($challenges AS $challenge) {
       $challenge['user_attempts'] = $user_challenges[$challenge->id] ?? 0;
     }
@@ -67,21 +66,31 @@ class ChallengeService
   public function getChallengesById(array $challenges_id): Collection
   {
     return Challenge::whereIn('id', $challenges_id)
-                    ->select('id', 'name', 'description', 'image')
+                    ->with('video')
+                    ->select('id', 'name', 'description', 'image', 'video_id', 'status')
                     ->get();
   }
 
   /**
    * Gets the last not expired challenge
-   * @return Challenge
+   * 
+   * @param int $user_id
+   * @return ?Challenge
   */
-  public function getActiveChallenge(): Challenge
+  public function getActiveChallenge(int $user_id): ?Challenge
   {
-    return Challenge::query()
+    $challenge = Challenge::query()
                     ->where('status', StatusService::ACTIVE)
                     ->where('expired_at', '<', now())
+                    ->with('video', 'trainingOptions')
                     ->orderBy('id', 'desc')
                     ->first();
+
+    if($challenge) {
+      $challenge->progress = $this->user_external_service->getUserChallengeProgress($challenge->id, $user_id);
+    }
+
+    return $challenge;
   }
 
   /**
@@ -156,9 +165,8 @@ class ChallengeService
   */
   public function isChallengeActive(int $id): bool
   {
-    return Challenge::query()
+    return Challenge::where('id', $id)
                     ->where('status', StatusService::ACTIVE)
-                    ->where('expired_at', '<', now())
                     ->exists();
   }
   

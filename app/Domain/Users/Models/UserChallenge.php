@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserChallenge extends Model
 {
+  protected $guarded = [];
+  
   public function user()
   {
     return $this->hasOne(User::class, 'id', 'user_id');
@@ -14,13 +16,13 @@ class UserChallenge extends Model
   
   public function attempts()
   {
-    return $this->hasMany(UserChallengeAttempt::class, 'id', 'user_challenge_id');
+    return $this->hasMany(UserChallengeAttempt::class, 'user_challenge_id', 'id');
   }
   
   public function lastAttempt()
   {
-    return $this->hasOne(UserChallengeAttempt::class, 'id', 'user_challenge_id')
-                ->select('id', 'user_challenge_id', 'video', 'status', 'created_at')
-                ->orderBy('id', 'desc');
+    return $this->hasOne(UserChallengeAttempt::class, 'user_challenge_id', 'id')
+                ->orderBy('id', 'desc')
+                ->select('id', 'user_challenge_id', 'video', 'status', 'created_at');
   }
 }

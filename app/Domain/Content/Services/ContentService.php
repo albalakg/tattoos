@@ -16,10 +16,7 @@ use App\Domain\Content\Services\CourseLessonService;
 */
 class ContentService
 {
-  /**
-   * @var LogService
-  */
-  private $log_service;
+  private LogService $log_service;
 
   public function __construct()
   {
@@ -163,9 +160,9 @@ class ContentService
   
   /**
    * @param array $challenges_id
-   * @return Collection
+   * @return ?Collection
   */
-  public function getChallenges(array $challenges_id): Collection
+  public function getChallenges(array $challenges_id): ?Collection
   {
     try {
       $challenge_service = new ChallengeService();

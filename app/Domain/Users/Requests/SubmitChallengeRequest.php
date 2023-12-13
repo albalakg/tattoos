@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Domain\Content\Requests\Challenge;
+namespace App\Domain\Users\Requests;
 
 use App\Rules\IDRule;
-use App\Rules\NameRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Domain\Content\Rules\TrainingOptionValue;
 
 class SubmitChallengeRequest extends FormRequest
 {

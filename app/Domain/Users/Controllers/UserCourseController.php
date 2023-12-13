@@ -17,7 +17,9 @@ use App\Domain\Users\Requests\CreateTestCommentRequest;
 class UserCourseController extends Controller
 {  
   private UserCourseService $user_course_service;
-  
+
+  protected string $log_channel = 'userCourses';
+
   public function __construct()
   {
     $this->user_course_service = new UserCourseService(
