@@ -11,7 +11,6 @@ use App\Domain\Users\Models\UserChallengeAttempt;
 
 class SubmitChallengeService
 {
-    // Maximum attempts per user_challenge
     const MAXIMUM_ATTEMPTS = 3;
 
     private int $user_id;

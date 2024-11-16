@@ -40,6 +40,6 @@ class FirstNameRule implements Rule
      */
     public function message()
     {
-        return 'Last name is not valid';
+        return 'First name is not valid';
     }
 }
