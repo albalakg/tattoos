@@ -15,8 +15,11 @@ class EventService
     */
     public function find(int $event_id): ?array
     {
-        $files = FileService::getAllFilesInFolder('wedding');
-        
+        $files = FileService::getAllFilesInFolder('wedding', 's3');
+        if(!$files) {
+            return [];
+        }
+
         // Filter and determine type of each file
         $filteredFiles = array_map(function($file) {
             $extension = pathinfo($file, PATHINFO_EXTENSION);
