@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Http\Requests\UploadFileRequest;
+use App\Domain\Helpers\LogService;
 use App\Services\Events\EventService;
+use App\Http\Requests\UploadFileRequest;
 
 class EventController extends Controller
 {
@@ -22,10 +23,13 @@ class EventController extends Controller
     public function uploadFile(UploadFileRequest $request)
     {
         try {
+            throw new Exception('haha');
             $event_service = new EventService();
             $response = $event_service->uploadFile($request);
             return response()->json($response);
         } catch (Exception $ex) {
+            $l = new LogService('content');
+            $l->error($ex);
             return response()->json();
         }
     }
