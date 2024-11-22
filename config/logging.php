@@ -104,6 +104,14 @@ return [
             'days' => 1,
         ],
 
+        // TODO: DELETE AFTER WEDDING
+        'wedding' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/wedding/wedding.log'),
+            'level' => 'debug',
+            'days' => 1,
+        ],
+
         'videos' => [
             'driver' => 'daily',
             'path' => storage_path('logs/content/videos/videos.log'),

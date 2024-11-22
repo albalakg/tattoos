@@ -7,6 +7,7 @@ use App\Domain\Helpers\LogService;
 use App\Services\Events\EventService;
 use App\Http\Requests\UploadFileRequest;
 
+// TODO: DELETE AFTER WEDDING
 class EventController extends Controller
 {
     public function find(int $event_id)
@@ -23,12 +24,11 @@ class EventController extends Controller
     public function uploadFile(UploadFileRequest $request)
     {
         try {
-            throw new Exception('haha');
             $event_service = new EventService();
             $response = $event_service->uploadFile($request);
             return response()->json($response);
         } catch (Exception $ex) {
-            $l = new LogService('courseAreas');
+            $l = new LogService('wedding');
             $l->error($ex);
             return response()->json();
         }
