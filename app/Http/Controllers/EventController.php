@@ -28,7 +28,7 @@ class EventController extends Controller
             $response = $event_service->uploadFile($request);
             return response()->json($response);
         } catch (Exception $ex) {
-            $l = new LogService('content');
+            $l = new LogService('courseAreas');
             $l->error($ex);
             return response()->json();
         }
